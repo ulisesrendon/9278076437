@@ -1,0 +1,15 @@
+.document-upload-iframe {
+	width: 100%;
+    height: auto;
+    overflow-y: visible;
+    min-height: 200px;
+}
+
+
+#gv-fplus-checkout-shipping-documents-form.gv-fplus-checkout-shipping-documents-form .radial-progress-bar {
+	display: none!important;
+}
+
+body.path-checkout.documents #gv-fplus-checkout-shipping-documents-form .shipping-documents-container .shipping-option-data-integrants .integrant .img img {
+	width: 100%;
+}

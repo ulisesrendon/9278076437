@@ -1,0 +1,5 @@
+services:
+  monolog.processor.sales_channel_processor:
+    class: Drupal\gv_fanatics_plus_logs\SalesChannelProcessor
+    tags:
+      - { name: monolog.processor, channel: php, handler: rotating_file_php }

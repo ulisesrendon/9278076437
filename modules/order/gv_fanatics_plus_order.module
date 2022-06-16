@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+
+function gv_fanatics_plus_order_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+	
+	$existing['gv_fanatics_plus_order_history'] = [
+        'variables' => [
+          'orders' => [],
+          'defaulting' => FALSE,
+          'pages' => [],
+		  'page_show_previous' => FALSE,
+		  'page_show_next' => FALSE,
+		  'page_current' => NULL,
+		  'sales_channel' => NULL,
+		  'seasons' => NULL,
+		  'current_season' => NULL
+        ],
+    ];
+	
+	$existing['gv_fanatics_plus_order_detail'] = [
+        'variables' => [
+          'order' => [],
+          'documents' => [],
+          'order_pending_data' => NULL,
+		  'order_booking_rechargeable' => NULL,
+          'show_overdue_payments_banner' => FALSE,
+		  'show_post_payment_pending_data_banner' => FALSE,
+		  'show_post_payment_revision_banner' => FALSE,
+		  'first_overdue_payment' => NULL,
+          'notNeedsPhoto' => [],
+        ],
+    ];
+
+	$existing['gv_fanatics_plus_order_payment_failure'] = [
+        'variables' => [
+          'order' => NULL,
+          'URLTPV' => NULL,
+          'contactURL' => NULL
+        ],
+    ];
+
+	return $existing;
+}
+
+?>

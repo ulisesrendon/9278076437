@@ -1,0 +1,3 @@
+services:
+  gv_fanatics_plus_my_grandski.menu_resolver:
+    class: Drupal\gv_fanatics_plus_my_grandski\MyGrandskiMenuResolver

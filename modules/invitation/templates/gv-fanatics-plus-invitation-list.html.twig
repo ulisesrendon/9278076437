@@ -1,0 +1,58 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the invitations list page.
+ *
+ * Available variables:
+ * - invitations: An array of invitation.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="my-grandski-my-invitations">
+<div class="go-back-container">
+	<a class="go-back" href="{{path('gv_fanatics_plus_my_grandski.main_menu')}}">{{'Go back'|t}}</a>
+</div>
+<h1 class="page-title">{{'INVITATIONS.MAIN_TITLE'|gv_t}}</h1>
+<div class="description"><p>{{'INVITATIONS.DESCRIPTION'|gv_t}}</p></div>
+<div class="container-gv">
+<div class="divTable">
+<div class="divTableHeading">
+<div class="divTableHead">{{'INVITATIONS.LOCATOR'|gv_t}}</div>
+<div class="divTableHead">{{'INVITATIONS.HEADER_DESCRIPTION'|gv_t}}</div>
+<div class="divTableHead">{{'INVITATIONS.INTEGRANT'|gv_t}}</div>
+<div class="divTableHead">{{'INVITATIONS.USED'|gv_t}}</div>
+<div class="divTableHead">{{'INVITATIONS.AVAILABLE'|gv_t}}</div>
+<div class="divTableHead">{{'INVITATIONS.LOCATOR'|gv_t}}</div>
+<div class="divTableHead"></div>
+</div>
+<div class="divTableBody">
+  {% for invitation in invitations %}
+	<div class="divTableRow">
+		<div class="divTableCell"><span class="label hidden">{{'INVITATIONS.LOCATOR'|gv_t}}</span><span>{{invitation.Locator}}</span></div>
+		<div class="divTableCell"><span class="label hidden">{{'INVITATIONS.HEADER_DESCRIPTION'|gv_t}}</span><span>{{invitation.Description}}</span></div>
+		<div class="divTableCell"><span class="label hidden">{{'INVITATIONS.INTEGRANT'|gv_t}}</span><span>{{invitation.Integrants}}</span></div>
+  		<div class="divTableCell"><span class="label hidden">{{'INVITATIONS.USED'|gv_t}}</span><span>{{invitation.ConsumedInvitation}}</span></div>
+  		<div class="divTableCell"><span class="label hidden">{{'INVITATIONS.AVAILABLE'|gv_t}}</span><span>{{invitation.AvailableInvitation}}</span></div>
+  		<div class="divTableCell">
+  			<span class="label hidden">{{'INVITATIONS.LOCATOR'|gv_t}}</span>
+  			<div class="locators-wrapper" style="display: flex; flex-direction: column">
+  				{% for invitationUsage in invitation.InvitationUsage %}
+  					<span class="locator-label">{{invitationUsage.BookingLocator}}</span>
+  				{% endfor %}
+  			</div>
+  		</div>
+  		{% if invitation.AvailableInvitation > 0 %}
+  			<div class="divTableCell"><a class="btn outline use-ajax" href="{{invitation.getRedemptionConfirmationModalURL()}}">{{'INVITATIONS.USE_INVITATION'|gv_t}}</a></div>
+  		{% else %}
+  			<div class="divTableCell no"></div>
+  		{% endif %}
+  	</div>
+  {% endfor %}
+  {% if invitations is empty %}
+  	<h5 class="no-integrants">{{'INVITATIONS.NO_RESULTS'|gv_t}}</h5>
+  {% endif %}
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Logs Module
+description: Logging module for the GV Fanatics / Plus project.
+package: GV FPLUS
+
+type: module
+core: 8.x

@@ -1,0 +1,16 @@
+services:
+
+  gv_fanatics_plus_order.order:
+    class: Drupal\gv_fanatics_plus_order\Order
+  
+  gv_fanatics_plus_order.order_history:
+    class: Drupal\gv_fanatics_plus_order\OrderHistory
+
+  gv_fanatics_plus_order.documents:
+    class: Drupal\gv_fanatics_plus_order\Documents
+
+  gv_fanatics_plus_order.documentation:
+    class: Drupal\gv_fanatics_plus_order\Documentation
+
+  gv_fanatics_plus_order.order_pending_data:
+    class: Drupal\gv_fanatics_plus_order\OrderPendingData

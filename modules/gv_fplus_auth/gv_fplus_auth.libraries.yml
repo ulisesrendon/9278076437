@@ -1,0 +1,157 @@
+
+cropper-js:
+  version: 1.x
+  css:
+    state:
+      css/cropper.min.css: {}
+  js:
+    js/cropper.js: {}
+    js/jquery-cropper.js: {}
+  dependencies:
+    - core/jquery
+
+webcam-easy:
+  version: 1.x
+  header: true
+  js:
+    js/webcam-easy.min.js: {}
+  dependencies:
+    - core/jquery
+
+profile-underage-notice:
+  version: 1.x
+  header: true
+  js:
+    js/profile-underage-notice.js: {}
+  dependencies:
+    - core/jquery
+
+fanatics-plus-webcam:
+  version: 1.x
+  css:
+      state:
+        css/fanatics-plus-webcam.css: {}
+  js:
+    js/fanatics-plus-webcam.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus_auth/cropper-js
+    - gv_fplus_auth/webcam-easy
+
+personal-data-form-js:
+  version: 1.x
+  css:
+      state:
+        css/personal-data-form.css: {}
+  js:
+    js/personal-data-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/fanatics-plus-webcam
+    - gv_fplus_auth/profile-underage-notice
+    - gv_fanatics_plus_checkout/change_product_ajax_commands
+
+intl-tel-input:
+  version: 1.x
+  css:
+      state:
+        css/deps/intl-tel-input/css/intlTelInput.min.css: {}
+  js:
+    js/deps/intl-tel-input/intlTelInput.min.js: {}
+    js/deps/intl-tel-input/intlTelInput-jquery.min.js: {}
+  dependencies:
+    - core/jquery
+
+email-check-form:
+  version: 1.x
+  js:
+    js/email-check-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+
+hide-show-password:
+  version: 1.x
+  js:
+    js/deps/hideShowPassword.js: {}
+  dependencies:
+    - core/jquery
+
+jquery-strengthify:
+  version: 1.x
+  css:
+    state:
+      css/deps/strengthify.css: {}
+  js:
+    js/deps/jquery.strengthify.js: {}
+  dependencies:
+    - core/jquery
+
+login-form:
+  version: 1.x
+  js:
+    js/login-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/hide-show-password
+
+basic-register-form:
+  version: 1.x
+  css:
+    state:
+      css/basic-register-form.css: {}
+  js:
+    js/basic-register-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/hide-show-password
+    - gv_fplus_auth/jquery-strengthify
+
+remember-password-form:
+  version: 1.x
+  css:
+    state:
+      css/remember-password-form.css: {}
+  js:
+    js/remember-password-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+
+reset-password-form:
+  version: 1.x
+  css:
+    state:
+      css/reset-password-form.css: {}
+  js:
+    js/reset-password-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/hide-show-password
+    - gv_fplus_auth/jquery-strengthify
+
+profile-change-password-form:
+  version: 1.x
+  js:
+    js/profile-change-password.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/hide-show-password
+    - gv_fplus_auth/jquery-strengthify
+
+residence-data-form:
+  version: 1.x
+  css:
+      state:
+        css/residence-data-form.css: {}
+  js:
+    js/residence-data-form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+    - gv_fplus_auth/intl-tel-input

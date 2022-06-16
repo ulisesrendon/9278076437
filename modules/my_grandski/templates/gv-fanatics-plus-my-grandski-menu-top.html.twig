@@ -1,0 +1,20 @@
+{# Get menu items #}
+{% set menud = drupal_menu(main_menu) %}
+
+<div class="menu-fanatics">
+    <div class="menu-container">
+        {# Iterate menu tree #}
+        <nav class="navigation__items">
+          <li class="navigation__item home">
+          	<a href="{{ url('<front>') }}"><div class="icon-home"></div></a>
+          </li>
+          {% for menu_item_d in menud['#items'] %}
+          	{% if menu_item_d['original_link'].getPluginId != 'menu_link_content:c5ed5f74-9935-4b3b-8dce-934f8f10770b' and loop.index0 != 0 %}
+            <li class="navigation__item {{ menu_item_d['in_active_trail'] ? 'active' }} {{ menu_item_d['original_link'].getOptions['attributes']['class'] }}">
+              <a href="{{menu_item_d['original_link'].getUrlObject.toString }}"><div>{{ menu_item_d['original_link'].getTitle }}</div></a>
+            </li>
+            {% endif %}
+          {% endfor %}
+    	</nav>
+    </div>
+</div>

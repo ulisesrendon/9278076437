@@ -1,0 +1,64 @@
+#gv-fanatics-plus-checkout-select-payment-method .title-container h1 {
+	font-family: Josefin Sans;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 24px;
+	line-height: 32px;
+}
+
+#gv-fanatics-plus-checkout-select-payment-method .title-container h1:after {
+	display: none;
+}
+
+.payment-container #edit-payment-method {
+	display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+}
+
+#edit-payment-method .form-item-payment-method {
+	padding-left: 0;
+}
+
+#edit-payment-method .form-item-payment-method input {
+    display: none;
+}
+
+#edit-payment-method .form-item-payment-method label:before {
+	display: none;
+}
+
+#edit-payment-method .form-item-payment-method label {
+	padding-left: 0;
+    background-color: white;
+    display: inline-block;
+    border-radius: 0;
+    border: 1px solid #9FA9B7;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #9FA9B7;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-left: 15px;
+    margin-right: 15px;
+    font-weight: 500;
+}
+
+#edit-payment-method .form-item-payment-method input:checked + label {
+    color: white;
+    border-color: #0082A9;
+    background: #0082A9;
+}
+
+#gv-fanatics-plus-checkout-select-payment-method #edit-submit {
+	white-space: pre;
+	text-transform: none!important;
+}
+
+.payment-method-descriptors {
+	margin-top: 35px;
+	margin-left: 15px;
+}

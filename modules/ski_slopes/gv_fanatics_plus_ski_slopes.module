@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function gv_fanatics_plus_ski_slopes_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+	
+	$existing['gv_fanatics_plus_ski_slopes_history'] = [
+        'variables' => [
+        	'ski_slopes_data' => [],
+        	'seasons' => [],
+        	'is_integrant' => FALSE,
+        	'integrant' => NULL,
+        	'default_query_params' => NULL
+        ],
+    ];
+
+	$existing['gv_fanatics_plus_ski_slopes_detail'] = [
+        'variables' => [
+            'ski_slopes_data' => [],
+        	'seasons' => [],
+        	'days' => [],
+        	'graph_labels' => [],
+        	'graph_data' => [],
+        	'total_slope' => 0,
+        	'current_day_label' => '',
+        	'is_integrant' => FALSE,
+        	'integrant' => NULL,
+        ],
+    ];
+
+	return $existing;
+}
+
+?>

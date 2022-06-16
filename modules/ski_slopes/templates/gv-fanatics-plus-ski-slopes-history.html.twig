@@ -1,0 +1,69 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the order history page.
+ *
+ * Available variables:
+ * - ski_slopes_data: An array of ski slope data.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if is_integrant == true %}
+<div class="my-grandski-ski-slopes-history is-integrant">
+<div class="go-back-container integrants">
+	<a class="go-back" href="{{path('gv_fanatics_plus_checkout.integrant_list')}}">{{'SKI_SLOPES_HISTORY.GO_BACK_INTEGRANT_LIST_LABEL'|gv_t}}</a>
+</div>
+<h1 class="page-title">{{'SKI_SLOPES_HISTORY.INTEGRANT_MAIN_TITLE'|gv_t({'@name': integrant.Name})}}</h1>
+{% else %}
+<div class="my-grandski-ski-slopes-history">
+<h1 class="page-title">{{'SKI_SLOPES_HISTORY.MAIN_TITLE'|gv_t}}</h1>
+{% endif %}
+<div class="description"><p>{{'SKI_SLOPES_HISTORY.DESCRIPTION'|gv_t}}</p></div>
+<div class="container-gv">
+{% if seasons is not empty %}
+	<div class="season-select-container">
+		<label for="season">{{'SKI_SLOPES_HISTORY.SELECT_SEASON_LABEL'|gv_t}}</label>
+		<select name="season">
+    		{% for key,val in seasons %}
+        		<option value="{{ val.label }}" data-url={{val.url}} {{ val.active == true ? ' selected ' : '' }}>{{ val.label }}</option>
+    		{% endfor %}
+		</select>
+	</div>
+{% endif %}
+<div class="divTable">
+{% if ski_slopes_data is not empty %}
+<div class="divTableHeading">
+<div class="divTableHead">{{'SKI_SLOPES_HISTORY.DATE'|gv_t}}</div>
+<div class="divTableHead">{{'SKI_SLOPES_HISTORY.TOTAL_SLOPE'|gv_t}}</div>
+<div class="divTableHead">&nbsp;</div>
+</div>
+{% endif %}
+<div class="divTableBody">
+  {% for data in ski_slopes_data %}
+	<div class="divTableRow">
+		<div class="divTableCell date">
+			<div class="label hidden">{{'SKI_SLOPES_HISTORY.DATE'|gv_t}}</div>
+			<div class="date">{{data.getDay(true)}}</div>
+		</div>
+		<div class="divTableCell total-slope">
+			<div class="label hidden">{{'SKI_SLOPES_HISTORY.TOTAL_SLOPE'|gv_t}}</div>
+			<div class="info-wrapper">{{data.getTotalSlope()}}</div>
+		</div>
+		<div class="divTableCell">
+			<a class="btn arrow-right" href="{{data.getDetailsURL(default_query_params)}}">
+				<svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<rect width="34" height="34" rx="17" fill="#EDF9FC"/>
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M20.9113 16.0624L15.8825 11.0336L17.2081 9.70801L24.5 16.9999L17.2081 24.2918L15.8825 22.9661L20.9113 17.9374H9.5V16.0624H20.9113Z" fill="#45B9DD"/>
+				</svg>
+			</a>
+		</div>
+	</div>
+  {% endfor %}
+  {% if ski_slopes_data is empty %}
+  	<h5 class="no-slopes">{{'SKI_DATA_HISTORY.NO_RESULTS'|gv_t}}</h5>
+  {% endif %}
+</div>
+</div>
+</div>
+</div>

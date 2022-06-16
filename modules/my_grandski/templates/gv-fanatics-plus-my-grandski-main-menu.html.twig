@@ -1,0 +1,30 @@
+{# Get menu items #}
+{% set menud = drupal_menu(main_menu) %}
+
+<div class="container-gv menu-my-grandski">
+    <div class="title-contains">
+    	<div class="title">
+    		<h1>
+    			{{ "MY_GRANDSKI.MAIN_TITLE"|gv_t }}
+    		</h1>
+    	</div>
+    	<div class="description">
+    		{{ "MY_GRANDSKI.DESCRIPTION" | gv_t({'@username': gv_fplus_name}) }}
+    	</div>
+    </div>
+    <div class="menu-container">
+        {# Iterate menu tree #}
+        <nav class="navigation__items">
+          {% for menu_item_d in menud['#items'] %}
+            <li class="navigation__item {{ menu_item_d['original_link'].getOptions['attributes']['class'] }}">
+              <a href="{{menu_item_d['original_link'].getUrlObject.toString }}"><div>{{ menu_item_d['original_link'].getTitle }}</div></a>
+            </li>
+          {% endfor %}
+    	</nav>
+    	<div class="logout-link">
+    		<a href="{{url('gv_fplus_auth.logout')}}" rel="nofollow">
+				<div>{{'Logout'|trans}}</div>
+			</a>
+    	</div>
+    </div>
+</div>

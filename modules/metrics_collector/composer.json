@@ -1,0 +1,13 @@
+{
+    "name": "grandvalira/gv_fanatics_plus_metrics_collector",
+    "type": "drupal-module",
+    "require": {
+        "promphp/prometheus_client_php": "^2.1"
+    },
+    "authors": [
+        {
+            "name": "Bitanube",
+            "email": "desarrollo@bitanube.com"
+        }
+    ]
+}

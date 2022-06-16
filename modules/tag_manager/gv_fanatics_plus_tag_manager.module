@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * Añade el código GTM configurado en el canal de venta activo
+ */
+function gv_fanatics_plus_tag_manager_page_attachments(&$page) {
+	
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	if ($activeChannel == NULL) {
+		return;
+	}
+	
+	$gtmCode = $activeChannel->getGTMCode();
+	if ($gtmCode == NULL || strlen($gtmCode) <= 0) {
+		return;
+	}
+	
+	$javascript_header = "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','" . $gtmCode . "');";
+
+	$page['#attached']['html_head'][] = [
+		[
+			// Add a <script> tag.
+			'#tag' => 'script',
+			// Add JavaScript to the <script> tag.
+			'#value' => \Drupal\Core\Render\Markup::create($javascript_header),
+			// Give weight so it appears after meta tags, etc.
+			'#weight' => -1, 
+		],
+		// A key, to make it possible to recognize this HTML <HEAD> element when altering.
+		'gv_fanatics_plus_tag_manager_head'
+	];
+}
+
+/**
+ * Sobreescribe metatags para página de contacto y formulario inicial de autenticación (EmailCheckForm)
+ */
+function gv_fanatics_plus_tag_manager_preprocess_html(&$variables) {
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	if ($activeChannel == NULL) {
+		return;
+	}
+	
+	$routeName = \Drupal::routeMatch()->getRouteName();
+	$isFanatics = $activeChannel->isFanatics();
+	$isPlus = $activeChannel->isPlus();
+	$isTemporadaOA = $activeChannel->isTemporadaOA();
+	
+	$node = \Drupal::routeMatch()->getParameter('node');
+	if ($node instanceof \Drupal\node\NodeInterface) {
+	  	if (isset($node)) {
+	  		$nid = $node->id();
+			if ($nid == '41') { // contact page
+				if ($isFanatics) {
+					$description = [
+          				'#tag' => 'meta',             // Set meta for element
+          				'#attributes' => [            // Set attributes for meta
+            				'name' => 'description',
+            				'content' => t('If you have any questions, we will be glad to answer them. Enter now to contact Grandvalira.'),
+          				],
+        			];
+			
+					$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+				} else if ($isPlus) {
+					$description = [
+          				'#tag' => 'meta',             // Set meta for element
+          				'#attributes' => [            // Set attributes for meta
+            				'name' => 'description',
+            				'content' => t('If you have any questions, we will be glad to answer them. Enter now to contact Grandvalira.'),
+          				],
+        			];
+			
+					$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+				} else if ($isTemporadaOA) {
+					$description = [
+          				'#tag' => 'meta',             // Set meta for element
+          				'#attributes' => [            // Set attributes for meta
+            				'name' => 'description',
+            				'content' => t('If you have any questions, we will be glad to answer them. Enter now to contact Ordino Arcalís.'),
+          				],
+        			];
+			
+					$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+				}
+			}
+	  	}
+	}
+	
+	if ($routeName == 'gv_fplus_auth.email_check_form') {
+		if ($isFanatics) {
+			$variables['head_title']['title'] = t('Grandvalira Fanatics - Season Ski Pass');
+			$description = [
+          		'#tag' => 'meta',             // Set meta for element
+          		'#attributes' => [            // Set attributes for meta
+            		'name' => 'description',
+            		'content' => t('Welcome to Grandvalira Fanatics, the site to manage your season ski pass in Grandvalira. Don\'t wait any longer and sign up.'),
+          		],
+        	];
+			
+			$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+		} else if ($isPlus) {
+			$variables['head_title']['title'] = t('Forfait Plus+ Grandvalira');
+			$description = [
+          		'#tag' => 'meta',             // Set meta for element
+          		'#attributes' => [            // Set attributes for meta
+            		'name' => 'description',
+            		'content' => t('Skiing in Grandvalira will be cheaper with the Ski Pass Plus+. You can also ski in Ordino Arcalís. Sign up now.'),
+          		],
+        	];
+			
+			$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+		} else if ($isTemporadaOA) {
+			$description = [
+          		'#tag' => 'meta',             // Set meta for element
+          		'#attributes' => [            // Set attributes for meta
+            		'name' => 'description',
+            		'content' => t('Welcome to Temporada Ordino Arcalís, the site to manage your season ski pass in Ordino Arcalís. Don\'t wait any longer and sign up.'),
+          		],
+        	];
+			
+			$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+		}
+	}
+	
+	$gtmCode = $activeChannel->getGTMCode();
+	if ($gtmCode == NULL || strlen($gtmCode) <= 0) {
+		return;
+	}
+	
+	$variables['gv_fanatics_plus_tag_manager_script'] = '<!-- Google Tag Manager (noscript) -->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtmCode . '"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->';
+}
+
+/**
+ * Modifica el título de página de acuerdo con el canal de venta activo.
+ */
+function gv_fanatics_plus_tag_manager_preprocess_page_title(&$variables) {
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	if ($activeChannel == NULL) {
+		return;
+	}
+	
+	$routeName = \Drupal::routeMatch()->getRouteName();
+	$isFanatics = $activeChannel->isFanatics();
+	$isPlus = $activeChannel->isPlus();
+	$isTemporadaOA = $activeChannel->isTemporadaOA();
+	if ($routeName == 'gv_fplus_auth.email_check_form') {
+		if ($isFanatics) {
+			$variables['title'] = t('Grandvalira Fanatics - Season Ski Pass');
+		} else if ($isPlus) {
+			$variables['title'] = t('Forfait Plus+ Grandvalira');
+		}	
+	}
+}
+
+?>

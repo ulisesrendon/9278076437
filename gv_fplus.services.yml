@@ -1,0 +1,12 @@
+services:
+    gv_fplus.session:
+      class: Drupal\gv_fplus\Session\Session
+
+    gv_fplus.language_resolver:
+      class: Drupal\gv_fplus\LanguageResolver\LanguageResolver
+
+    gv_fplus.channel_resolver:
+      class: Drupal\gv_fplus\ChannelResolver\DomainAccessChannelResolver
+
+    gv_fplus.currency_resolver:
+      class: Drupal\gv_fplus\CurrencyResolver\CurrencyResolver

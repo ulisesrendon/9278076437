@@ -1,0 +1,6 @@
+name: GV FPLUS Auth Module
+description: Authentication module for the GV FPLUS project.
+package: GV FPLUS
+
+type: module
+core: 8.x

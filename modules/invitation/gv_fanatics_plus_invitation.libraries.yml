@@ -1,0 +1,16 @@
+invitation_list:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_invitation.invitation_list.css: {}
+  js:
+    js/gv_fanatics_plus_invitation.invitation_list.js: {}
+  dependencies:
+    - core/jquery
+
+invitation_list_modal:
+  version: VERSION
+  js:
+    js/use_invitation_modal_form.js: {}
+  dependencies:
+    - core/jquery

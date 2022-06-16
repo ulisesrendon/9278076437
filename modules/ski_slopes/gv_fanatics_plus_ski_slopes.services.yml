@@ -1,0 +1,4 @@
+services:
+  gv_fanatics_plus_ski_slopes.ski_slopes:
+    class: Drupal\gv_fanatics_plus_ski_slopes\SkiSlopes
+

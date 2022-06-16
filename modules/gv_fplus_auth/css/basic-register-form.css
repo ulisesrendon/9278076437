@@ -1,0 +1,18 @@
+#gv-fplus-auth-basic-register-form #edit-submit {
+	text-align: center;
+    float: none;
+    margin: 0 auto;
+    margin-top: 35px;
+}
+
+#gv-fplus-auth-basic-register-form .form-group {
+	border: none!important;
+}
+
+#gv-fplus-auth-basic-register-form #fplus-current-email-container {
+	text-align: center;
+}
+
+#gv-fplus-auth-basic-register-form #fplus-current-email-container .change-email-btn {
+	display: block;
+}

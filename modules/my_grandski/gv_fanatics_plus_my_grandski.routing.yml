@@ -1,0 +1,12 @@
+
+gv_fanatics_plus_my_grandski.main_menu:
+  path: '/my-grandski'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_my_grandski\Controller\MainMenuController::display'
+    _title: 'MyGrandski'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_main_menu'
+    gv_metrics_collector_step: ''

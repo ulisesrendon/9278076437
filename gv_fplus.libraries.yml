@@ -1,0 +1,9 @@
+ladda-js:
+  version: 1.x
+  css:
+      state:
+        css/deps/ladda/ladda-themeless.min.css: {}
+        css/deps/ladda/ladda-customizations.css: {}
+  js:
+    js/deps/ladda/spin.min.js: {}
+    js/deps/ladda/ladda.min.js: {}

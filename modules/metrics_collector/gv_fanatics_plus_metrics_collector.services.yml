@@ -1,0 +1,8 @@
+services:
+    gv_fanatics_plus_metrics_collector.metrics_collector:
+      class: Drupal\gv_fanatics_plus_metrics_collector\MetricsCollectorService
+
+    gv_fanatics_plus_metrics_collector.metrics_subscriber:
+      class: Drupal\gv_fanatics_plus_metrics_collector\EventSubscriber\MetricsCollectorSubscriber
+      tags:
+        - {name: event_subscriber}

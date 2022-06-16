@@ -1,0 +1,201 @@
+.title-container {
+	padding-left: 25px;
+    padding-right: 25px;
+}
+
+.title-container .radial-progress-bar {
+	display: inline-block;
+}
+
+.title-container h1 {
+	display: inline-block;
+    margin-left: 15px;
+    font-size: 24px;
+    text-transform: none;
+}
+
+.title-container h1:after {
+	display: none;
+}
+
+.image-preview {
+	border-radius: 5px;
+}
+
+textarea.hidden {
+	display: none !important;
+}
+
+.image-preview-container {
+	position: relative;
+	display: inline-block;
+	margin-top: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.edit-image-btn {
+	position: absolute;
+	top: -15px;
+	right: -15px;
+	background-color: #0079C0;
+	border: 2px solid white;
+	border-radius: 100%;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.edit-image-btn img {
+	width: 22px;
+	height: 22px;
+}
+
+.form-control-separator {
+	color: white;
+	text-align: center;
+	display: block;
+	margin-top: 25px;
+	margin-bottom: 25px;
+}
+
+.form-control.filepicker-start {
+	background-color: transparent;
+	border: none;
+	text-align: center;
+}
+
+.filepicker-start {
+	text-align: center;
+}
+
+#input-image-filepicker {
+}
+
+.form-item-image, .form-item-image-base64 {
+	padding: 0;
+	border: none !important;
+}
+
+#edit-actions #edit-submit {
+	float: right;
+}
+
+#download-photo {
+	display: none !important;
+}
+
+fieldset.form-group {
+	border: none !important;
+}
+
+#gv-fplus-auth-personal-data-form {
+	padding-top: 25px;
+	padding-bottom: 35px;
+}
+
+.webcam-overlay-cancel {
+	text-align: center;
+	margin-top: 25px;
+}
+
+.webcam-overlay-cancel a {
+	color: white;
+	font-size: 18px;
+	text-decoration: underline;
+}
+
+.webcam-overlay-cancel a:hover {
+	color: white;
+}
+
+#validate-photo img,
+#finish-crop img {
+	background-color: green;
+    border-radius: 100%;
+}
+
+#exit-app img {
+	background-color: red;
+    border-radius: 100%;
+}
+
+.panel.warning.image-expired {
+	padding-top: 10px;
+    padding-bottom: 5px;
+    margin-top: 15px;
+    margin-left: 30px;
+}
+
+#gv-fplus-auth-personal-data-form .js-form-item-integrant-email.form-item-integrant-email,
+#gv-fplus-auth-personal-data-form #integrant-email-notice-container {
+	display: none;
+}
+
+body.path-checkout.checkout-without-sidebar form#gv-fplus-auth-personal-data-form fieldset.form-item-phone-number {
+	padding-top: 8px;
+}
+
+/* RG: Unificación pasos */
+#edit-actions {
+	margin-top: 50px;
+	width: 100%;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+#edit-submit {
+	float: right;
+}
+
+fieldset.form-group {
+	border: none!important;
+}
+
+.description.error {
+	color: #E63946!important;
+}
+
+.description.success {
+	color: green!important;
+}
+
+.form-item-full-phone-number {
+	display: none;
+}
+
+.title-container {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.title-container .radial-progress-bar {
+	display: inline-block;
+}
+
+.title-container h1 {
+	display: inline-block;
+	margin-left: 15px;
+	font-size: 24px;
+	text-transform: none;
+}
+
+.title-container h1:after {
+	display: none;
+}
+
+.js-form-item-newsletter {
+	margin-top: 15px;
+}
+
+.js-form-item-newsletter,
+.js-form-item-legal-consent {
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+input#edit-phone-number::placeholder,
+input#edit-phone-number::-webkit-input-placeholder,
+input#edit-phone-number::-moz-placeholder,
+input#edit-phone-number::-ms-input-placeholder {
+	color: lightgray;
+}

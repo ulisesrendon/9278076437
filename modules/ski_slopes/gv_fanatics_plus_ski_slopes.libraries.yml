@@ -1,0 +1,30 @@
+chart-js:
+  version: VERSION
+  css:
+    theme:
+      css/deps/Chart.js/Chart.min.css: {}
+  js:
+    js/deps/Chart.js/Chart.bundle.min.js: {}
+  dependencies:
+    - core/jquery
+
+history:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_ski_slopes.history.css: {}
+  js:
+    js/gv_fanatics_plus_ski_slopes.history.js: {}
+  dependencies:
+    - core/jquery
+
+detail:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_ski_slopes.detail.css: {}
+  js:
+    js/gv_fanatics_plus_ski_slopes.detail.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fanatics_plus_ski_slopes/chart-js

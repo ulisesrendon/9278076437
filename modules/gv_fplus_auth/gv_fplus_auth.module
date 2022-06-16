@@ -1,0 +1,50 @@
+<?php
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Preprocesa la página para añadir varias variables al procesador de páginas.
+ */
+function gv_fplus_auth_preprocess_page(&$variables) {
+	$activeChannel = \Drupal::service('gv_fplus.channel_resolver')->resolve();
+	if (!isset($activeChannel)) {
+		return;
+	}
+	
+	$session = \Drupal::service('gv_fplus.session');
+	$isActiveAndLogged = $session -> isActiveAndLogged();
+	
+	$variables['gv_fplus_logged_in'] = $isActiveAndLogged;
+	
+	if($isActiveAndLogged){
+	   $variables['gv_fplus_name'] = $session -> getClientName();
+	}
+	else{
+	   $variables['gv_fplus_name'] = "Name";
+	}
+	
+	$cart = \Drupal::service('gv_fanatics_plus_cart.cart');
+	$hasBookingServices = $cart->hasBookingServices();
+	$variables['gv_fplus_has_booking_services'] = $hasBookingServices;
+	
+	$isFanatics = $activeChannel->isFanatics();
+	$isPlus = $activeChannel->isPlus();
+	$isTemporadaOA = $activeChannel->isTemporadaOA();
+	
+	$variables['gv_fplus_is_fanatics'] = $isFanatics;
+	$variables['gv_fplus_is_plus'] = $isPlus;
+	$variables['gv_fplus_is_temporada_oa'] = $isTemporadaOA;
+}
+
+/**
+ * Remueve la caché para la página home
+ */
+function gv_fplus_auth_node_view(array &$build, NodeInterface $node, $display, $view_mode) {
+  if ($node->getType() == 'pagina_libre' && $view_mode == 'full') {
+	if ($node->id() == '40') { // home for fanatics
+		$build['#cache']['max-age'] = 0;
+	}
+  }
+}
+
+?>

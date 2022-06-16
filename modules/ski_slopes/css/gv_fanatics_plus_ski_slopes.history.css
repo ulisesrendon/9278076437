@@ -1,0 +1,27 @@
+
+.season-select-container {
+	text-align: center;
+	margin-top: 50px;
+}
+
+.season-select-container label {
+	font-family: Josefin Sans;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 14px;
+	line-height: 18px;
+
+	letter-spacing: 1px;
+}
+
+select[name="season"] {
+	max-width: 250px;
+	display: block;
+	margin: 0 auto;
+}
+
+.no-slopes {
+	text-align: center;
+    display: block;
+    width: 100%;
+}

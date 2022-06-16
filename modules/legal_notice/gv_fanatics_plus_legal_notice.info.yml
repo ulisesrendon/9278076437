@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Legal Notice Module
+description: Module that handles external legal notices for the Grandvalira Resorts properties.
+package: GV FPLUS
+
+type: module
+core: 8.x

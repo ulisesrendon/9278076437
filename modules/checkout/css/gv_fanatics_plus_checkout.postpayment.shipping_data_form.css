@@ -1,0 +1,11 @@
+.shipping-data-container {
+	display: flex;
+}
+
+#shipping-method-selector {
+	width: 20%;
+}
+
+#shipping-method-data {
+	width: 80%;
+}

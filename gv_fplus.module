@@ -1,0 +1,28 @@
+<?php
+
+function gv_fplus_form_alter() {
+	/*$session = \Drupal::service('gv_fplus.session');
+	$session->start();
+	ksm($session->isActive());
+	ksm($session->isActiveAndLogged());
+	ksm($session->login('Test', '123'));*/
+}
+
+/**
+ * Implements hook_html_head_alter().
+ * Remueve favicon actual, añade uno nuevo.
+ */
+ function gv_fplus_html_head_alter(&$head_elements) {
+   global $base_url;
+   $default_favicon_element = 'drupal_add_html_head_link:shortcut icon:' . $base_url . '/misc/favicon.ico';
+   unset($head_elements[$default_favicon_element]);
+
+  // Specify new favicon location
+  $element = array(
+    'rel' => 'shortcut icon',
+    'href' => '/misc/favicon.ico',
+  );
+  drupal_add_html_head_link($element);
+ }
+
+?>

@@ -1,0 +1,15 @@
+#edit-delete-product {
+	display: none;
+}
+
+.form-item-product-id {
+	display: none;
+}
+
+.gv-fanatics-plus-cart-block-form #edit-load-form {
+	display: none;
+}
+
+.gv-fanatics-plus-cart-block-form .js-form-item-referral.form-item-referral {
+	display: none;
+}

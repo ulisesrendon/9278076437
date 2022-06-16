@@ -1,0 +1,9 @@
+services:
+  gv_fanatics_plus_cart.cart:
+    class: Drupal\gv_fanatics_plus_cart\Cart
+
+  gv_fanatics_plus_cart.cart_subscriber:
+    class: Drupal\gv_fanatics_plus_cart\EventSubscriber\CartEventSubscriber
+    arguments: ['@messenger', '@string_translation']
+    tags:
+      - { name: event_subscriber }

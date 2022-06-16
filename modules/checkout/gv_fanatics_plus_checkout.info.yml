@@ -1,0 +1,7 @@
+name: GV Fanatics Plus Checkout Module
+description: Checkout module for the GV Fanatics / Plus project.
+package: GV FPLUS
+dependencies:
+  - block
+type: module
+core: 8.x

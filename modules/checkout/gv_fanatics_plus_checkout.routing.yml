@@ -1,0 +1,288 @@
+gv_fanatics_plus_checkout.test:
+  path: '/my-grandski/test-checkout'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\TestController::test'
+    _title: 'Test Checkout API'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout_test'
+    gv_metrics_collector_step: 'step_01'
+    gv_metrics_collector_action: 'testing'
+
+gv_fanatics_plus_checkout.form:
+  path: '/checkout/{step}'
+  defaults:
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\CheckoutController::formPage'
+    _title: 'Checkout'
+    step: null
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    
+gv_fanatics_plus_checkout.change_product_modal:
+  path: '/checkout/modals/change-product-modal/{searchid}/{productcode}/{productId}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\ChangeProductModalController::openModalForm'
+    searchid: null
+    productcode: null
+    productId: null
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'change_product'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.add_insurance_modal:
+  path: '/checkout/modals/add-insurance-modal/{productid}/{insuranceid}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\AddInsuranceModalController::openModalForm'
+    productid: null
+    insuranceid: null
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'add_insurance'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.member_get_member_modal:
+  path: '/checkout/modals/member-get-member-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\MemberGetMemberModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'member_get_member_instructions'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.post_payment_shipping_method_modal:
+  path: '/checkout/modals/post-payment-shipping-method'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\PostPaymentShippingMethodModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'shipping_methods'
+    gv_metrics_collector_action: 'shipping_methods_instructions'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.close_off_canvas_dialog:
+  path: '/checkout/modals/off-canvas-modal/close'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\CloseOffCanvasModalController::close'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.close_dialog:
+  path: '/checkout/modals/default-modal/close'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\CloseModalController::close'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.add_integrant_products_reminder:
+  path: '/checkout/modals/add-integrant-products-reminder-modal/add-reminder'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\AddIntegrantProductsReminderModalController::addReminder'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'integrants_products_reminder'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.add_insurance_modal_form:
+  path: '/ajax/add-insurance-form/{productid}/{insuranceid}'
+  defaults:
+    _title: 'Modal Form'
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\AddInsuranceModalForm'
+    productid: null
+    insuranceid: null
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'add_insurance'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.remove_insurance:
+  path: '/checkout/ajax-actions/remove-insurance/{productid}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\RemoveInsuranceController::removeInsurance'
+    productid: null
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'remove_insurance'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.remove_booking_service:
+  path: '/checkout/ajax-actions/remove-booking-service/{productid}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\RemoveBookingServiceController::removeBookingService'
+    productid: null
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'checkout'
+    gv_metrics_collector_step: 'select_products'
+    gv_metrics_collector_action: 'remove_booking_service'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.integrant_list:
+  path: '/my-grandski/my-integrants'
+  defaults:
+    _title: 'My integrants'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\IntegrantListController::integrantList'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_integrants'
+    gv_metrics_collector_action: 'list_members'
+
+gv_fanatics_plus_checkout.remove_integrant:
+  path: '/my-grandski/my-integrants/{integrantID}/remove'
+  defaults:
+    _title: 'My integrants'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\RemoveIntegrantController::removeIntegrant'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_integrants'
+    gv_metrics_collector_action: 'remove_integrant'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_checkout.post_payment:
+  path: '/my-grandski/past-orders/{orderID}/post-payment'
+  defaults:
+    _title: 'Checkout'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\PostPaymentController::resolveFirstStep'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'start'
+
+gv_fanatics_plus_checkout.post_payment_alias:
+  path: '/my-grandski/past-orders/{bookingLocator}/post-payment/locator'
+  defaults:
+    _title: 'Checkout'
+    _controller: '\Drupal\gv_fanatics_plus_checkout\Controller\PostPaymentController::resolveFromBookingLocator'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'start'
+
+gv_fanatics_plus_checkout.post_payment_logalty:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/logalty'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\LogaltyForm'
+    _title: 'Logalty'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_logalty_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'logalty'
+
+gv_fanatics_plus_checkout.post_payment_shipping_method:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/shipping-method'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingMethodSelectForm'
+    _title: 'Shipping methods'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_shipping_method_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'shipping_methods'
+
+gv_fanatics_plus_checkout.post_payment_documents:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/documents'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV2'
+    _title: 'Documents'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_documents_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'shipping_documents'
+
+gv_fanatics_plus_checkout.post_payment_documents_v2:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/documents-v2'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsForm'
+    _title: 'Documents'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_documents_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'shipping_documents'
+
+gv_fanatics_plus_checkout.post_payment_shipping_data:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/shipping-data'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDataForm'
+    _title: 'Shipping data'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_shipping_data_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'shipping_data'
+
+gv_fanatics_plus_checkout.post_payment_shipping_data_complete:
+  path: '/my-grandski/past-orders/{orderID}/post-payment/complete'
+  defaults:
+    _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDataCompleteForm'
+    _title: 'Post payment complete'
+  requirements:
+    _post_payment_access_check: 'TRUE'
+    _post_payment_complete_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'post_payment'
+    gv_metrics_collector_step: 'complete'

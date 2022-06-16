@@ -1,0 +1,67 @@
+.form-item-theme .select2-container {
+	width: 100%!important;
+}
+
+.add-product-btn .added-label {
+	display: none;
+}
+
+.add-product-btn.selected .to-add-label {
+	display: none;
+}
+
+.add-product-btn.selected .added-label {
+	display: inline;
+}
+
+.btn.add-product-btn.selected {
+	color: white;
+	cursor: pointer;
+}
+
+.btn.add-product-btn.selected:before {
+    background: rgba(101, 202, 234, 0.7) none repeat scroll 0 0;
+    border-radius: 20px;
+    bottom: 0;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    -o-transform: scaleX(1);
+    transform: scaleX(1);
+    -ms-transform: scaleX(1);
+    -webkit-transform: scaleX(1);
+    -o-transform-origin: 0 50% 0;
+    transform-origin: 0 50% 0;
+    -ms-transform-origin: 0 50% 0;
+    -webkit-transform-origin: 0 50% 0;
+    -o-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+    -ms-transition-duration: 0.5s;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-property: -webkit-transform;
+    transition-property: -webkit-transform;
+    -o-transition-property: -o-transform;
+    transition-property: transform;
+    transition-property: transform, -webkit-transform, -o-transform;
+    -ms-transition-property: transform;
+    -webkit-transition-property: transform;
+    -o-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+    -ms-transition-timing-function: ease-out;
+    -webkit-transition-timing-function: ease-out;
+    z-index: -1;
+}
+
+.gv-fanatics-plus-checkout-select-product #edit-open-modal {
+	display: none;
+}
+
+.helper-transparent {
+	background-color: rgba(255,255,255,.1);
+}
+
+body.path-checkout form.gv-fanatics-plus-checkout-select-product .product-list-notices .notice.no-email {
+	display: none;
+}

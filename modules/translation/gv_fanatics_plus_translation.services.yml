@@ -1,0 +1,8 @@
+services:
+    gv_fanatics_plus_translation.interface_translation:
+      class: Drupal\gv_fanatics_plus_translation\InterfaceTranslation
+
+    gv_fanatics_plus_translation.interface_translation_twig_extension:
+      class: Drupal\gv_fanatics_plus_translation\InterfaceTranslationTwigExtension
+      tags:
+        - { name: twig.extension }

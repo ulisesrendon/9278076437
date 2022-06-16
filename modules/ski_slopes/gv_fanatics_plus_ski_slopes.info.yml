@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Ski Slopes
+description: Ski slopes module for the GV Fanatics / Plus project.
+package: GV FPLUS
+
+type: module
+core: 8.x

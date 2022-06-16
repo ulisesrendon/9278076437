@@ -1,0 +1,770 @@
+<?php
+
+namespace Drupal\gv_fplus_auth\Form\Multistep\UserProfile;
+
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Drupal\Core\Url;
+use Drupal\Core\Routing\TrustedRedirectResponse;
+use Drupal\Core\Form\FormStateInterface;
+
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
+
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\RemoveCommand;
+
+use Drupal\gv_fanatics_plus_checkout\Ajax\DisableFullscreenLoader;
+use Drupal\gv_fplus\TranslationContext;
+
+class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFormBase {
+
+  /**
+   * {@inheritdoc}.
+   */
+  public function getFormId() {
+    return 'gv_fplus_auth_personal_data_form';
+  }
+
+  public function updateImageAjaxCallback(array &$form, FormStateInterface $form_state) {
+  	$session = \Drupal::service('gv_fplus.session');
+	$image = \Drupal::service('gv_fplus_auth.image');
+	$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+	$user = \Drupal::service('gv_fplus_auth.user');
+	
+  	$profileImage = $form_state->getValue('image_base64');
+
+	$isIntegrantActive = $session->isIntegrantActive();
+	$isManagingIntegrant = $session->isManagingIntegrant();
+
+	try {
+		if (isset($profileImage)) {
+			$profileImage = str_replace('data:image/jpeg;base64,', '', $profileImage);
+			if (!$isIntegrantActive) {
+				$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
+			} else if ($isManagingIntegrant){
+				$activeIntegrantID = $session->getActiveIntegrantClientID();
+				$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg', NULL, $activeIntegrantID);
+			}
+		}
+	} catch (Exception $e) {
+		\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+		\Drupal::messenger()->addMessage($this->t('Error updating profile image: an internal error ocurred', [], ['context' => TranslationContext::PROFILE_DATA]), 'error');
+	}
+	
+	$response = new AjaxResponse();
+	
+	$response->addCommand(new DisableFullscreenLoader(NULL));
+	
+	try {
+		if (!$isIntegrantActive) {
+			$profile = $user->getProfile($email, TRUE, TRUE, FALSE);
+
+			$profileImage = new \stdClass();
+			$profileImage->ImageBase64 = $profile->Image;
+			$profileImage->Expired = $profile->ImageExpired;
+			$profileImage->CanEdit = $profile->CanEditImage;
+		} else if ($isManagingIntegrant) {
+			$activeIntegrantID = $session->getActiveIntegrantClientID();
+			$activeIntegrant = NULL;
+			
+			// TODO: we shouldn't need to filter for the integrant
+			$integrants = $integrant->listMember($session->getIDClient(), TRUE, FALSE)->List;
+			foreach ($integrants as $integrant) {
+				if ($integrant->IntegrantID == $activeIntegrantID) {
+					$activeIntegrant = $integrant;
+				}
+			}
+			
+			$profile = $activeIntegrant;
+			
+			$profileImage = new \stdClass();
+			$profileImage->ImageBase64 = $profile->ImageBase64;
+			$profileImage->Expired = $profile->ImageExpired;
+			$profileImage->CanEdit = $profile->ImageCanEdit;
+		}
+		
+		if (isset($profileImage) && $profileImage->CanEdit == FALSE) {
+			$response->addCommand(new RemoveCommand('.edit-image-btn'));
+		}
+	} catch(\Exception $e) {
+		\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+		return $response;
+	}
+	
+	
+	return $response;
+  }
+
+  /**
+   * {@inheritdoc}.
+   */
+  public function buildForm(array $form, FormStateInterface $form_state, $destination_url = NULL) {
+    $form = parent::buildForm($form, $form_state);
+	
+	\Drupal::messenger()->addMessage('');
+	
+	$session = \Drupal::service('gv_fplus.session');
+	$user = \Drupal::service('gv_fplus_auth.user');
+	$image = \Drupal::service('gv_fplus_auth.image');	
+	$formBasicValidations = \Drupal::service('gv_fplus_auth.form_basic_validations');
+	$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+	
+	$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+	
+	$apiClient = \Drupal::service('gv_fplus_dbm_api.client');
+	$integrantTypes = $apiClient->core()->getIntegrantTypes();
+	
+	$this->setStoreKeyPrefix($session->getIDUser());
+	
+	$email = $session->getEmail();
+	if (!isset($email)) {
+		return new RedirectResponse(Url::fromRoute('gv_fplus_auth.email_check_form')->toString());
+	}
+		
+	$isCreatingIntegrant = $session->isCreatingIntegrant();
+	$isManagingIntegrant = $session->isManagingIntegrant();
+	$isIntegrantActive = $session->isIntegrantActive();	
+	
+	$profile = NULL;
+	$profileImage = NULL;
+	try {
+		if (!$isIntegrantActive) {
+			$profile = $user->getProfile($email, TRUE, TRUE);
+
+			$profileImage = new \stdClass();
+			$profileImage->ImageBase64 = $profile->Image;
+			$profileImage->Expired = $profile->ImageExpired;
+			$profileImage->CanEdit = $profile->CanEditImage;
+		} else if ($isManagingIntegrant) {
+			$activeIntegrantID = $session->getActiveIntegrantClientID();
+			$activeIntegrant = NULL;
+			
+			// TODO: we shouldn't need to filter for the integrant
+			$integrants = $integrant->listMember($session->getIDClient(), TRUE)->List;
+			foreach ($integrants as $integrant) {
+				if ($integrant->IntegrantID == $activeIntegrantID) {
+					$activeIntegrant = $integrant;
+				}
+			}
+			
+			$profile = $activeIntegrant;
+			
+			$profileImage = new \stdClass();
+			$profileImage->ImageBase64 = $profile->ImageBase64;
+			$profileImage->Expired = $profile->ImageExpired;
+			$profileImage->CanEdit = $profile->ImageCanEdit;
+		}
+	} catch(\Exception $e) {
+		throw $e;
+		//return new RedirectResponse(Url::fromRoute('gv_fplus_auth.email_check_form')->toString());
+	}
+	
+	//if (isset($profile->Name) || isset($profile->Surname) || isset($profile->Phone) || isset($profile->Sex))
+	$hasProfile = $profile->DataCompleted; // && ;
+	//$hasProfile = TRUE;
+	if ($isCreatingIntegrant) {
+		$hasProfile = FALSE;
+	} else if ($isManagingIntegrant) {
+		$hasProfile = TRUE;
+	}
+	
+	$this->storeSet('has_profile', $hasProfile);
+	if (isset($destination_url)) {
+		$this->storeSet('destination_url', $destination_url);
+	}
+	
+	if (!$isIntegrantActive) {
+		$canEditBirthDate = $formBasicValidations->canEditBirthDate($session->getIdentifier())->CanEdit;
+	} else if ($isManagingIntegrant){
+		$canEditBirthDate = $formBasicValidations->integrantCanEditBirthDate($profile->IntegrantID)->CanEdit;
+	} else {
+		$canEditBirthDate = TRUE;
+	}
+	
+	$canEditProfileImage = TRUE;
+	$expiredProfileImage = FALSE;
+	if (isset($profileImage)) {
+		$canEditProfileImage = $profileImage->CanEdit;
+		$expiredProfileImage = $profileImage->Expired;
+	}
+
+	$pageTitle = $translationService->translate('PERSONAL_DATA_FORM.HEADER');
+	if ($isIntegrantActive) {
+		//$pageTitle = $this->t('Integrant data', [], ['context' => TranslationContext::PROFILE_DATA]);
+		$pageTitle = $translationService->translate('PERSONAL_DATA_FORM.HEADER_INTEGRANT');
+	}
+
+	$form['#prefix'] = '<div class="container">
+                            <div class="title-container">
+                                <div class="radial-progress-bar">
+                                    <div class="circle">
+                                        <div class="fill">
+                                            <div class="paso">
+                                                <div class="text">
+                                                    <span class="current-step">1</span>
+                                                    <span>/</span>
+                                                    <span class="total-steps">2</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="layout-and-title">
+                                    <div class="text-layout-bg">'. $translationService->translate('PERSONAL_DATA_FORM.BG_HEADER').'</div>
+                                    <h1>' . $pageTitle . '</h1>
+                                </div>
+                            </div>';
+
+	if ($isIntegrantActive) {
+		$defaultProfileEmail = $profile->Email;
+		if (!$hasProfile && $this->storeGet('email') != NULL) {
+			$defaultProfileEmail =  $this->storeGet('email');
+		}
+
+		if (!\Drupal::service('email.validator')->isValid($defaultProfileEmail)) {
+			$defaultProfileEmail = NULL;
+		}
+		
+		$form['integrant_email'] = [
+			'#type' => 'email',
+			'#title' => $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_TITLE'),
+			'#default_value' => $defaultProfileEmail,
+			'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+			'#suffix' => '</div>',
+		];
+		
+		if (!isset($defaultProfileEmail) || strlen($defaultProfileEmail) <= 0) {
+			$form['integrant_email_notice'] = [
+				'#prefix' => '<div id="integrant-email-notice-container" class="col-md-12 col-sm-12 col-xs-12"',
+				'#markup' => '<div id="integrant-email-notice" class="panel warning"><div class="panel--inner"><div class="panel-heading"><p>' 
+				. $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_WARNING')/*$this->t('*Optional. Insert your email address to get updated about the latest news', [], ['context' => TranslationContext::PROFILE_DATA])*/ . '</p></div></div></div>',
+				'#suffix' => '</div>'
+			];
+		}
+	}
+
+	$form['webcam_container'] = [
+		'#type' => 'markup',
+	];
+	
+	$defaultImg = isset($profileImage->ImageBase64) ? 'data:image/jpeg;base64,' . $profileImage->ImageBase64 : '';
+	if ($isCreatingIntegrant || !$hasProfile) {
+		$storedImg = $this->storeGet('profile_image');
+		if (isset($storedImg) && strlen($storedImg) > 0) {
+			$defaultImg = 'data:image/jpeg;base64,' . $storedImg;
+		}
+	}
+	
+	$editPasswordMarkup = 
+		'<div class="change-password-container"><div class="current-email"><span>' . $session->getEmail() .'</span></div><div class="change-password"><a class="use-ajax" href="' . Url::fromRoute('gv_fplus_auth.change_password_modal')->toString() . '">Editar contraseña</a></div></div>';
+	if ($isIntegrantActive) {
+		$editPasswordMarkup = '';
+	}
+	
+	$defaultPreviewUrl = ($defaultImg != '') ? ($defaultImg) : 'https://via.placeholder.com/134x164';
+	$form['webcam_container']['image_preview'] = [
+		'#type' => 'markup',
+		'#markup' => '<div class="row"><div class="col-md-12 image-preview-wrapper"><div class="image-preview-container"><img class="image-preview" data-src="' . $defaultPreviewUrl  . '" /></div><a class="edit-image-btn"><span class="edit-image-btn--inner"><img src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/pencil-fill.svg"/></span></a>' . $editPasswordMarkup . '</div></div>'
+	];
+	
+	if (!$canEditProfileImage) {
+		$form['webcam_container']['image_preview']['#markup'] = '<div class="row"><div class="col-md-12 image-preview-wrapper"><div class="image-preview-container"><img class="image-preview" data-src="' . $defaultPreviewUrl  . '" /></div>' . $editPasswordMarkup . '</div></div>';
+	}
+	
+	if ($expiredProfileImage) {
+		$form['webcam_container']['image_preview']['#markup'] .= '<div class="panel warning image-expired"><div class="panel--inner"><div class="panel-heading"><p>' 
+		. $translationService->translate('PERSONAL_DATA_FORM.IMAGE_EXPIRED_WARNING') /*$this->t('Your profile image has expired, please upload a new one.', [], [])*/ . '</p></div></div></div>';
+	}
+	
+	$form['webcam_container']['image'] = [
+		'#type' => 'textfield',
+		'#attributes' => [
+			'class' => ['hidden']
+		],
+		'#maxlength' => 100000,
+		'#default_value' => $defaultImg
+	];
+	
+	$form['image_base64'] = [
+		'#type' => 'textarea',
+		'#attributes' => [
+			'class' => ['hidden']
+		],
+		'#default_value' => $defaultImg,
+		'#ajax' => [
+	    	'callback' => '::updateImageAjaxCallback', // don't forget :: when calling a class method.
+	    	//'callback' => [$this, 'myAjaxCallback'], //alternative notation
+	    	'disable-refocus' => TRUE, // Or TRUE to prevent re-focusing on the triggering element.
+	    	'event' => 'change',
+	    	//'wrapper' => 'edit-base-address', // This element is updated with this AJAX callback.
+	    	'progress' => [
+	      		'type' => 'throbber',
+	      		'message' => $translationService->translate('PERSONAL_DATA_FORM.IMAGE_UPLOADING_LABEL'),
+	    	],
+  		],
+	];
+	
+	if ($expiredProfileImage && $canEditProfileImage) {
+		//$form['webcam_container']['image']['#required'] = TRUE;
+		//$form['image_base64']['#required'] = TRUE;
+	}
+	
+	$defaultProfileName = $profile->Name;
+	if (!$hasProfile && $this->storeGet('name') != NULL) {
+		$defaultProfileName =  $this->storeGet('name');
+	}
+    $form['name'] = array(
+      	'#type' => 'textfield',
+      	'#title' => $translationService->translate('PERSONAL_DATA_FORM.FIRST_NAME_FORM_TITLE'),
+      	'#default_value' => $defaultProfileName,
+      	'#required' => TRUE,
+      	'#maxlength' => 32,
+      	'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12">',
+      	'#suffix' => '</div>'
+    );
+	
+	$defaultProfileSurname = $profile->Surname;
+	if (!$hasProfile && $this->storeGet('surname') != NULL) {
+		$defaultProfileSurname = $this->storeGet('surname');
+	}
+	
+	$form['surname'] = array(
+      	'#type' => 'textfield',
+      	'#title' => $translationService->translate('PERSONAL_DATA_FORM.SURNAME_FORM_TITLE'),
+      	'#default_value' => $defaultProfileSurname,
+      	'#required' => TRUE,
+      	'#maxlength' => 32,
+      	'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
+      	'#suffix' => '</div></div>'
+    );
+
+	$defaultGender = $profile->Sex;
+	if ($defaultGender === FALSE) {
+		$defaultGender = 'H';
+	} else if ($defaultGender === TRUE) {
+		$defaultGender = 'M';
+	}
+	
+	if (!$hasProfile && $this->storeGet('gender') != NULL) {
+		$defaultGender = $this->storeGet('gender');
+	}
+	
+	$form['gender'] = array(
+  		'#type' => 'radios',
+  		'#title' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_FORM_TITLE'),
+  		'#default_value' => $defaultGender,
+  		'#options' => array(
+    		'H' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_OPTIONS.MALE'),
+    		'M' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_OPTIONS.FEMALE'),
+  		),
+  		'#required' => TRUE,
+  		'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12">',
+      	'#suffix' => '</div>'
+	);
+
+	$defaultBirthdate = $profile->BirthDate;
+	if (!$hasProfile && $this->storeGet('birthdate') != NULL) {
+		$defaultBirthdate = $this->storeGet('birthdate');
+	} else if (isset($defaultBirthdate)) {
+		$defaultBirthdate = \DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $defaultBirthdate); //'15-Feb-2009');
+		$defaultBirthdate = $defaultBirthdate->format('Y-m-d');
+	}
+	
+  	$maxBirthdateTime = strtotime("-16 year", time());
+  	$maxBirthdate = date("Y-m-d", $maxBirthdateTime);
+	$minBirthdate = date('Y-m-d', strtotime('01-01-1900'));
+	$minAgeForBuying = $formBasicValidations->minimumAgeForBuying($session->getIdentifier())->MinimumAgeForNewsletter;
+	$form['birthdate'] = array(
+  		'#type' => 'date',
+  		'#title' => $translationService->translate('PERSONAL_DATA_FORM.BIRTHDATE_FORM_TITLE'),
+  		'#required' => TRUE,
+  		'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
+      	'#suffix' => '</div>',
+      	'#max' => $maxBirthdate,
+      	'#min' => $minBirthdate,
+      	'#attributes' => [
+      		'type'=> 'date', 
+      		'max' => $maxBirthdate, 
+      		'min' => $minBirthdate, 
+      		'data-min-age-buying' => $minAgeForBuying
+      	]
+	);
+	
+	if ($defaultBirthdate != "0001-01-01") {
+		$form['birthdate']['#default_value'] = $defaultBirthdate;
+	}
+
+	if (!$canEditBirthDate) {
+		$form['birthdate']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
+	}
+	
+	if ($isIntegrantActive) {
+		unset($form['birthdate']['#attributes']['data-min-age-buying']);
+		
+		$maxBirthdateTime = strtotime("-0 day", time());
+		$maxBirthdate = date("Y-m-d", $maxBirthdateTime);
+		$form['birthdate']['#max'] = $maxBirthdate;
+		$form['birthdate']['#attributes']['max'] = $maxBirthdate;
+	}
+	
+	$form['birthdate_under_16_notice'] = [
+		'#prefix' => '<div id="profile-underage-warning-container" class="hidden col-md-6 col-sm-12 col-xs-12 offset-md-6"',
+		'#markup' => '<div id="profile-underage-warning" class="panel warning"><div class="panel--inner"><div class="panel-heading"><p>' 
+		. $translationService->translate('PERSONAL_DATA_FORM.UNDERAGE_NOTICE', ['@min_age_for_buying' => $minAgeForBuying]) 
+		. /*$this->t('For legal reasons, children under @min_age_for_buying cannot make an online purchase. Upon completion of registration, you will be redirected to your profile on MyGrandSki.', ['@min_age_for_buying' => $minAgeForBuying], ['context' => TranslationContext::PROFILE_DATA])*/ '</p></div></div></div>',
+		'#suffix' => '</div>'
+	];
+	
+	$defaultProfileDni = $profile->IDCard;
+	if (!$hasProfile && $this->storeGet('dni') != NULL) {
+		$defaultProfileDni = $this->storeGet('dni');
+	}
+	
+	$form['dni'] = array(
+      	'#type' => 'textfield',
+      	'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_FORM_TITLE'),
+      	'#default_value' => $defaultProfileDni,
+      	'#required' => TRUE,
+      	'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
+      	'#suffix' => '</div>'
+    );
+    
+    if ($isIntegrantActive) {
+    	unset($form['dni']['#required']);
+    }
+	
+	if ($isCreatingIntegrant) {
+		$form['integrant_type'] = [
+			'#type' => 'select',
+			'#options' => [
+				'2' => $translationService->translate('PERSONAL_DATA_FORM.INTEGRANT_TYPE.FAMILY'),
+				'3' => $translationService->translate('PERSONAL_DATA_FORM.INTEGRANT_TYPE.FRIENDS')
+			],
+			'#empty_option' => $translationService->translate('PERSONAL_DATA_FORM.INTEGRANT_TYPE.NONE'),
+			'#title' => $translationService->translate('PERSONAL_DATA_FORM.INTEGRANT_TYPE_FORM_TITLE'),
+			'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+			'#suffix' => '</div>',
+			'#required' => TRUE,
+			'#default_value' => $this->storeGet('integrant_type')
+		];
+	}
+
+	$form['#cache']['contexts'][] = 'session';
+	
+	if ($isCreatingIntegrant) {
+		
+		$goBackUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => 'select-products'])->toString();
+		if (!isset($destination_url)) {
+			$goBackUrl = Url::fromRoute('gv_fanatics_plus_my_grandski.main_menu')->toString();
+		}
+		
+		$form['actions']['go_back'] = [
+			'#type' => 'markup',
+			'#markup' => '<a href="' .  Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => 'select-products'])->toString() . '">' 
+			. $translationService->translate('PERSONAL_DATA_FORM.GO_BACK_LINK_LABEL') . '</a>' 
+		];
+		
+		$form['actions']['#attributes']['class'][] = 'multiple-actions';
+	}
+	
+    $form['actions']['submit']['#value'] = $translationService->translate('PERSONAL_DATA_FORM.SUBMIT_BTN_LABEL');
+	$form['actions']['submit']['#attributes']['data-style'] = 'contract-overlay';
+	$form['actions']['submit']['#attributes']['class'][] = 'ladda-button';
+	
+	$form['#suffix'] = '</div>';
+	
+	$form['#attached']['drupalSettings']['gv_fanatics_plus_translation_context'] = $translationService->_resolveTranslationContext();
+	$form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+	$form['#attached']['library'][] = 'system/ui.dialog';
+	$form['#attached']['library'][] = 'gv_fplus_auth/cropper-js';
+	$form['#attached']['library'][] = 'gv_fplus_auth/webcam-easy';
+	$form['#attached']['library'][] = 'gv_fplus_auth/personal-data-form-js';
+	
+	if (!$isManagingIntegrant && !$isCreatingIntegrant) {
+		$form['#attached']['library'][] = 'gv_fplus_auth/profile-underage-notice';
+	}
+	
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+   public function validateForm(array &$form, FormStateInterface $form_state) {
+   			
+   	$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+	
+	//ksm($maxBirthdateTime);
+	//ksm($minBirthdateTime->getTimestamp());
+	$session = \Drupal::service('gv_fplus.session');
+	//$isCreatingIntegrant = $session->isCreatingIntegrant();
+	//$isManagingIntegrant = $session->isManagingIntegrant();
+	$isIntegrantActive = $session->isIntegrantActive();
+	
+	$birthdate = $form_state->getValue('birthdate');
+  	$birthdate = new \DateTime($birthdate);
+  	$maxBirthdateTime = strtotime("-16 year", time());
+	$minBirthdateTime = \DateTime::createFromFormat('d M Y','1 Jan 1900');
+	
+	if ($isIntegrantActive) {
+		$maxBirthdateTime = strtotime("-0 day", time());
+	}
+	
+	if (!$isIntegrantActive && $birthdate->getTimestamp() > $maxBirthdateTime) {
+		$form_state->setErrorByName('birthdate', $translationService->translate('PERSONAL_DATA_FORM.INVALID_BIRTHDATE_UNDERAGE_PARAMETER_ERROR'));
+	} else if ($isIntegrantActive && $birthdate->getTimestamp() > $maxBirthdateTime) {
+		$form_state->setErrorByName('birthdate', $translationService->translate('PERSONAL_DATA_FORM.INVALID_BIRTHDATE_GENERAL_ERROR'));
+	}
+	
+	if ($birthdate < $minBirthdateTime) {
+		$form_state->setErrorByName('birthdate', $translationService->translate('PERSONAL_DATA_FORM.INVALID_BIRTHDATE_UNDERAGE_PARAMETER_ERROR', ['@minBirthDate' => $minBirthdateTime->format('d/m/Y')]));
+	}
+	
+  }
+
+ /**
+  * {@inheritdoc}
+  */
+  public function submitForm(array &$form, FormStateInterface $form_state) {	
+  	$name = $form_state->getValue('name');
+	$surname = $form_state->getValue('surname');
+	$gender = $form_state->getValue('gender');
+	
+	$birthdate = $form_state->getValue('birthdate');
+	$date = new \DateTime($birthdate);
+	$finalBirthdate = $date->format('Y-m-d\TH:i:s\Z');
+	
+	$dni = $form_state->getValue('dni');
+	$profileImage = $form_state->getValue('image_base64');
+	$session = \Drupal::service('gv_fplus.session');
+	$image = \Drupal::service('gv_fplus_auth.image');
+	$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+	$apiIncidenceDecoder = \Drupal::service('gv_fanatics_plus_utils.api_incidence_decoder');
+	
+	$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+	
+	$this->setStoreKeyPrefix($session->getIDUser());
+	
+	$isCreatingIntegrant = $session->isCreatingIntegrant();
+	$isManagingIntegrant = $session->isManagingIntegrant();
+	$isIntegrantActive = $session->isIntegrantActive();
+	
+	$integrantEmail = $form_state->getValue('integrant_email');
+	$integrantType = $form_state->getValue('integrant_type');
+
+	if ($isIntegrantActive && !$isCreatingIntegrant) {
+		$activeIntegrantID = $session->getActiveIntegrantClientID();
+		$integrants = $integrant->listMembers($session->getIDClient(), TRUE)->List;
+		foreach ($integrants as $integrant) {
+			if ($integrant->IntegrantID == $activeIntegrantID) {
+				$activeIntegrant = $integrant;
+			}
+		}
+		
+		$profile = $activeIntegrant;
+		if ($integrantEmail == $profile->Email) { // TODO: remove this case, pending DBM release for this effect
+			$integrantEmail = NULL;
+		}
+	}
+
+	$hasProfile = $this->storeGet('has_profile');
+	$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+	try {
+		if (isset($profileImage) && $profileImage != ""  && ((!$hasProfile || $isCreatingIntegrant))) {
+			$profileImage = str_replace('data:image/jpeg;base64,', '', $profileImage);
+			$this->storeSet('profile_image', $profileImage);
+			/*$isIntegrantActive = $session->isIntegrantActive();
+			if (!$isIntegrantActive) {
+				$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
+			} else {
+				$activeIntegrantID = $session->getActiveIntegrantClientID();
+				$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg', NULL, $activeIntegrantID);
+			}*/
+			
+		}
+	} catch (Exception $e) {
+		return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
+	}
+	
+	if (!$hasProfile) {
+    	$this->storeSet('name', $name);
+    	$this->storeSet('surname', $surname);
+		$this->storeSet('gender', $gender);
+    	$this->storeSet('birthdate', $birthdate);
+		$this->storeSet('dni', $dni);
+		$this->storeSet('integrant_type', $integrantType);
+		$this->storeSet('email', $integrantEmail);
+	} else {
+		$user = \Drupal::service('gv_fplus_auth.user');
+	
+		try {
+			if (!$isManagingIntegrant) {
+				
+				$updateResponse = $user->fanatics()->update(
+					NULL, 
+					$session->getEmail(), 
+					$name, 
+					$surname, 
+					NULL, 
+					$dni, 
+					$gender, 
+					$finalBirthdate, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL,
+					NULL,
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL
+				);
+				
+			} else {
+				
+				/*$updateResponse = $user->fanatics()->update(
+					NULL, 
+					$session->getEmail(), 
+					$name, 
+					$surname, 
+					NULL, 
+					$dni, 
+					$gender, 
+					$finalBirthdate, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL,
+					NULL,
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL, 
+					NULL
+				);*/
+				//ksm('update_response');
+				//ksm($updateResponse->Response);
+				/*
+				$integrant->update(
+					$sessionID, 
+					$integrantID, 
+					$integrantType, 
+					$email, 
+					$name, 
+					$surname, 
+					$surname2, 
+					$IDCard, 
+					$gender, 
+					$birthdate, 
+					$IDCountry, 
+					$postalCode, 
+					$city, 
+					$IDProvince, 
+					$provinceName, 
+					$address, 
+					$addressNumber, 
+					$IDAddressType, 
+					$addressMoreInfo, 
+					$phoneNumber, 
+					$telephoneNumber, 
+					$renewPass, 
+					$census, 
+					$IDClub, 
+					$clubIdentification
+				);*/
+				
+				if ($isManagingIntegrant) {
+					$response = $integrant->update(
+						$session->getIdentifier(), 
+						$session->getActiveIntegrantClientID(), 
+						$integrantType, 
+						$integrantEmail, 
+						$name, 
+						$surname, 
+						NULL, 
+						$dni, 
+						$gender, 
+						$finalBirthdate, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL
+					);	
+				} else { // New integrant
+					$response = $integrant->update(
+						$session->getIdentifier(), 
+						$session->getActiveIntegrantClientID(), 
+						$integrantType, 
+						NULL, 
+						$name, 
+						$surname, 
+						NULL, 
+						$dni, 
+						$gender, 
+						$finalBirthdate, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL, 
+						NULL
+					);
+				}
+				
+			}
+		} catch (ClientException $e) {			
+			if ($e->getResponse()->getStatusCode() == 409) {
+				 return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.EMAIL_ALREADY_EXISTS'), 'error');
+			} else {
+				throw $e;
+			}
+		} catch(\Exception $e) {
+			\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+			return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
+		}
+	}
+	
+	$final_destination = $this->storeGet('destination_url');
+	$this->deleteStoreKeys(['has_profile']);
+	
+	if ((!isset($final_destination) || (\Drupal::routeMatch()->getRouteName() == 'gv_fplus_auth.user_profile_personal_data_form'))) {
+		$form_state->setResponse( new RedirectResponse(Url::fromRoute('gv_fplus_auth.user_profile_residence_data_form')->toString(), 307) );
+	} else {
+		$this->deleteStoreKeys(['destination_url']);
+		$form_state->setResponse( new TrustedRedirectResponse($final_destination, 307));
+	}
+	
+  }
+}
+
+?>

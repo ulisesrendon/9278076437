@@ -1,0 +1,5 @@
+# In my_module.permissions.yml file.
+gv_fanatics_plus_bypass_login:
+  title: 'Bypass the login flow'
+  description: 'A custom permission to bypass redirects and checks related to the login flow.'
+  restrict access: TRUE

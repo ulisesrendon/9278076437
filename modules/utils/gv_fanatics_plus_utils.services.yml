@@ -1,0 +1,14 @@
+services:
+    gv_fanatics_plus_utils.api_incidence_decoder:
+      class: Drupal\gv_fanatics_plus_utils\ApiIncidenceDecoder
+
+#    gv_fanatics_plus_utils.custom_error_html_subscriber:
+#      class: Drupal\gv_fanatics_plus_utils\CustomErrorHtmlSubscriber
+#      tags:
+#        - { name: event_subscriber }
+
+    gv_fanatics_plus_utils.exception_subscriber:
+      class: Drupal\gv_fanatics_plus_utils\EventSubscriber\ExceptionSubscriber
+      arguments: ['@config.factory']
+      tags:
+        - {name: event_subscriber}

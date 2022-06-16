@@ -1,0 +1,341 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+/**
+ * Personaliza el formulario de contacto
+ */
+function gv_fanatics_plus_contact_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+    if($form_id == 'webform_submission_centro_de_devoluciones_node_49_add_form' || $form_id == 'webform_submission_centro_de_devoluciones_add_form'){
+        $translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+        
+        if(!isset($_GET['tokenid']) || $_GET['tokenid'] != 'ss7HwQZcS6j7H5RP'){
+            throw new AccessDeniedHttpException();
+        }
+        
+        $messenger = \Drupal::messenger();
+        if(!isset($_GET['mail']) || empty($_GET['mail'])){
+            $messenger->addMessage($translationService->translate('REFUND.EMAIL_NOT_FOUND'), $messenger::TYPE_ERROR);
+            throw new AccessDeniedHttpException();
+        }
+        if(!isset($_GET['locator']) || empty($_GET['locator'])){
+            $messenger->addMessage($translationService->translate('REFUND.LOCATOR_NOT_FOUND'), $messenger::TYPE_ERROR);
+            throw new AccessDeniedHttpException();
+        }
+        if(!isset($_GET['name']) || empty($_GET['name'])){
+            $messenger->addMessage($translationService->translate('REFUND.NAME_NOT_FOUND'), $messenger::TYPE_ERROR);
+            throw new AccessDeniedHttpException();
+        }
+        if(!isset($_GET['type']) || empty($_GET['type'])){
+            $messenger->addMessage($translationService->translate('REFUND.TYPE_NOT_FOUND'), $messenger::TYPE_ERROR);
+            throw new AccessDeniedHttpException();
+        }
+        
+        $parameterMap = [
+            'correo_electronico' => '[current-page:query:mail]',
+            'localizador' => '[current-page:query:locator]',
+            'nombre_y_apellidos' => '[current-page:query:name]',
+            'tipo_de_devolucion' => '[current-page:query:type]',
+        ];
+        
+        foreach($parameterMap as $key => $val){
+            if($form['elements'][$key]['#default_value'] == $val){
+                $form['elements'][$key]['#default_value'] = '';
+            }
+        }
+        
+        $form['actions']['submit']['#submit'][] = '_gv_fanatics_plus_contact_trigger_salesforce_refund';
+    }
+    
+    if ($form_id != 'webform_submission_contacto_fanatics_node_41_add_form') {
+		return;
+	}
+	
+	$salesforceLangCodeMap = [
+		'es' => 1,
+		'ca' => 54,
+		'en' => 45,
+		'fr' => 21
+	];
+	
+	$currentLangCode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+	$mappedLangCode = $salesforceLangCodeMap[$currentLangCode];
+	
+	$now = new DateTime();
+	$form['elements']['fecha_visita']['#default_value'] = $now->format('d/m/Y');
+	
+	$form['elements']['idioma_del_cliente']['#default_value'] = $mappedLangCode;
+	$form['elements']['idioma_del_cliente']['#attributes']['readonly'] = 'readonly';
+	$form['elements']['idioma_del_cliente']['#disabled'] = 'disabled';
+	$form['elements']['idioma_del_cliente']['#wrapper_attributes']['class'][] = 'hidden';
+	
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	
+	if ($activeChannel != NULL) {
+		$salesforceServiceTypeID = $activeChannel->getSalesforceServiceTypeID();
+		$form['elements']['servicios']['#default_value'] = $salesforceServiceTypeID;
+		$form['elements']['servicios']['#attributes']['readonly'] = 'readonly';
+		$form['elements']['servicios']['#disabled'] = 'disabled';
+		$form['elements']['servicios']['#wrapper_attributes']['class'][] = 'hidden';
+		
+		$account = $activeChannel->getSalesforceAccount();
+		if (isset($account)) {
+			$form['elements']['enviar_email']['#default_value'] = FALSE;
+		}
+	}
+	
+	if ($form['elements']['asunto']['#default_value'] == '[current-page:query:subject]') {
+		$form['elements']['asunto']['#default_value'] = '';
+	}  else if (strlen($form['elements']['asunto']['#default_value']) > 0) {
+		$form['elements']['asunto']['#default_value'] = html_entity_decode($form['elements']['asunto']['#default_value'], ENT_QUOTES, 'UTF-8');
+	}
+	
+	$sessionService = \Drupal::service('gv_fplus.session');
+	$hasIdentifier = $sessionService->getIdentifier() != NULL;
+	if ($hasIdentifier && $sessionService->getEmail() != NULL) {
+		$userProfile = $sessionService->getClient();
+		$email = $sessionService->getEmail();
+		$name = $userProfile->Name;
+		$surname = $userProfile->Surname;
+		$fullName = $name;
+		if ($surname != NULL && strlen($surname) > 0) {
+			$fullName .= ' ' . $surname;
+		}
+		
+		$mobilePhone = $userProfile->Phone;
+		if ($fullName != NULL) {
+			$form['elements']['nombre']['#default_value'] = $fullName;
+			$form['elements']['nombre']['#attributes']['readonly'] = 'readonly';
+			$form['elements']['nombre']['#disabled'] = 'disabled';
+			$form['elements']['nombre']['#wrapper_attributes']['class'][] = 'hidden';
+		}
+		
+		if ($email != NULL) {
+			$form['elements']['correo_electronico']['#default_value'] = $email;
+			$form['elements']['correo_electronico']['#attributes']['readonly'] = 'readonly';
+			$form['elements']['correo_electronico']['#disabled'] = 'disabled';
+			$form['elements']['correo_electronico']['#wrapper_attributes']['class'][] = 'hidden';
+		}
+		
+		if ($mobilePhone != NULL) {
+			$form['elements']['telefono']['#default_value'] = $mobilePhone;
+			$form['elements']['telefono']['#attributes']['readonly'] = 'readonly';
+			$form['elements']['telefono']['#disabled'] = 'disabled';
+			$form['elements']['telefono']['#wrapper_attributes']['class'][] = 'hidden';
+		}
+	}
+	
+	$form['#cache']['contexts'][] = 'session';
+	$form['#cache']['max-age'] = 0;
+	array_unshift($form['actions']['submit']['#submit'], '_gv_fanatics_plus_contact_trigger_salesforce');
+}
+
+/**
+ * Tramita la solicitud de Salesforce para las devoluciones de forfait (en contexto del COVID)
+ */
+function _gv_fanatics_plus_contact_trigger_salesforce_refund(array $form, FormStateInterface $form_state) {
+    //set POST variables
+    $channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+    $activeChannel = $channelResolver->resolve();
+    
+    if ($activeChannel != NULL) {
+        //         $account = $activeChannel->getSalesforceAccount();
+        $account = 'F01';
+        $marca = ($activeChannel->isTemporadaOA() ? 'OA' : 'GV');
+    }
+    else{
+        return;
+    }
+    
+    $salesforceLangCodeMap = [
+        'es' => 1,
+        'ca' => 54,
+        'en' => 45,
+        'fr' => 21
+    ];
+    
+    $url = 'https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8';
+    
+    
+    $bookingLocator = $form_state->getValue('localizador');
+    $email = $form_state->getValue('correo_electronico');
+    $name = $form_state->getValue('nombre_y_apellidos');
+    $serviceType = 'T11';
+    $subType = $form_state->getValue('tipo_de_devolucion');
+    $subject = [];
+    if($subType == 'S11017'){
+        $subject[] = 'Devolución FFT';
+    }
+    else{
+        $subject[] = 'Mantener Forfet próxima temporada';
+    }
+    $sector = 'SEC03';
+    $comment = $form_state->getValue('comentarios');
+    $langCode = $salesforceLangCodeMap[\Drupal::languageManager()->getCurrentLanguage()->getId()];
+    $category = 'CAT08';
+    
+    
+    if ($bookingLocator != NULL && strlen($bookingLocator) > 0 && $marca != NULL && strlen($marca) > 0) {
+        $subject[] = $bookingLocator;
+        $subject[] = $marca;
+    }
+    else{
+        return;
+    }
+    
+    $fields = [
+        'encoding' => 'UTF-8',
+        'orgid' => '00D0Y000000pkFo',
+        'retURL' => 'https://www.grandvalira.com',
+        'recordType' => '0120Y000000Wpi3',
+        'debug' => '1',
+        'debugEmail' => 'helpdesktic@grandvalira.com',
+        'origin' => 'Web Auto FFT',
+        '00N0Y00000QY2tQ' => $langCode, //idioma
+        'subject' => rawurlencode(implode(' - ', $subject)),//asunto
+        //        '00N0Y00000QY2tO' => rawurlencode($finalVisitDate),
+        'type' => rawurlencode($category),//
+        '00N0Y00000QY2tX' => rawurlencode($serviceType),
+        '00N0Y00000QY2tW' => rawurlencode($subType),
+        '00N0Y00000QY2tU' => rawurlencode($sector),
+        'description' => rawurlencode($comment),//
+        'name' => rawurlencode($name),//
+        'email' => rawurlencode($email),//
+        '00N0Y00000RoBJD' => $account,// F01 -> invierno
+    ];
+    
+    //url-ify the data for the POST
+    foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+    rtrim($fields_string, '&');
+    
+    $cliente = curl_init();
+    curl_setopt($cliente, CURLOPT_URL, $url);
+    curl_setopt($cliente, CURLOPT_HEADER, TRUE);
+    curl_setopt($cliente, CURLOPT_POST, TRUE);
+    curl_setopt($cliente, CURLOPT_POSTFIELDS,$fields_string );
+    curl_setopt($cliente, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($cliente, CURLOPT_SSLVERSION,  6);
+    
+    $contenido = curl_exec($cliente);
+    
+    curl_close($cliente);
+    
+    $form_state->setRedirect('entity.node.canonical', ['node' => '48']);
+}
+
+/**
+ * Tramita la solicitud de contacto general de Salesforce
+ */
+function _gv_fanatics_plus_contact_trigger_salesforce(array $form, FormStateInterface $form_state) {
+	//set POST variables
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	if ($activeChannel != NULL) {
+		$account = $activeChannel->getSalesforceAccount();
+		if (!isset($account)) {
+			return;
+		}
+	}
+
+	$url = 'https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8'; 
+	
+	$bookingLocator = $form_state->getValue('localizador');
+	$subject = $form_state->getValue('asunto');
+	$serviceType = $form_state->getValue('servicios');
+	$subType = $form_state->getValue('subtipo_fft');
+	$email = $form_state->getValue('correo_electronico');
+	$name = $form_state->getValue('nombre');
+	$phoneNumber = $form_state->getValue('telefono');
+	$visitDate = $form_state->getValue('fecha_visita');
+	$sector = $form_state->getValue('sector');
+	$comment = $form_state->getValue('descripcion');
+	$langCode = $form_state->getValue('idioma_del_cliente');
+	$category = $form_state->getValue('categoria');
+
+	$finalVisitDate = new DateTime($visitDate);
+	$finalVisitDate = $finalVisitDate->format('d/m/Y');
+	
+	if ($bookingLocator != NULL && strlen($bookingLocator) > 0) {
+		$subject = $bookingLocator . ': ' . $subject;
+	}
+	
+	if ($activeChannel != NULL && $activeChannel->testEnvironment()) {
+		$subject = 'TICNEVASA-EntornoTEST ' . $subject;
+	}
+	
+	if ($activeChannel != NULL && $activeChannel->testEnvironment()) {
+		$email = 'helpdeskticgv@gmail.com';
+	}
+	
+	$fields = [
+	    'encoding' => 'UTF-8',
+	    'orgid' => '00D0Y000000pkFo',
+	    'retURL' => 'https://www.grandvalira.com',
+	    'recordType' => '0120Y000000Wpi3',
+	    'debug' => '1',
+	    'debugEmail' => 'helpdesktic@grandvalira.com',
+	    'origin' =>'Web Auto B2C',
+	    '00N0Y00000QY2tQ' => $langCode, //idioma
+	    'subject' => rawurlencode($subject),//asunto
+	    '00N0Y00000QY2tO' => rawurlencode($finalVisitDate),
+	    'type' => rawurlencode($category),//
+	    '00N0Y00000QY2tX' => rawurlencode($serviceType),
+	    '00N0Y00000QY2tW' => rawurlencode($subType),
+	    '00N0Y00000QY2tU' => rawurlencode($sector),
+	    'description' => rawurlencode($comment),//
+	    'name' => rawurlencode($name),//
+	    'email' => rawurlencode($email),//
+	    'phone' => rawurlencode($phoneNumber),//
+	    '00N0Y00000RoBJD' => $account,// F01 -> invierno
+	];
+	
+	//url-ify the data for the POST
+	foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+	rtrim($fields_string, '&');
+	
+	$cliente = curl_init();
+	curl_setopt($cliente, CURLOPT_URL, $url);
+	curl_setopt($cliente, CURLOPT_HEADER, TRUE);
+	curl_setopt($cliente, CURLOPT_POST, TRUE);
+	curl_setopt($cliente, CURLOPT_POSTFIELDS,$fields_string );
+	curl_setopt($cliente, CURLOPT_RETURNTRANSFER, TRUE); 
+	curl_setopt($cliente, CURLOPT_SSLVERSION,  6); 
+		
+	$contenido = curl_exec($cliente);
+	
+	curl_close($cliente);
+}
+
+/**
+ * Añade el link del formulario de contacto como variable de página
+ */
+function gv_fanatics_plus_contact_preprocess_page(&$variables) {	
+	$contactPageLinkBuilder = \Drupal::service('gv_fanatics_plus_contact.contact_page_link_builder');
+	$orderID = NULL;
+	if (\Drupal::routeMatch()->getRouteName() == 'gv_fanatics_plus_checkout.form') {
+		$orderID = \Drupal::service('gv_fanatics_plus_cart.cart')->getCurrent()->BookingLocator;
+	} else if (\Drupal::routeMatch()->getParameter('orderID') != NULL) {
+		$orderIDParam = \Drupal::routeMatch()->getParameter('orderID');
+		$orderID = \Drupal::service('gv_fanatics_plus_order.order')::getFromID($orderIDParam)->Booking->BookingLocator;
+	}
+	
+	$contactUrl = $contactPageLinkBuilder->buildURL($orderID, FALSE);
+	$variables['gv_fanatics_plus_contact_page_url'] = $contactUrl;
+}
+
+/**
+ * Personaliza el título de la página de contacto si se está tramitando una devolución de forfait (en contexto del COVID)
+ */
+function gv_fanatics_plus_contact_node_view(&$build, $node, $display, $view_mode) {
+    $translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+    
+    if( $build['#node']->id() == 49 ){
+        if(isset($_GET['type']) && $_GET['type'] == 'S11018'){
+            $build['field_titulo_principal'][0]['#value'] = $translationService->translate('REFUND.TITLE_SAVE_PASS');
+        }
+    }
+}
+
+?>

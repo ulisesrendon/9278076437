@@ -1,0 +1,18 @@
+
+inputmask:
+  version: VERSION
+  js:
+    js/deps/inputmask/jquery.inputmask.js: {}
+  dependencies:
+    - core/jquery
+
+cart_block:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_cart.cart_block.css: {}
+  js:
+    js/gv_fanatics_plus_cart.cart_block.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fanatics_plus_cart/inputmask

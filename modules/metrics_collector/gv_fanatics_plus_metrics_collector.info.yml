@@ -1,0 +1,5 @@
+name: GV Fanatics Plus Metrics Collector Module
+description: Metrics collector module for the GV Fanatics / Plus project.
+package: GV FPLUS
+type: module
+core: 8.x

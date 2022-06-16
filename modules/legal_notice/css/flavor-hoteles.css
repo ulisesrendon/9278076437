@@ -1,0 +1,21 @@
+body {
+	color: #444;
+	font-family: 'Rubik',sans-serif;
+	font-size: 14px;
+	margin: 0;
+	outline: 0;
+	overflow-x: hidden;
+}
+
+a {
+    font-family: 'Rubik',sans-serif;
+    color: rgb(0,169,222);
+}
+
+h2 {
+    font-family: 'Rubik',sans-serif;
+    font-size: 26px;
+    font-weight: normal;
+    text-align: left;
+    color: #555555;
+}

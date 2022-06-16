@@ -1,0 +1,63 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the integrant selection block.
+ *
+ * Available variables:
+ * - integrants: An array of integrants
+ * - owner: Order owner
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="paying-customer">
+  <a href="{{ owner.SwitchUrl }}">
+ 	<div class="paying-customer--item {% if owner.Active == true %} active {% endif %}" >
+ 	  <label>{{ owner.Name }}</label>
+ 	  <div class="paying-customer--item-avatar" data-step="1" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.ORDER_OWNER'|gv_t}}">
+ 	    <div class="paying-customer--item-avatar--inner image-container {% if owner.ImageBase64 is null %} empty {% endif %}">
+ 	     {% if owner.ImageBase64 is not null %}
+ 	       <img src="" data-src="{{"data:image/jpeg;base64,#{owner.ImageBase64}"}}" />
+ 	     {% else %}
+ 	       <img src="" data-src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/user-line-white--default-avatar.svg" />
+ 	     {% endif %}
+ 	    </div>
+ 	  </div>
+ 	</div>
+  </a>
+</div>
+<div class="wrapper-integrants">
+    <div class="available-integrants">
+      {% for integrant in integrants %}
+      <a href="{{ integrant.SwitchUrl }}">
+     	<div class="available-integrants--item {% if integrant.Active == true %} active {% endif %}" {% if loop.index == 1 %} data-step="2" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.INTEGRANTS'|gv_t}}" {% endif %}>
+     	  <label>{{integrant.Name }}</label>
+     	  <div class="available-integrants--item-avatar">
+     	    <div class="available-integrants--item-avatar--inner image-container {% if owner.ImageBase64 is null %} empty {% endif %}">
+     	     {% if integrant.ImageBase64 is not null %}
+     	       <img src="" data-src="{{"data:image/jpeg;base64,#{integrant.ImageBase64}"}}" />
+     	     {% else %}
+     	       <img src="" data-src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/user-line-white--default-avatar.svg" />
+     	     {% endif %}
+     	    </div>
+     	  </div>
+     	</div>
+      </a>
+      {% endfor %}
+      {% if add_new_integrant_url is not null %}
+      <a href="{{ add_new_integrant_url }}">
+        <div class="add-new-integrant">
+        	<div class="add-new-integrant-inner" data-step="3" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.CREATE_INTEGRANT'|gv_t}}">
+    			<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    				<path fill-rule="evenodd" clip-rule="evenodd" d="M15.1429 15.1429V10H16.8571V15.1429H22V16.8571H16.8571V22H15.1429V16.8571H10V15.1429H15.1429Z" fill="#348BA6"/>
+    				<circle opacity="0.3" cx="16" cy="16" r="16" fill="#348BA6"/>
+    			</svg>
+        	</div>
+        </div>
+      </a>
+      {% endif %}
+    </div>
+    <div class="integrants-block-label">
+      <div class="integrants-block-label--content"> {{ 'CHECKOUT_SELECT_PRODUCTS.MY_INTEGRANTS.HEADER'|gv_t }} </div>
+    </div>
+</div>

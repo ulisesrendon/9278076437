@@ -1,0 +1,6 @@
+name: GV FPLUS General Module
+description: Umbrella module for the GV FPLUS project.
+package: GV FPLUS
+
+type: module
+core: 8.x

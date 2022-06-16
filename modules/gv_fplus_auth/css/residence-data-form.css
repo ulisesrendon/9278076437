@@ -1,0 +1,63 @@
+#edit-actions {
+	margin-top: 50px;	
+	width: 100%;
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+#edit-submit {
+	float: right;
+}
+
+fieldset.form-group {
+	border: none!important;
+}
+
+.description.error {
+	color: #E63946!important;
+}
+
+.description.success {
+	color: green!important;
+}
+
+.form-item-full-phone-number {
+	display: none;
+}
+
+.title-container {
+	padding-left: 25px;
+    padding-right: 25px;
+}
+
+.title-container .radial-progress-bar {
+	display: inline-block;
+}
+
+.title-container h1 {
+	display: inline-block;
+    margin-left: 15px;
+    font-size: 24px;
+    text-transform: none;
+}
+
+.title-container h1:after {
+	display: none;
+}
+
+.js-form-item-newsletter {
+	margin-top: 15px;
+}
+
+.js-form-item-newsletter,
+.js-form-item-legal-consent {
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+input#edit-phone-number::placeholder,
+input#edit-phone-number::-webkit-input-placeholder,
+input#edit-phone-number::-moz-placeholder,
+input#edit-phone-number::-ms-input-placeholder {
+	color: lightgray;
+}

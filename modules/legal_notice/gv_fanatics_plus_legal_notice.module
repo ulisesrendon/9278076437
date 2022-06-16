@@ -1,0 +1,47 @@
+<?php
+
+use \Drupal\Core\Entity\EntityInterface;
+use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+
+function gv_fanatics_plus_legal_notice_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+	if ($entity->getType() == 'pagina_libre' 
+		&& $view_mode == 'full') {
+		$activeTheme = $theme = \Drupal::theme()->getActiveTheme()->getName();
+		if ($activeTheme == 'legal_notes') {
+			// expose node as iframe, hide certain fields from the display
+			unset($build['field_titulo_principal']);
+			unset($build['field_titulo']);
+			
+			$build['#cache']['max-age'] = 0;
+			$build['#attached']['library'][] = 'gv_fanatics_plus_legal_notice/iframe';
+		}
+	}
+}
+
+/**
+ * Implements hook_preprocess_html()
+ */
+function gv_fanatics_plus_legal_notice_preprocess_html(&$vars) {
+	$activeTheme = $theme = \Drupal::theme()->getActiveTheme()->getName();
+	if ($activeTheme != 'legal_notes') {
+		return;
+	}
+	
+	$style_flavor = \Drupal::request()->query->get('flavor');
+	if ($style_flavor != NULL && strlen($style_flavor) > 0) {
+		switch($style_flavor) {
+			case 'hoteles': {
+				$vars['gv_style_flavor'] = 'hoteles';
+				break;
+			}
+			case 'shop-oa': {
+				$vars['gv_style_flavor'] = 'shop-oa';
+				break;
+			}
+			default:
+				break;
+		}
+	}
+}
+
+?>

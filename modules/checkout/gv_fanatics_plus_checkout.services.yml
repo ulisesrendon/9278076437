@@ -1,0 +1,64 @@
+services:
+
+  gv_fanatics_plus_checkout.checkout_order_manager:
+    class: Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager
+    tags:
+      - {name: event_subscriber}
+  
+  gv_fanatics_plus_checkout.post_payment_order_manager:
+    class: Drupal\gv_fanatics_plus_checkout\PostPaymentOrderManager
+    tags:
+      - {name: event_subscriber}
+  
+  gv_fanatics_plus_checkout.post_payment_resolver:
+    class: Drupal\gv_fanatics_plus_checkout\Form\PostPayment\PostPaymentResolver
+    tags:
+      - {name: event_subscriber}
+      
+  gv_fanatics_plus_checkout.booking_office:
+    class: Drupal\gv_fanatics_plus_checkout\BookingOffice
+  
+  gv_fanatics_plus_checkout.booking_payment_method:
+    class: Drupal\gv_fanatics_plus_checkout\BookingPaymentMethod
+ 
+  gv_fanatics_plus_checkout.integrant:
+    class: Drupal\gv_fanatics_plus_checkout\Integrant
+
+  gv_fanatics_plus_checkout.tpv:
+    class: Drupal\gv_fanatics_plus_checkout\TPV
+    
+  gv_fanatics_plus_checkout.logalty:
+    class: Drupal\gv_fanatics_plus_checkout\Logalty
+    
+  gv_fanatics_plus_checkout.recharge:
+    class: Drupal\gv_fanatics_plus_checkout\Recharge
+
+  gv_fanatics_plus_checkout.post_payment_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_access_check }
+
+  gv_fanatics_plus_checkout.post_payment_logalty_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentLogaltyAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_logalty_access_check }
+
+  gv_fanatics_plus_checkout.post_payment_shipping_method_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentShippingMethodAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_shipping_method_access_check }
+
+  gv_fanatics_plus_checkout.post_payment_documents_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentDocumentsAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_documents_access_check }
+
+  gv_fanatics_plus_checkout.post_payment_shipping_data_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentShippingDataAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_shipping_data_access_check }
+      
+  gv_fanatics_plus_checkout.post_payment_complete_access_check:
+    class: Drupal\gv_fanatics_plus_checkout\Access\PostPaymentCompleteAccessCheck
+    tags:
+      - { name: access_check, applies_to: _post_payment_complete_access_check }

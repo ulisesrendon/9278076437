@@ -1,0 +1,247 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the order history page.
+ *
+ * Available variables:
+ * - order: A given Order.
+ *
+ * @ingroup themeable
+ */
+#}
+{# /* if (order_pending_data.getNumberPendingActions() > 0 or order.hasPendingShippingMethod() or order.ConsumedDate == null) and order.isPaid() and order.isInitialSale() */ #}
+{% if (show_overdue_payments_banner == true or show_post_payment_pending_data_banner == true or show_post_payment_revision_banner == true) %}
+<div class="my-grandski-pending-actions-block {% if show_post_payment_pending_data_banner == true %} important {% endif %}">
+	<div class="my-grandski-pending-actions-block--inner">
+		<div class="content-left">
+			{% if show_overdue_payments_banner == true %}
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_PAYMENT_BODY_1'|gv_t}}</p>
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_PAYMENT_BODY_2'|gv_t}}</p>
+			{% elseif show_post_payment_pending_data_banner == true %}
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_DATA_BODY_1'|gv_t}}</p>
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_DATA_BODY_2'|gv_t}}</p>
+			{% elseif show_post_payment_revision_banner == true %}
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_PRINT_BODY_1'|gv_t}}</p>
+				<p>{{'ORDER_DETAIL.BANNER.PENDING_PRINT_BODY_2'|gv_t}}</p>
+			{% endif %}
+		</div>
+		<div class="content-right">
+			{% if show_overdue_payments_banner == true %}
+				<a href="{{path('gv_fanatics_plus_order.resolve_order_pending_payment', {orderID: order.Identifier, pendingPaymentID: first_overdue_payment.Identifier})}}" class="btn primary continue-postpayment">{{'ORDER_DETAIL.BANNER.PENDING_PAYMENT_BTN_LABEL'|gv_t}}</a>
+			{% elseif show_post_payment_pending_data_banner == true %}
+				<a href="{{order.getPostPaymentURL()}}" class="btn primary continue-postpayment">{{'ORDER_DETAIL.BANNER.PENDING_DATA_BTN_LABEL'|gv_t}}</a>
+			{% elseif show_post_payment_revision_banner == true %}
+				<a href="{{order.getPostPaymentURL()}}" class="btn primary continue-postpayment">{{'ORDER_DETAIL.BANNER.PENDING_PRINT_BTN_LABEL'|gv_t}}</a>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endif %}
+
+<div class="my-grandski-past-orders-detail">
+<div class="go-back-container">
+	<a class="go-back" href="{{path('gv_fanatics_plus_order.order_history')}}">{{'ORDER_DETAIL.GO_BACK_LINK_LABEL'|gv_t}}</a>
+</div>
+<h1 class="page-title">{{'ORDER_DETAIL.MAIN_TITLE'|gv_t}} {{order.BookingLocator }}</h1>
+<div class="container-gv">
+<div class="divTable teaser">
+<div class="divTableHeading">
+<div class="divTableHead">{{'ORDER_DETAIL.PURCHASE_DATE'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.REFERENCE'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.CUSTOMER'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.TOTAL_AMOUNT'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.BALANCE'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.STATUS'|gv_t}}</div>
+</div>
+<div class="divTableBody">
+	<div class="divTableRow">
+		<div class="divTableCell date-h"><span class="label hidden">{{'ORDER_DETAIL.PURCHASE_DATE'|gv_t}}</span><div class="date-hour"><div class="date">{{order.BookingOpeningDateFormatted}}</div><div class="hour">{{order.BookingOpeningDateHourFormatted}}</div></div></div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.REFERENCE'|gv_t}}</span><div class="image"></div><div class="locator">{{order.BookingLocator}}</div><div class="description"></div></div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.CUSTOMER'|gv_t}}</span>{{order.OwnerIntegrant.Name}}</div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.TOTAL_AMOUNT'|gv_t}}</span>{{order.SalesAmount|number_format(2, ',', '.')}} €</div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.BALANCE'|gv_t}}</span>{{order.BalanceAmount|number_format(2, ',', '.')}} €</div>
+		<div class="divTableCell"><div class="order-status-label label-id-{{order.IDBookingStatus}}">{{order.BookingStatusLabel}}</div></div>
+	</div>
+</div>
+</div>
+<div class="order-services">
+	{% for service in order.Services %}
+	{% set service_pending_data = order_pending_data.Services[loop.index0] %}
+	{% set service_recharge_data = order_booking_rechargeable.Services[loop.index0] %}
+	<div class="order-service">
+		<div class="service-heading">
+			<div class="service-buyer">
+				<div class="service-buyer-image image-container {% if service.IntegrantData.ImageBase64 is null %} empty {% endif %}">
+					{% if service.IntegrantData.ImageBase64 is not null %}
+						<img src="" data-src="{{"data:image/jpeg;base64,#{service.IntegrantData.ImageBase64}"}}"/>
+					{% else %}
+						<img src="" data-src="{{order.getDefaultUserAvatar()}}"/>
+					{% endif %}
+				</div>
+				<div class="service-buyer-name">
+					<span>{{service.IntegrantData.Name}} {{service.IntegrantData.Surname1}} {{service.IntegrantData.Surname2}}</span>
+				</div>
+				{% if (service_pending_data.PendingPhoto == true or service.IntegrantData.ImageBase64 == null) and order.isPaid() and not notNeedsPhoto[service.Identifier] %}
+						<div class="panel warning">
+						<a href="{{order.getPostPaymentURL()}}">
+							<div class="panel--inner">
+								<div class="panel-heading">
+									<p>
+	    							    {{'ORDER_DETAIL.NO_PROFILE_IMAGE_WARNING'|gv_t}}
+	    							</p>
+								</div>
+							</div>
+						</a>
+						</div>
+				{% endif %}
+			</div>
+			<div class="wrapper-status">
+    			{# 
+    				<div class="service-status label-id-{{service.IDServiceStatus}}">
+    					{{service.BookingStatusLabel}}
+    				</div> 
+    			#}
+    			{% if (service_recharge_data.Recharged == true) %}
+    				<div class="service-status label-id-3 recharged">
+    					{{'ORDER_DETAIL.RECHARGED'|gv_t}}
+    				</div>
+    			{% elseif service.SeasonPassData.Printed == true %}
+    				<div class="service-status label-id-3 printed">
+    					{{'ORDER_DETAIL.PRINTED'|gv_t}}
+    				</div>
+    			{% elseif service_recharge_data.RechargeRequest == true and service_recharge_data.Rechargeable == true %}
+    				<div class="service-status label-id-1 pending-recharge">
+    					{{'ORDER_DETAIL.PENDING_RECHARGE'|gv_t}}
+    				</div>
+    			{% elseif order.hasPendingShippingMethod() and order.isPaid() %}
+    				<a href="{{order.getPostPaymentURL()}}">
+    					<div class="service-status label-id-1 pending-shipping-method">
+    						{{'ORDER_DETAIL.PENDING_SHIPPING_METHOD'|gv_t}}
+    					</div>
+    				</a>
+    			{% elseif order.isInitialSale() == true and order.isPaid() %}
+    				<div class="service-status label-id-1 pending-print">
+    					{{'ORDER_DETAIL.PENDING_PRINT'|gv_t}}
+    				</div>
+    			{% endif %}
+			</div>
+		</div>
+		<div class="service-data">
+			<div class="product-info">
+				<div class="label">
+					{% if service.SeasonPassData.Product != null %}
+						{{service.SeasonPassData.Product}}
+					{% else %}
+						{{service.Product}}
+					{% endif %}
+				</div>
+				<div class="price">
+					{{service.SeasonPassData.SeasonPassAmount|number_format(2, ',', '.')}} €
+				</div>
+			</div>
+			{% if service.SeasonPassData.Insurance is not null and service.SeasonPassData.InsuranceAmount is not null %}
+			<div class="product-complements">
+				<div class="product-complement">
+					<div class="label">
+						{{service.SeasonPassData.Insurance}}
+					</div>
+					<div class="price">
+						{{service.SeasonPassData.InsuranceAmount|number_format(2, ',', '.')}} €
+					</div>
+				</div>
+			</div>
+			{% endif %}
+			<div class="service-total">
+				<div class="label">
+					{{'ORDER_DETAIL.TOTAL'|gv_t}}
+				</div>
+				<div class="price">
+					{{service.SalesAmount|number_format(2, ',', '.')}} €
+				</div>
+			</div>
+		</div>
+		{% if service.hasSeasonDataAmountDetails() == true %}
+		<div class="service-footer">
+			<a href="{{service.getSeasonDataAmountDetailsURL(order.Identifier)}}" class="use-ajax btn outline">{{'ORDER_DETAIL.SEE_INVOICE'|gv_t}}</a>
+		</div>
+		{% endif %}
+	</div>
+	{% endfor %}
+</div>
+{% if order.IDBookingOffice is not null %}
+<div class="order-booking-office">
+<div class="header">
+<h3> {{'ORDER_DETAIL.SHIPPING_METHOD_TITLE'|gv_t}} </h3>
+</div>
+<div class="pane-body">
+<label class="booking-office">{{order.BookingOfficeLabel.BookingOffice}}</label>
+</div>
+</div>
+{% endif %}
+{% if documents is not empty %}
+<div class="order-documents">
+<div class="header">
+	<h3> {{'ORDER_DETAIL.DOCUMENTS'|gv_t}}</h3>
+	{% if order_pending_data.PendingSignature == true %}
+	<div class="pending-badge pending-signature">
+		<div class="pending-badge--inner">
+			<span>{{'ORDER_DETAIL.PENDING_SIGNATURE'|gv_t}}</span>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<div class="pane-body">
+	{% for document in documents %}
+		{% if document.Exists == true and document.IDDocumentType != 2 %}
+		    <a href="{{document.getDownloadUrl(order.Identifier)}}" class="btn outline">{{document.getIDDocumentTypeName()}}</a>
+		{% endif %}
+	{% endfor %}
+</div>
+</div>
+{% endif %}
+{% if order.Payments is not empty %}
+<div class="order-payments">
+<div class="header">
+<h3> {{'ORDER_DETAIL.PAYMENT_HISTORY'|gv_t}} </h3>
+{% if order_pending_data.OverduePayment == true %}
+<div class="pending-badge pending-payment">
+	<div class="pending-badge--inner">
+		<span>{{'ORDER_DETAIL.PENDING_PAYMENT'|gv_t}}</span>
+	</div>
+</div>
+{% endif %}
+</div>
+<div class="pane-body">
+<div class="divTable">
+<div class="divTableHeading">
+<div class="divTableHead">{{'ORDER_DETAIL.DEADLINE'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.PAYMENT_METHOD'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.AMOUNT_TO_PAY'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.PAYMENT_TYPE'|gv_t}}</div>
+<div class="divTableHead">{{'ORDER_DETAIL.PAYMENT_CHARGED'|gv_t}}</div>
+<div class="divTableHead"> </div>
+</div>
+<div class="divTableBody">
+{% for payment in order.Payments %}
+	<div class="divTableRow">
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.DEADLINE'|gv_t}}</span>{{payment.getPaymentDueDate(true)}}</div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.PAYMENT_METHOD'|gv_t}}</span>{{payment.PaymentInstrumentData.PaymentInstrument}}</div>
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.AMOUNT_TO_PAY'|gv_t}}</span>{{payment.Amount|number_format(2, ',', '.')}} €</div>
+		{% if payment.IsRefund == false %}
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.PAYMENT_TYPE'|gv_t}}</span>{{'Payment'|t}}</div>
+		{% else %}
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.PAYMENT_TYPE'|gv_t}}</span>{{'Refund'|t}}</div>
+		{% endif %}
+		{% if payment.Consolidated == true or payment.IsRefund == true %}
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.PAYMENT_CHARGED'|gv_t}}</span>{{'Yes'|t}}</div>
+		<div class="divTableCell no"></div>
+		{% elseif payment.Amount > 0 %}
+		<div class="divTableCell"><span class="label hidden">{{'ORDER_DETAIL.PAYMENT_CHARGED'|gv_t}}</span>{{'No'|t}}</div>
+		<div class="divTableCell"><a class="btn" href="{{path('gv_fanatics_plus_order.resolve_order_pending_payment', {orderID: order.Identifier, pendingPaymentID: payment.Identifier})}}">{{'ORDER_DETAIL.PAY_NOW'|gv_t}}</a></div>
+		{% endif %}
+	</div>
+{% endfor %}
+</div>
+</div>
+{% endif %}
+</div>

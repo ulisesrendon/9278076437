@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Utils Module
+description: Utilities module for the GV Fanatics / Plus project.
+package: GV FPLUS
+
+type: module
+core: 8.x

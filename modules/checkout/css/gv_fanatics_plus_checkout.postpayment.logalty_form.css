@@ -1,0 +1,57 @@
+
+#logalty-sign-get-url {
+	width: 100%;
+    min-height: 45vh;
+    margin-top: 25px;
+}
+
+#edit-logalty {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+
+.error-container {
+	margin-top: 35px;
+}
+
+.error-container .actions {
+	margin-top: 20px;
+}
+
+/*#gv-fplus-checkout-logalty-form #edit-submit {
+	display: none!important;
+}
+*/
+
+body.bitaboot-lg.path-checkout.path-my-grandski.logged_in .block-system-main-block > .content > form.gv-fanatics-plus-no-fixed-buttons:not(#gv-fplus-checkout-shipping-data-form) #edit-actions {
+	position: relative;
+	left: calc((100vw - 184px) * 0.2)!important;
+}
+
+body.path-checkout.checkout-without-sidebar form#gv-fplus-checkout-logalty-form #edit-actions #edit-submit:disabled {
+	background-color: #DADFEB !important;
+    background: #D2D7E0!important;
+}
+
+body.path-checkout.checkout-without-sidebar form#gv-fplus-checkout-logalty-form:not(.gv-fanatics-plus-no-fixed-buttons) #edit-actions #edit-submit {
+    visibility: hidden;
+}
+
+#gv-fplus-checkout-logalty-form .or-separator {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.bitaboot-xs #gv-fplus-checkout-logalty-form .error-container .actions {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-content: center;
+}
+
+.bitaboot-xs #gv-fplus-checkout-logalty-form .or-separator {
+	text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}

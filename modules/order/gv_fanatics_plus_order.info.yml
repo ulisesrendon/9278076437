@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Order Module
+description: Order module for the GV Fanatics / Plus project.
+package: GV FPLUS
+
+type: module
+core: 8.x

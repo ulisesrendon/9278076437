@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the integrants list page.
+ *
+ * Available variables:
+ * - integrants: An array of integrants.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="my-grandski-my-integrants">
+<h1 class="page-title">{{'MY_INTEGRANTS.MAIN_TITLE'|gv_t}}</h1>
+<div class="description"><p>{{'MY_INTEGRANTS.DESCRIPTION'|gv_t}}</p></div>
+<div class="container-gv">
+<div class="divTable">
+<div class="divTableHeading">
+<div class="divTableHead">{{'MY_INTEGRANTS.NAME'|gv_t}}</div>
+<div class="divTableHead">{{'MY_INTEGRANTS.EMAIL'|gv_t}}</div>
+<div class="divTableHead">{{'MY_INTEGRANTS.ACTIONS'|gv_t}}</div>
+<div class="divTableHead">&nbsp;</div>
+</div>
+<div class="divTableBody">
+  {% for integrant in integrants %}
+	<div class="divTableRow">
+		<div class="divTableCell"><div class="image"><img data-src="{{integrant.ImageBase64}}" src="" /></div><div class="name">{{integrant.Name}} {{integrant.Surname}}</div></div>
+		<div class="divTableCell"><div class="email"><div class="label hidden">{{'MY_INTEGRANTS.EMAIL'|gv_t}}</div>{{integrant.Email}}</div></div>
+		<div class="divTableCell">
+			<div class="actions">
+				<div class="label hidden">{{'MY_INTEGRANTS.ACTIONS'|t}}</div>
+				{% if integrant.ClientHasSkiPass == false or integrant.ClientHasSkiPass == null %}
+					<a href="{{integrant.SwitchBuyUrl}}" class="btn primary start-purchase">{{'MY_INTEGRANTS.BUY'|gv_t}}</a>
+				{% endif %}
+				<a class="btn outline see-ski-slopes" href="{{integrant.SeeSkiSlopesUrl}}">{{'MY_INTEGRANTS.SEE_SKI_SLOPES_LABEL'|gv_t}}</a>
+				<a class="btn edit-integrant" href="{{integrant.SwitchEditProfileUrl}}">{{'MY_INTEGRANTS.EDIT'|gv_t}}</a>
+			</div>
+		</div>
+  		<div class="divTableCell">
+  			<div class="dropdown show other-actions">
+  				<a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    				<svg width="5" height="19" viewBox="0 0 5 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M2.49999 0.75C1.43054 0.75 0.555542 1.625 0.555542 2.69444C0.555542 3.76389 1.43054 4.63889 2.49999 4.63889C3.56943 4.63889 4.44443 3.76389 4.44443 2.69444C4.44443 1.625 3.56943 0.75 2.49999 0.75ZM2.49999 14.3611C1.43054 14.3611 0.555542 15.2361 0.555542 16.3056C0.555542 17.375 1.43054 18.25 2.49999 18.25C3.56943 18.25 4.44443 17.375 4.44443 16.3056C4.44443 15.2361 3.56943 14.3611 2.49999 14.3611ZM2.49999 7.55556C1.43054 7.55556 0.555542 8.43056 0.555542 9.5C0.555542 10.5694 1.43054 11.4444 2.49999 11.4444C3.56943 11.4444 4.44443 10.5694 4.44443 9.5C4.44443 8.43056 3.56943 7.55556 2.49999 7.55556Z" fill="#99A3B1"/>
+					</svg>
+  				</a>
+  				<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+    				<a class="dropdown-item" href="{{path('gv_fanatics_plus_checkout.remove_integrant', {integrantID: integrant.IntegrantID})}}">{{'MY_INTEGRANTS.REMOVE_INTEGRANT'|gv_t}}</a>
+  				</div>
+			</div>
+  		</div>
+  	</div>
+  {% endfor %}
+  {% if integrants is empty %}
+  	<h5 class="no-integrants">{{'MY_INTEGRANTS.NO_RESULTS'|gv_t}}</h5>
+  {% endif %}
+</div>
+</div>
+{% if add_new_integrant_url is not null %}
+<a class="btn outline add-new-integrant" href="{{add_new_integrant_url}}">{{'MY_INTEGRANTS.CREATE_INTEGRANT'|gv_t}}</a>
+{% endif %}
+</div>
+</div>

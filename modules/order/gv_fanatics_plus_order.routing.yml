@@ -1,0 +1,89 @@
+
+gv_fanatics_plus_order.order_history:
+  path: '/my-grandski/past-orders'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\OrderHistoryController::orderHistory'
+    _title: 'Your history'
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_history'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_order.order_detail:
+  path: '/my-grandski/past-orders/{orderID}'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\OrderDetailController::orderDetail'
+    _title: 'Order detail'
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_detail'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_order.order_detail_alias:
+  path: '/my-grandski/past-orders/locator/{bookingLocator}'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\OrderDetailController::orderDetailAlias'
+    _title: 'Order detail'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_detail_alias'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_order.resolve_order_pending_payment:
+  path: '/my-grandski/past-orders/{orderID}/payment/{pendingPaymentID}/pay'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\OrderPaymentController::resolvePendingPayment'
+    _title: 'Order pending payment processing'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_detail'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'pay'
+
+gv_fanatics_plus_order.order_payment_failure:
+  path: '/my-grandski/past-orders/payment/{pendingPaymentID}/failure'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\OrderPaymentFailureController::onPaymentError'
+    _title: 'Order payment failure'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'payment_failure'
+    gv_metrics_collector_step: ''
+    
+gv_fanatics_plus_order.document_download:
+  path: '/my-grandski/past-orders/{orderID}/documents/{documentType}/download'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\DocumentDownloadController::onDownload'
+    _title: 'Document download'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_detail'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'download_document'
+    gv_metrics_collector_initial_load: 'FALSE'
+
+gv_fanatics_plus_order.service_data_amount_details_modal:
+  path: '/my-grandski/past-orders/{orderID}/services/{serviceID}/data-amount-details/modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_order\Controller\ServiceDataAmountDetailsModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'order_detail'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'data_amount_details'
+    gv_metrics_collector_initial_load: 'FALSE'

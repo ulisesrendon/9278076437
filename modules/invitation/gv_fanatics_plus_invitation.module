@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function gv_fanatics_plus_invitation_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+
+	$existing['gv_fanatics_plus_invitation_list'] = [
+        'variables' => [
+        	'invitations' => [],
+        	'sales_channel' => NULL
+        ],
+    ];
+
+	return $existing;
+}
+
+?>

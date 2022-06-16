@@ -1,0 +1,12 @@
+
+gv_fanatics_plus_external_access.access:
+  path: '/private/my-grandski/external/access'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_external_access\Controller\ExternalAccessLoginController::access'
+    _title: 'External access'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'external_access'
+    gv_metrics_collector_step: 'external_login'

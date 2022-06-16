@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function gv_fanatics_plus_checkout_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+	
+	$existing['gv_fanatics_plus_checkout_page'] = ['template' => 'page', 'path' => $templates, 'variables' => [ 'gv_fplus_name' => 'Name' ]];
+	$existing['gv_fanatics_plus_checkout_progress'] = [
+        'variables' => [
+          'steps' => [],
+        ],
+    ];
+	
+	$existing['gv_fanatics_plus_checkout_integrants_selection'] = [
+        'variables' => [
+          'integrants' => [],
+          'owner' => [],
+          'add_new_integrant_url' => NULL
+        ],
+    ];
+	
+	$existing['gv_fanatics_plus_checkout_integrant_list'] = [
+        'variables' => [
+          'integrants' => [],
+          'add_new_integrant_url' => NULL
+        ],
+    ];
+
+	return $existing;
+}
+
+/**
+ * Implements hook_theme_suggestions_alter
+ *
+ * {@inheritdoc}
+ */
+function gv_fanatics_plus_checkout_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+	if ($hook == 'page') {
+	    $route_name = \Drupal::routeMatch() -> getRouteName();
+	    if ($route_name == 'gv_fanatics_plus_checkout.form'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_logalty'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipping_method'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipping_data'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipping_data_complete'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipping_method'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_documents'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipp+ing_data'
+	        || $route_name == 'gv_fanatics_plus_checkout.post_payment_shipping_data_complete'
+	        || $route_name == 'gv_fanatics_plus_order.order_payment_failure'
+	        ) {
+            $suggestions[] = 'gv_fanatics_plus_checkout_page';
+        }
+	}
+}
+
+function gv_fanatics_plus_checkout_preprocess(&$variables, $hook){
+    if($hook == 'page'){
+        $activeChannel = \Drupal::service('gv_fplus.channel_resolver')->resolve();
+        if (!isset($activeChannel)) {
+            return;
+        }
+        
+        $session = \Drupal::service('gv_fplus.session');
+        $isActiveAndLogged = $session -> isActiveAndLogged();
+        
+        $variables['gv_fplus_logged_in'] = $isActiveAndLogged;
+        
+        if($isActiveAndLogged){
+            $variables['gv_fplus_name'] = $session -> getClientName();
+        }
+        else{
+            $variables['gv_fplus_name'] = "Name";
+        }
+
+		$contactPageLinkBuilder = \Drupal::service('gv_fanatics_plus_contact.contact_page_link_builder');
+		$orderID = NULL;
+		if (\Drupal::routeMatch()->getRouteName() == 'gv_fanatics_plus_checkout.form') {
+			$orderID = \Drupal::service('gv_fanatics_plus_cart.cart')->getCurrent()->BookingLocator;
+		} else if (\Drupal::routeMatch()->getParameter('orderID') != NULL) {
+			$orderIDParam = \Drupal::routeMatch()->getParameter('orderID');
+			$orderID = \Drupal::service('gv_fanatics_plus_order.order')::getFromID($orderIDParam)->Booking->BookingLocator;
+		}
+	
+		$contactUrl = $contactPageLinkBuilder->buildURL($orderID, FALSE);
+		$variables['gv_fanatics_plus_contact_page_url'] = $contactUrl;
+    }
+}
+
+/**
+ * Implements hook_theme_registry_alter
+ */
+function gv_fanatics_plus_checkout_theme_registry_alter(&$theme_registry) {}
+?>

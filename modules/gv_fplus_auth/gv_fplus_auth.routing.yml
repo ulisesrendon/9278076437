@@ -1,0 +1,170 @@
+
+gv_fplus_auth.email_check_form:
+  path: '/my-grandski/start'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\EmailCheckForm'
+    _title: 'Login'
+    _title_callback: '\Drupal\gv_fplus_auth\Form\EmailCheckForm::getPageTitle'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_login'
+    gv_metrics_collector_step: 'start'
+
+gv_fplus_auth.basic_register_form:
+  path: '/my-grandski/register'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\BasicRegistrationForm'
+    _title: 'Register'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_basic_register'
+    gv_metrics_collector_step: 'register'
+
+gv_fplus_auth.activation_email_sent_form:
+  path: '/my-grandski/register/activation'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\ActivationEmailSentForm'
+    _title: 'Account activation'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_account_activation'
+    gv_metrics_collector_step: 'email_sent'
+
+gv_fplus_auth.login_form:
+  path: '/my-grandski/login'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\LoginForm'
+    _title: 'Sign in'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_login'
+    gv_metrics_collector_step: 'login'
+
+gv_fplus_auth.remember_password_form:
+  path: '/my-grandski/remember-password'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\RememberPasswordForm'
+    _title: 'Reset password'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_remember_password'
+    gv_metrics_collector_step: 'send_email'
+
+gv_fplus_auth.reset_password_form:
+  path: '/my-grandski/reset-password'
+  defaults: 
+    _form: '\Drupal\gv_fplus_auth\Form\ResetPasswordForm'
+    _title: 'Reset password'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_remember_password'
+    gv_metrics_collector_step: 'email_sent'
+
+gv_fplus_auth.user_profile_personal_data_form:
+  path: '/my-grandski/profile/personal-data'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\Multistep\UserProfile\PersonalDataForm'
+    _title: 'Review your personal data'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_edit_profile'
+    gv_metrics_collector_step: 'personal_data'
+
+gv_fplus_auth.user_profile_residence_data_form:
+  path: '/my-grandski/profile/residence-data'
+  defaults:
+    _form: '\Drupal\gv_fplus_auth\Form\Multistep\UserProfile\ResidenceDataForm'
+    _title: 'Review your residence data'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_edit_profile'
+    gv_metrics_collector_step: 'residence_data'
+
+gv_fplus_auth.logout:
+  path: '/my-grandski/logout'
+  defaults: 
+    _controller: '\Drupal\gv_fplus_auth\Controller\LogoutController::logout'
+    _title: 'Logout'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_logout'
+    gv_metrics_collector_step: ''
+    
+gv_fplus_auth.account_activated:
+  path: '/my-grandski/account-activated'
+  defaults: 
+    _controller: '\Drupal\gv_fplus_auth\Controller\AccountActivatedController::accountActivatedAction'
+    _title: 'Account activated'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_account_activation'
+    gv_metrics_collector_step: 'account_activated'
+
+gv_fplus_auth.reset_password_email_sent:
+  path: '/my-grandski/reset-password-email-sent'
+  defaults: 
+    _form: '\Drupal\gv_fplus_auth\Form\ResetPasswordEmailSentForm'
+    _title: 'Reset password email sent'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_remember_password'
+    gv_metrics_collector_step: 'email_sent'
+
+gv_fplus_auth.close_dialog:
+  path: '/my-grandski/auth/modals/default-modal/close'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fplus_auth\Controller\CloseModalController::close'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_initial_load: 'FALSE'
+    
+gv_fplus_auth.forgotten_email_modal:
+  path: '/my-grandski/auth/modals/forgotten-email-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fplus_auth\Controller\OpenForgottenEmailModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_login'
+    gv_metrics_collector_step: 'start'
+    gv_metrics_collector_action: ''
+
+gv_fplus_auth.change_password_modal:
+  path: '/my-grandski/auth/modals/change-password-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fplus_auth\Controller\OpenChangePasswordModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_edit_profile'
+    gv_metrics_collector_step: 'personal_data'
+    gv_metrics_collector_action: ''

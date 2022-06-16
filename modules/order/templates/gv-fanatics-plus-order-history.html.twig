@@ -1,0 +1,101 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the order history page.
+ *
+ * Available variables:
+ * - orders: An array of orders.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="my-grandski-past-orders">
+<h1 class="page-title">{{'MY_HISTORY.MAIN_TITLE'|gv_t}}</h1>
+<div class="description"><p>{{'MY_HISTORY.DESCRIPTION'|gv_t}}</p></div>
+<div class="container-gv">
+{% if seasons is not empty %}
+<div class="season-select-container">
+<label for="season">{{'MY_HISTORY.SELECT_SEASON_LABEL'|gv_t}}</label>
+<select name="season">
+    {% for key,val in seasons %}
+        <option value="{{ val.identifier }}" data-url="{{val.url}}" {{ val.active == true ? ' selected ' : '' }}>{{ val.season }}</option>
+    {% endfor %}
+</select>
+</div>
+{% endif %}
+<div class="divTable">
+<div class="divTableHeading">
+<div class="divTableHead">{{'MY_HISTORY.REFERENCE'|gv_t}}</div>
+<div class="divTableHead">{{'MY_HISTORY.PURCHASE_DATE'|gv_t}}</div>
+<div class="divTableHead">{{'MY_HISTORY.BALANCE'|gv_t}}</div>
+<div class="divTableHead">{{'MY_HISTORY.STATUS'|gv_t}}</div>
+<div class="divTableHead">{{'MY_HISTORY.PENDING_ACTIONS'|gv_t}}</div>
+<div class="divTableHead">&nbsp;</div>
+</div>
+<div class="divTableBody">
+  {% for order in orders %}
+  {% if (defaulting == true and order.OverduePayment == true) or defaulting == false %}
+	<div class="divTableRow">
+		<div class="divTableCell">
+			<!--<div class="image"></div>-->
+			<div class="info-wrapper">
+    			<div class="locator"><div class="label hidden">{{'MY_HISTORY.REFERENCE'|gv_t}}</div>{{order.BookingLocator}}</div>
+    			<div class="description"></div>
+			</div>
+		</div>
+		<div class="divTableCell date">
+			<div class="label hidden">{{'MY_HISTORY.PURCHASE_DATE'|gv_t}}</div>
+			<div class="date">{{order.BookingOpeningDateFormatted}}</div>
+			<div class="hour">{{order.BookingOpeningDateHourFormatted}}</div>
+		</div>
+		<div class="divTableCell price">
+			<div class="label hidden">{{'MY_HISTORY.BALANCE'|gv_t}}</div>			
+			<div class="price">{{order.BalanceAmount|number_format(2, ',', '.')}} €</div>
+			<div class="signage-status"></div>
+		</div>
+		<div class="divTableCell">
+			<div class="order-status-label label-id-{{order.IDBookingStatus}}">{{order.BookingStatusLabel}}</div>
+		</div>
+		<div class="divTableCell">
+			{% set pendingActions = order.getPendingData().Counter %}
+			{% if pendingActions > 0 %}
+			<div class="pending-actions">
+				<div class="pending-actions--inner">
+					<svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M8.61704 0.76541L15.4045 12.522C15.5318 12.7425 15.5318 13.0141 15.4045 13.2346C15.2773 13.455 15.0421 13.5908 14.7875 13.5908H1.21251C0.957948 13.5908 0.722731 13.455 0.595456 13.2346C0.46818 13.0141 0.468182 12.7425 0.59546 12.522L7.38295 0.76541C7.51024 0.544972 7.74545 0.40918 8 0.40918C8.25455 0.40918 8.48976 0.544972 8.61704 0.76541ZM7.28748 10.0282V11.4533H8.71252V10.0282H7.28748ZM7.28748 5.04055V8.60316H8.71252V5.04055H7.28748Z" fill="#D8A13D"/>
+					</svg>
+				</div>
+				<div class="pending-actions--counter">{{pendingActions}}</div>
+			</div>
+			{% endif %}
+		</div>
+		<div class="divTableCell with-bita_throbber bita_throbber_wrapp"><a class="btn with-bita_throbber bita_throbber throbber-blue" href="{{order.BookingDetailURL}}">{{'MY_HISTORY.PENDING_ACTIONS.VIEW'|gv_t}}</a></div>
+	</div>
+	{% endif %}
+  {% endfor %}
+  {% if orders is empty %}
+  	<h5 class="no-orders">{{'MY_HISTORY.NO_RESULTS'|gv_t}}</h5>
+  {% endif %}
+</div>
+</div>
+<div class="pager-container">
+	{% if pages is not empty and orders is not empty %}
+	<ul class="pager">
+		{% if page_show_previous == true %}
+			<li class="pager-previous"><a href="{{path('gv_fanatics_plus_order.order_history', {'pageno': page_current - 1, 'season': current_season})}}"><<</a></li>
+		{% endif %}
+		{% for page in pages %}
+			{% if page == page_current %}
+				<li class="pager-current">{{page}}</li>
+			{% else %}
+				<li class="pager-item"><a href="{{path('gv_fanatics_plus_order.order_history', {'pageno': page, 'season': current_season})}}">{{page}}</a></li>
+			{% endif %}
+		{% endfor %}
+		{% if page_show_next == true %}
+			<li class="pager-next"><a href="{{path('gv_fanatics_plus_order.order_history', {'pageno': page_current + 1, 'season': current_season})}}">>></a></li>
+		{% endif %}
+	</ul>
+	{% endif %}
+</div>
+</div>
+</div>

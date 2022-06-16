@@ -1,0 +1,3 @@
+services:
+    gv_fanatics_plus_contact.contact_page_link_builder:
+      class: Drupal\gv_fanatics_plus_contact\ContactPageLinkBuilder

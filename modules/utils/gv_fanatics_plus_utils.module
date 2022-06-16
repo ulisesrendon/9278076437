@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+
+function gv_fanatics_plus_utils_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+	
+	$existing['gv_fanatics_plus_error_500'] = [
+        'variables' => [
+          
+        ],
+    ];
+	
+	$existing['gv_fanatics_plus_utils_not_found_error_page'] = [
+        'variables' => [],
+    ];
+
+	$existing['gv_fanatics_plus_utils_access_denied_error_page'] = [
+        'variables' => [],
+    ];
+	
+	$existing['gv_fanatics_plus_utils_internal_error_page'] = [
+        'variables' => [
+        	'contact_page_url' => NULL
+        ],
+    ];
+	
+	return $existing;
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function gv_fanatics_plus_utils_page_attachments(&$page) {
+	/**
+	 * Initial JS.
+	 */
+	 
+	$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
+	$activeChannel = $channelResolver->resolve();
+	if ($activeChannel == NULL) {
+		return;
+	}
+	
+	if ($activeChannel->isPlus()) {
+		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/plus.eu-cookie-compliance';
+	} else if ($activeChannel->isTemporadaOA()) {
+		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/temporada-oa.eu-cookie-compliance';
+	} else if ($activeChannel->isFanatics()){
+		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/fanatics.eu-cookie-compliance';
+	}
+}
+
+function gv_fanatics_plus_utils_preprocess_html(&$variables) {
+	if (!\Drupal::currentUser()->hasPermission('access language ' . 'en-test')) {
+		$variables['no_test_language'] = TRUE;
+	} else {
+		$variables['no_test_language'] = FALSE;
+	}
+	
+	$language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+	$variables['gv_language'] = $language;
+}
+
+?>

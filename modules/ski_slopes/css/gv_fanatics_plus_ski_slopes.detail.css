@@ -1,0 +1,33 @@
+
+.season-select-container,
+.day-select-container {
+	text-align: center;
+	margin-top: 50px;
+}
+
+.season-select-container label,
+.day-select-container label {
+	font-family: Josefin Sans;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 14px;
+	line-height: 18px;
+
+	letter-spacing: 1px;
+}
+
+select[name="season"],
+select[name="day"] {
+	max-width: 250px;
+	display: block;
+	margin: 0 auto;
+}
+
+.chart-outer-container {
+	margin-top: 55px;
+}
+
+.chart-title {
+	margin-top: 15px;
+	margin-bottom: 45px;
+}

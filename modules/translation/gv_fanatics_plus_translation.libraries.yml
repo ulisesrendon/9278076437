@@ -1,0 +1,5 @@
+ui-translation-hide-delete-op:
+  version: VERSION
+  css:
+    theme:
+      css/hide-admin-delete-ui-translation.css: {}

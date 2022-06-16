@@ -1,0 +1,127 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the cart block.
+ *
+ * Available variables:
+ * - cart: Cart object
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="hidden block-cart-mobile-header">
+    {% if cart is null or cart.Services is empty %}
+      	<div class="header empty">{{'CART.EMPTY'|gv_t}}</div>
+    {% else %}
+    	{% set coount = 0 %}
+		{% for service in cart.Services %}
+			{% set coount = coount + 1 %}
+		{% endfor %}
+		<div class="header-cart">
+			<div class="count">{{ coount }}</div>
+			<div class="wrapper-message">
+    			<div class="message"><div class="localizer">{{cart.BookingLocator}}</div>{{ 'CART.ORDER_SUMMARY'|gv_t }}</div>
+    			<div class="close"></div>
+			</div>
+		</div>
+    {% endif %}
+</div>
+<div class="cart-block--inner">
+  {% if cart is null or cart.Services is empty %}
+  	<div class="title empty">
+  		<h3>{{'CART.EMPTY'|gv_t}}</h3>
+  	</div>
+  {% else %}
+   	<div class="title">
+  		<h3>{{'CART.ORDER_SUMMARY'|gv_t}}</h3>
+  		<h4>{{cart.BookingLocator}}</h4>
+  		<div class="cart-table">
+  			<div class="cart-table--inner">
+  			{% for service in cart.Services %}
+  				<div class="line-item">
+  					<div class="product-owner-container">
+  						<div class="product-owner-image image-container {% if service.UserData.ImageBase64 is null %} empty {% endif %}">
+  							{% if service.UserData.ImageBase64 is not null %}
+  								<img data-src="{{service.UserData.ImageBase64}}" src="" />
+  							{% else %}
+  								<img src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/user-line-white--default-avatar.svg" />
+  							{% endif %}
+  						</div>
+  						<div class="product-owner-title">
+  							{% if service.UserData.IsOwner %}
+  								<span>{{'CART.SERVICE_OWNER_LABEL'|gv_t}}</span>
+  							{% else %}
+  								<span>{{'CART.SERVICE_INTEGRANT_LABEL'|gv_t({'@name': service.UserData.Name~" "~service.UserData.Surname})}}</span>
+  							{% endif %}
+  						</div>
+  					</div>
+  					<div class="product-label-container">
+  						<div class="product-name"><span>{{ service.SeasonPassData.Product }}</span></div>
+  						{%if can_edit is sameas(true) %}
+  						<div class="delete-line-item"><a class="btn use-ajax" href="/checkout/ajax-actions/remove-booking-service/{{service.Identifier}}" title={{'delete'|trans}} data-service-id="{{service.Identifier}}">{{'delete'|trans}}</a></div>
+  						{% endif %}
+  					</div>
+  					<div class="line-item-price">
+  						{% if service.SeasonPassData.DiscountAmount > 0 %}
+  							<span class="previous-price">{{service.SeasonPassData.SeasonPassAmount|number_format(2, ',', '.')}} €</span>
+  							<span class="final-price">{{(service.SeasonPassData.SeasonPassAmount - service.SeasonPassData.DiscountAmount)|number_format(2, ',', '.')}} €</span>
+  						{% else %}
+  							<span class="final-price">{{service.SeasonPassData.SeasonPassAmount|number_format(2, ',', '.')}} €</span>
+  						{% endif %}
+  					</div>
+  					{% if service.AvailableInsurances is empty and service.SeasonPassData.Insurance is not null %}
+  					<div class="insurance-label-container label">
+  						<div class="insurance-name name"><span>{{ service.SeasonPassData.Insurance }}</span></div>
+  						{% if can_edit is sameas(true) %}
+  						<div class="delete-line-item-insurance"><a class="btn use-ajax" href="/checkout/ajax-actions/remove-insurance/{{service.Identifier}}" title={{'delete'|trans}} data-service-id="{{service.Identifier}} data-insurance-id="{{service.SeasonPassData.IDInsurance}}">{{'delete'|trans}}</a></div>
+  					    {% endif %}
+  					</div>
+  					<div class="insurance-price price">
+  						<span>{{service.SeasonPassData.InsuranceAmount|number_format(2, ',', '.')}} €</span>
+  					</div>
+  					{% endif %}
+  					<div class="line-item-complements-container">
+  						{% if service.AvailableInsurances is not empty and can_edit is sameas(true) %}
+  							{% set insurance = service.AvailableInsurances|first %}
+  								<div class="add-insurance">
+  									<a class="btn use-ajax" data-dialog-type="dialog" data-dialog-renderer="off_canvas" data-insurance-id="{{insurance.IDInsurance}}" href="{{path('gv_fanatics_plus_checkout.add_insurance_modal', {'productid': service.Identifier, 'insuranceid': insurance.IDInsurance})}}">{{insurance.Amount|number_format(2, ',', '.')}}€ • {{'CART.ADD_INSURANCE_BTN_LABEL'|gv_t}}</a>
+  								</div>
+  								<!-- <div class="see-all-complements">
+  									<a href="#"> {{'more complements'|trans}} </a>
+  								</div> -->
+  						{% endif %}
+  					</div>
+  					<div class="line-item-total">
+  						<span></span>
+  					</div>
+  				</div>
+  			{% endfor %}
+  			</div>
+  			{% if can_edit == true and member_get_member_active == true %}
+  			<div class="booking-referral">
+  				<div class="booking-referral--inner">
+  					<h5>{{'CART.MEMBER_GET_MEMBER_LABEL'|gv_t}} </h5>
+  					<div class="booking-referral-input">
+  						<input type="text" id="booking-referral" placeholder="{{'CART.MEMBER_GET_MEMBER_INPUT_PLACEHOLDER'|gv_t}}" value="{{booking_referral}}"/>
+  						<a href="{{member_get_member_url}}" class="use-ajax">{{'CART.MEMBER_GET_MEMBER_LINK_LABEL'|gv_t}}</a>
+  					</div>
+  				</div>
+  			</div>
+  			{% endif %}
+  			{% if cart.SalesAmount > 0 %}
+  			<div class="cart-table--summary">
+  				<div class="totals">
+  					<div class="label">
+  					{{'Total'|t}}
+  					</div>
+  					<div class="price">
+  					{{cart.SalesAmount|number_format(2, ',', '.')}}€
+  					</div>
+  				</div>
+  			</div>
+  			{% endif %}
+  		</div>
+		<div class="hidden close-mobile">{{ 'Close summary'|t }}</div>
+  	</div>
+  {% endif %}
+</div>

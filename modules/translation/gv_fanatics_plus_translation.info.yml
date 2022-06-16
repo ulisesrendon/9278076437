@@ -1,0 +1,6 @@
+name: GV Fanatics Plus Translation Module
+description: Translation module for the GV Fanatics / Plus project.
+package: GV FPLUS
+
+type: module
+core: 8.x

@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * Declara templates
+ */
+function gv_fanatics_plus_my_grandski_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+
+	$existing['gv_fanatics_plus_my_grandski_main_menu'] = [
+        'variables' => [
+        	'main_menu' => NULL
+        ],
+	];
+	
+	$existing['gv_fanatics_plus_my_grandski_menu_top'] = [
+	    'variables' => [
+	    	'main_menu' => NULL
+	    ],
+	];
+
+	return $existing;
+}
+
+/**
+ * Preprocesador de página con variables de autenticación y nombre de usuario
+ */
+function gv_fanatics_plus_my_grandski_preprocess(&$variables, $hook){
+    if($hook == 'gv_fanatics_plus_my_grandski_main_menu'){
+        
+        $session = \Drupal::service('gv_fplus.session');
+        $isActiveAndLogged = $session -> isActiveAndLogged();
+        
+        $variables['gv_fplus_logged_in'] = $isActiveAndLogged;
+        
+        if($isActiveAndLogged){
+            $variables['gv_fplus_name'] = $session -> getClientName();
+        }
+        else{
+            $variables['gv_fplus_name'] = "Name";
+        }
+    }
+}
+?>

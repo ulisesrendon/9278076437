@@ -1,0 +1,107 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the ski slopes detail page.
+ *
+ * Available variables:
+ * - ski_slopes_data: An array of ski slope data.
+ *
+ * @ingroup themeable
+ */
+#}
+{% if is_integrant == true %}
+<div class="my-grandski-ski-slopes-history is-integrant">
+<div class="go-back-container integrants">
+	<a class="go-back" href="{{path('gv_fanatics_plus_checkout.integrant_list')}}">{{'SKI_SLOPES_HISTORY.GO_BACK_INTEGRANT_LIST_LABEL'|gv_t}}</a>
+</div>
+<h1 class="page-title">{{'SKI_SLOPES_HISTORY.INTEGRANT_MAIN_TITLE'|gv_t({'@name': integrant.Name})}}</h1>
+{% else %}
+<div class="my-grandski-ski-slopes-history">
+<h1 class="page-title">{{'SKI_SLOPES_DETAIL.MAIN_TITLE'|gv_t}} {{current_day_label}}</h1>
+{% endif %}
+<div class="description"><p>{{'SKI_SLOPES_DETAIL.TOTAL_SLOPE'|gv_t}}</p></div>
+<div class="container-gv">
+<div class="row">
+<div class="col-md-6 col-sm-12 col-xs-12">
+<div class="season-select-container">
+<label for="season">{{'SKI_SLOPES_DETAIL.MODIFY_SEASON'|gv_t}}</label>
+<select name="season">
+    {% for key,val in seasons %}
+        <option value="{{ val.label }}" data-url={{val.url}} {{ val.active == true ? ' selected ' : '' }}>{{ val.label }}</option>
+    {% endfor %}
+</select>
+</div>
+</div>
+<div class="col-md-6 col-sm-12 col-xs-12">
+<div class="day-select-container">
+<label for="day">{{'SKI_SLOPES_DETAIL.MODIFY_DAY'|gv_t}}</label>
+<select name="day">
+    {% for key,val in days %}
+        <option value="{{ val.label }}" data-url={{val.url}} {{ val.active == true ? ' selected ' : '' }}>{{ val.label }}</option>
+    {% endfor %}
+</select>
+</div>
+</div>
+</div>
+<div class="chart-outer-container">
+<div class="chart-inner-container">
+<div class="chart-title">
+<label>{{'SKI_SLOPES_DETAIL.TOTAL_SLOPE'|gv_t}} {{total_slope}}m</label>
+</div>
+<div class="chart-object">
+<canvas id="slopes-chart" width="100%" height="350" data-labels='{{ graph_labels|json_encode|replace("'", "&#39;")|raw }}' data-values='{{ graph_data|json_encode|replace("'", "&#39;")|raw }}'/>
+</div>
+</div>
+</div>
+<div class="divTable">
+<div class="divTableHeading">
+<div class="divTableHead">{{'SKI_SLOPES_DETAIL.HOUR'|gv_t}}</div>
+<div class="divTableHead">{{'SKI_SLOPES_DETAIL.CHAIRLIFT'|gv_t}}</div>
+<div class="divTableHead">{{'SKI_SLOPES_DETAIL.INITIAL_ALTITUDE'|gv_t}}</div>
+<div class="divTableHead">{{'SKI_SLOPES_DETAIL.FINAL_ALTITUDE'|gv_t}}</div>
+</div>
+<div class="divTableBody">
+  {% for data in ski_slopes_data.List %}
+	<div class="divTableRow">
+		<div class="divTableCell date">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.HOUR'|gv_t}}</div>
+			<div class="date">{{data.getUseTime(true)}}</div>
+		</div>
+		<div class="divTableCell chairlift">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.CHAIRLIFT'|gv_t}}</div>
+			<div class="info-wrapper">{{data.chairliftName}}</div>
+		</div>
+		<div class="divTableCell initial-altitude">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.INITIAL_ALTITUDE'|gv_t}}</div>
+			<div class="info-wrapper">{{data.InitHeight}}</div>
+		</div>
+		<div class="divTableCell final-altitude">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.FINAL_ALTITUDE'|gv_t}}</div>
+			<div class="info-wrapper">-</div>
+		</div>
+	</div>
+	{% if data.FinalHeight != null and data.FinalHeight > 0 %}
+	<div class="divTableRow">
+		<div class="divTableCell date">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.HOUR'|gv_t}}</div>
+			<div class="date">{{data.getExitUseTime()}}</div>
+		</div>
+		<div class="divTableCell chairlift">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.CHAIRLIFT'|gv_t}}</div>
+			<div class="info-wrapper">{{data.chairliftName}}</div>
+		</div>
+		<div class="divTableCell initial-altitude">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.INITIAL_ALTITUDE'|gv_t}}</div>
+			<div class="info-wrapper">-</div>
+		</div>
+		<div class="divTableCell final-altitude">
+			<div class="label hidden">{{'SKI_SLOPES_DETAIL.FINAL_ALTITUDE'|gv_t}}</div>
+			<div class="info-wrapper">{{data.FinalHeight}}</div>
+		</div>
+	</div>
+	{% endif %}
+  {% endfor %}
+</div>
+</div>
+</div>
+</div>

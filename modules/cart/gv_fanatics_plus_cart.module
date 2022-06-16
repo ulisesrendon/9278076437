@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function gv_fanatics_plus_cart_theme($existing, $type, $theme, $path) {
+	$templates = $path . '/templates';
+	
+	$newThemes = [];
+	$newThemes['gv_fanatics_plus_cart_block'] = [
+        'variables' => [
+          'cart' => NULL,
+          'can_edit' => FALSE,
+          'member_get_member_active' => FALSE,
+          'booking_referral' => '',
+          'member_get_member_url' => NULL
+        ],
+    ];
+
+	return $newThemes;
+}
+
+?>

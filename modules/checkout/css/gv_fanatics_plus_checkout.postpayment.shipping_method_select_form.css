@@ -1,0 +1,21 @@
+.top-description-container--title h3 {
+	text-align: center;
+}
+
+.image-input-edit,
+.image-input-base64-edit {
+	display: none!important;
+}
+
+
+body.path-checkout.checkout-without-sidebar form.gv-fplus-checkout-shipping-method-select-form #edit-description {
+	margin-top: 25px;
+}
+
+body.path-checkout.checkout-without-sidebar form.gv-fplus-checkout-shipping-method-select-form #edit-description p {
+	font-size: 16px;
+}
+
+body.path-checkout.checkout-without-sidebar.shipping-method .block-system-main-block .content .panel.warning.no-home-delivery {
+	margin-top: 30px;
+}

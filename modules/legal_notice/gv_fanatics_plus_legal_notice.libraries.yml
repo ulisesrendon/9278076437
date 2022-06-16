@@ -1,0 +1,13 @@
+iframe:
+  version: VERSION
+  css:
+    theme:
+      css/legal-notice-iframe.css: {}
+  js:
+    js/iframeResizer.contentWindow.min.js: {}
+
+flavor-hoteles:
+  version: VERSION
+  css:
+    theme:
+      css/flavor-hoteles.css: {}

@@ -1,0 +1,44 @@
+
+gv_fanatics_plus_utils.page_not_found:
+  path: '/private/error-page-not-found'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_utils\Controller\PageNotFoundController::show'
+    _title: 'Page not found'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+gv_fanatics_plus_utils.access_denied:
+  path: '/private/error-page-access-denied'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_utils\Controller\AccessDeniedController::show'
+    _title: 'Access denied'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+gv_fanatics_plus_utils.internal_error:
+  path: '/private/error-page-internal'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_utils\Controller\InternalErrorController::show'
+    _title: 'Internal server error'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+
+gv_fanatics_plus_utils.open_change_language_modal:
+  path: '/utils/modals/change-language-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_utils\Controller\OpenChangeLanguageModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'utils'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: ''
+    gv_metrics_collector_initial_load: 'FALSE'

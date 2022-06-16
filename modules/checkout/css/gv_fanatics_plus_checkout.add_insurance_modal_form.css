@@ -1,0 +1,61 @@
+.add-insurance-btn .added-label {
+	display: none;
+}
+
+.add-insurance-btn.selected .to-add-label {
+	display: none;
+}
+
+.add-insurance-btn.selected .added-label {
+	display: inline;
+}
+
+.btn.add-insurance-btn.selected {
+	color: white;
+	cursor: pointer;
+}
+
+.insurance-list-item {
+	box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.16);
+    padding: 25px 30px;
+}
+
+.add-insurance-modal-form .form-actions {
+	margin-top: 25px;
+}
+
+.add-insurance-modal-form .form-actions .btn.btn-primary {
+	margin: 0 auto;
+}
+
+.add-insurance-modal-form .form-actions .button:not(.btn-primary) {
+	width: initial;
+    margin: 0 auto!important;
+    display: block!important;
+    margin-bottom: 25px!important;
+}
+
+.ui-dialog-buttonpane.ui-widget-content {
+	display: none;
+}
+
+.add-insurance-modal-form .js-form-item-selected-insurances {
+	display: none;
+}
+
+body.path-checkout .ui-dialog.ui-dialog-off-canvas #drupal-off-canvas .insurance-list-container .form-actions button.form-submit {
+	background-image: none!important;
+}
+
+body.path-checkout .ui-dialog.ui-dialog-off-canvas #drupal-off-canvas .insurance-list-container .form-actions button.form-submit:not(:disabled) {
+	background-color: #F4D0D4 !important;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#f37461), color-stop(99%, #de4832)) !important;
+    background-image: -webkit-linear-gradient(top, #f37461, #de4832 99%) !important;
+    background-image: -o-linear-gradient(top, #f37461, #de4832 99%) !important;
+    background-image: linear-gradient(to bottom, #f37461, #de4832 99%) !important;
+    color: #ffffff !important;
+}
+
+body.path-checkout .ui-dialog.ui-dialog-off-canvas #drupal-off-canvas .insurance-list-container .form-actions button.form-submit:hover {
+	text-decoration: none!important;
+}

@@ -1,0 +1,157 @@
+.document-upload-iframe {
+	width: 100%;
+    height: auto;
+    overflow-y: visible;
+    min-height: 200px;
+}
+
+#gv-fplus-checkout-shipping-documents-form-v2.gv-fplus-checkout-shipping-documents-form .radial-progress-bar {
+	display: none!important;
+}
+
+.no-results-behaviour,
+.no-results-behaviour h6 {
+	text-align: center;
+}
+
+.form-file.form-control {}
+
+.gv-fplus-checkout-shipping-documents-form-v2 fieldset,
+.gv-fplus-checkout-shipping-documents-form fieldset {
+	border: none!important;
+}
+
+.gv-fplus-checkout-shipping-documents-form-v2 fieldset.form-type-managed-file,
+.gv-fplus-checkout-shipping-documents-form fieldset.form-type-managed-file {
+	padding-bottom: 3px;
+}
+
+fieldset.documents-wrapper,
+body.path-checkout.checkout-without-sidebar form.gv-fplus-checkout-shipping-documents-form#gv-fplus-checkout-shipping-documents-form fieldset.documents-wrapper{
+    background: #EDF9FC;
+    border: 1px dashed #8FD5EB!important;
+    box-sizing: border-box;
+    border-radius: 8px;
+    color: #348BA6;
+    margin-top: 25px;
+    margin-bottom: 5px;
+    padding-top: 15px;
+    padding-bottom: 20px;
+    padding-left: 15px;
+}
+
+body.path-my-grandski.logged_in form fieldset.documents-wrapper .description {
+	color: #348BA6!important;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 21px;
+	margin-top: 0;
+    padding-top: 5px;
+    clear: both;
+    display: inline-block;
+    text-align: left;
+}
+
+body.path-my-grandski.logged_in form fieldset.documents-wrapper label {
+	margin-bottom: 15px;
+	font-size: 14px;
+}
+
+fieldset.documents-wrapper input.form-file.form-control {
+	max-width: 100%;
+    /* background-color: blue; */
+    background: #EDF9FC;
+    width: 425px;
+    border: none!important;
+    padding-left: 0;
+}
+
+fieldset.documents-wrapper span.file {
+	font-family: IBM Plex Sans;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 21px;
+    display: flex;
+    align-items: center;
+    color: #575968;
+    flex: none;
+    order: 1;
+    align-self: center;
+    flex-grow: 0;
+    margin: 8px 0px;
+    border: none;
+    background-color: transparent;
+    padding-left: 0!important;
+    display: inline-block;
+}
+
+fieldset.documents-wrapper span.file a {
+	color: #575968!important;
+    pointer-events: none;
+    text-decoration: none;
+    padding-left: 0!important;
+    vertical-align: ;
+    /* line-height: 50px; */
+    padding-left: 40px!important;
+}
+
+fieldset.documents-wrapper span.file a:before {
+	content: "";
+    display: inline-block;
+    background-image: url(/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/archive-line.svg);
+    background-size: 35px 31px;
+    /* background-size: contain; */
+    background-position: center left;
+    width: 35px;
+    height: 31px;
+    background-repeat: no-repeat;
+    /* top: 26px; */
+    position: absolute;
+    left: 0;
+}
+
+form fieldset.documents-wrapper button {
+	display: inline-block;
+    font-size: 0;
+    background: transparent;
+    background-image: url(/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/delete-bin-2-fill-red.svg);
+    background-size: 35px 31px;
+    /* background-size: contain; */
+    background-position: center left;
+    background-repeat: no-repeat;
+    width: initial;
+    padding-left: 0;
+}
+
+#gv-fplus-checkout-shipping-documents-form-v2 fieldset.documents-wrapper button:hover,
+#gv-fplus-checkout-shipping-documents-form fieldset.documents-wrapper button:hover {
+	color: initial!important;
+	background-color: transparent!important;
+	background-image: url(/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/delete-bin-2-fill-red.svg)!important;
+	box-shadow: none!important;
+}
+
+body.path-checkout.documents #gv-fplus-checkout-shipping-documents-form .shipping-documents-container .shipping-option-data-integrants .integrant .img img {
+	width: 100%;
+}
+
+#gv-fplus-checkout-shipping-documents-form.gv-fplus-checkout-shipping-documents-form .radial-progress-bar {
+	display: none!important;
+}
+
+body.path-checkout.checkout-without-sidebar form#gv-fplus-checkout-shipping-documents-form #edit-actions #edit-submit:disabled {
+	background-color: #DADFEB !important;
+    background: #D2D7E0!important;
+}
+
+.gv-fplus-checkout-shipping-documents-form .document-description {
+	color: #575968 !important;
+}
+
+.messages.messages--error.file-upload-js-error {
+	color: red;
+    font-size: 14px;
+    max-width: 100%;
+}

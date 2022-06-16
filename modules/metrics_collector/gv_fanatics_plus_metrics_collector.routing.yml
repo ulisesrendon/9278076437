@@ -1,0 +1,8 @@
+
+gv_fanatics_plus_metrics_collector.export_metrics:
+  path: '/private/metrics/export'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_metrics_collector\Controller\ExporterController::show'
+    _title: 'Metrics'
+  options:
+    no_cache: 'TRUE'

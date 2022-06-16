@@ -1,0 +1,4 @@
+'delete ui translations':
+  title: 'Delete interface translations'
+  description: 'Ability to delete interface translations.'
+  restrict access: true

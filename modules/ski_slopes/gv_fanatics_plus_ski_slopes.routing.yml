@@ -1,0 +1,55 @@
+gv_fanatics_plus_ski_slopes.history:
+  path: '/my-grandski/ski-slopes-data'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_ski_slopes\Controller\SkiSlopesHistory::show'
+    _title: 'Ski slopes data'
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'ski_slopes_list'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_ski_slopes.history_integrant:
+  path: '/my-grandski/my-integrants/ski-slopes-data'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_ski_slopes\Controller\SkiSlopesHistory::show'
+    _title: 'Ski slopes data'
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'ski_slopes_list'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_ski_slopes.detail:
+  path: '/my-grandski/ski-slopes-data/detail/{season}/{day}'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_ski_slopes\Controller\SkiSlopesDetail::show'
+    _title: 'Ski slopes details'
+    season: NULL
+    day: NULL
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'ski_slopes_detail'
+    gv_metrics_collector_step: ''
+
+gv_fanatics_plus_ski_slopes.detail_integrant:
+  path: '/my-grandski/my-integrants/ski-slopes-data/detail/{season}/{day}'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_ski_slopes\Controller\SkiSlopesDetail::show'
+    _title: 'Ski slopes details'
+    season: NULL
+    day: NULL
+  requirements: 
+    _permission: 'access content'
+    _logged_in_access_check: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'ski_slopes_detail'
+    gv_metrics_collector_step: ''

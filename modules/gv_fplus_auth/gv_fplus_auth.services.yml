@@ -1,0 +1,22 @@
+services:    
+    gv_fplus_auth.auth_subscriber:
+      class: Drupal\gv_fplus_auth\AuthSubscriber
+      tags:
+        - {name: event_subscriber}
+    
+    gv_fplus_auth.user:
+      class: Drupal\gv_fplus_auth\User
+    
+    gv_fplus_auth.image:
+      class: Drupal\gv_fplus_auth\Image
+    
+    gv_fplus_auth.location:
+      class: Drupal\gv_fplus_auth\Location
+    
+    gv_fplus_auth.form_basic_validations:
+      class: Drupal\gv_fplus_auth\FormBasicValidations
+    
+    gv_fplus_auth.logged_in_access_check:
+      class: Drupal\gv_fplus_auth\Access\LoggedInAccessCheck
+      tags:
+        - { name: access_check, applies_to: _logged_in_access_check }

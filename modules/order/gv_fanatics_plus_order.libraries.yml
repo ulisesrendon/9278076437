@@ -1,0 +1,30 @@
+
+history:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_order.history.css: {}
+  js:
+    js/gv_fanatics_plus_order.history.js: {}
+  dependencies:
+    - core/jquery
+
+detail:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_order.detail.css: {}
+  js:
+    js/gv_fanatics_plus_order.detail.js: {}
+  dependencies:
+    - core/jquery
+
+order_payment_failure:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_order.payment_failure.css: {}
+  js:
+    js/gv_fanatics_plus_order.payment_failure.js: {}
+  dependencies:
+    - core/jquery

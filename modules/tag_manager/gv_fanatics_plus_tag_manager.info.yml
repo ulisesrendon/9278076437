@@ -1,0 +1,5 @@
+name: GV Fanatics Plus Tag Manager Module
+description: Tag manager module for the GV Fanatics / Plus project.
+package: GV FPLUS
+type: module
+core: 8.x

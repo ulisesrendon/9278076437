@@ -1,0 +1,50 @@
+
+gv_fanatics_plus_invitation.invitation_list:
+  path: '/my-grandski/my-invitations'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_invitation\Controller\InvitationListController::invitationList'
+    _title: 'Your invitations'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_invitations'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'list'
+
+gv_fanatics_plus_invitation.use_invitation:
+  path: '/my-grandski/past-orders/{orderID}/services/{serviceID}/invitations/redeem'
+  defaults: 
+    _controller: '\Drupal\gv_fanatics_plus_invitation\Controller\UseInvitationController::redeem'
+    _title: 'Redeem invitation'
+  requirements: 
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_invitations'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'redeem'
+
+gv_fanatics_plus_invitation.close_dialog:
+  path: '/my-grandski/my-invitations/modals/default-modal/close'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_invitation\Controller\CloseModalController::close'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_initial_load: 'FALSE'
+    
+gv_fanatics_plus_invitation.use_invitation_modal:
+  path: '/my-grandski/my-invitations/modals/use-invitation-modal/{orderID}/services/{serviceID}'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\gv_fanatics_plus_invitation\Controller\OpenUseInvitationConfirmationModalController::openModalForm'
+  requirements:
+    _permission: 'access content'
+  options:
+    no_cache: 'TRUE'
+    gv_metrics_collector_namespace: 'my_grandski_invitations'
+    gv_metrics_collector_step: ''
+    gv_metrics_collector_action: 'redeem'

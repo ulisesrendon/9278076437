@@ -1,0 +1,160 @@
+select2:
+  version: VERSION
+  css:
+    theme:
+      css/deps/select2.min.css: {}
+  js:
+    js/deps/select2.full.min.js: {}
+
+introjs:
+  version: VERSION
+  css:
+    theme:
+      css/deps/introjs/introjs.min.css: {}
+  js:
+    js/deps/introjs/intro.min.js: {}
+
+dropzonejs:
+  version: VERSION
+  css:
+    theme:
+      css/deps/dropzonejs/dist/min/dropzone.min.css: {}
+  js:
+    js/deps/dropzonejs/dist/min/dropzone.min.js: {}
+
+change_product_ajax_commands:
+   version: VERSION
+   js:
+     js/gv_fanatics_plus_checkout.change_product_ajax_commands.js: {}
+   dependencies:
+     - core/drupal.ajax
+
+checkout_progress:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.progress.css: {}
+
+integrants_selection:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.integrants_selection.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.integrants_selection.js: {}
+  dependencies:
+    - core/jquery
+
+select_product_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.select_product_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.select_product_form.js: {}
+  dependencies:
+    - core/drupal.dialog.ajax
+    - core/jquery
+    - gv_fanatics_plus_checkout/select2
+    - gv_fplus/ladda-js
+
+select_payment_method_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.select_payment_method_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.select_payment_method_form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus/ladda-js
+
+logalty_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.postpayment.logalty_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.postpayment.logalty_form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus_auth/intl-tel-input
+
+shipping_method_select_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.postpayment.shipping_method_select_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.postpayment.shipping_method_select_form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fplus_auth/fanatics-plus-webcam
+    - gv_fanatics_plus_checkout/change_product_ajax_commands
+
+shipping_data_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.postpayment.shipping_data_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.postpayment.shipping_data_form.js: {}
+  dependencies:
+    - core/jquery
+    - gv_fanatics_plus_cart/inputmask
+
+shipping_documents_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.postpayment.shipping_documents_form.css: {}
+  js:
+    js/gv_fanatics_plus.postpayment.shipping_documents_form.js: {}
+  dependencies:
+    - core/jquery
+
+shipping_documents_form_v2:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.postpayment.shipping_documents_form_v2.css: {}
+  js:
+    js/gv_fanatics_plus.postpayment.shipping_documents_form_v2.js: {}
+  dependencies:
+    - core/jquery
+
+add_insurance_modal_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.add_insurance_modal_form.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.add_insurance_modal_form.js: {}
+  dependencies:
+    - core/jquery
+
+member_get_member_modal_form:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.member_get_member_modal_form.css: {}
+  dependencies:
+    - core/jquery
+
+integrant_list:
+  version: VERSION
+  css:
+    theme:
+      css/gv_fanatics_plus_checkout.integrant_list.css: {}
+  js:
+    js/gv_fanatics_plus_checkout.integrant_list.js: {}
+  dependencies:
+    - core/jquery
+
+checkout_complete:
+  version: VERSION
+  js:
+    js/gv_fanatics_plus_checkout.checkout_complete.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

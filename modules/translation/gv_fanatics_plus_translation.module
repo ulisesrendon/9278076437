@@ -1,0 +1,18 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Oculta el control para borrar traducciones de acuerdo con permisos de usuario.
+ */
+function gv_fanatics_plus_translation_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+	if ($form_id != 'locale_translate_edit_form') {
+		return;
+	}
+	
+	if (!\Drupal::currentUser()->hasPermission('delete ui translations')) {
+		$form['#attached']['library'][] = 'gv_fanatics_plus_translation/ui-translation-hide-delete-op';
+	}
+}
+
+?>

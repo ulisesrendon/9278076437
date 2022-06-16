@@ -1,0 +1,6 @@
+name: GV Fanatics Plus External Access Module
+description: Functionality related to remote access from different channels such as www.grandvalira.com or the sales backoffice platform.
+package: GV FPLUS
+
+type: module
+core: 8.x

@@ -1,0 +1,3 @@
+services:
+  gv_fanatics_plus_invitation.invitation:
+    class: Drupal\gv_fanatics_plus_invitation\Invitation
