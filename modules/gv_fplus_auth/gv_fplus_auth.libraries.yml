@@ -51,6 +51,7 @@ personal-data-form-js:
     - gv_fplus_auth/fanatics-plus-webcam
     - gv_fplus_auth/profile-underage-notice
     - gv_fanatics_plus_checkout/change_product_ajax_commands
+    - gv_fplus_auth/intl-tel-input
 
 intl-tel-input:
   version: 1.x

@@ -30,6 +30,7 @@ class MenuFanaticsBlock extends BlockBase implements ContainerFactoryPluginInter
 
 	public function build() {
 		$menuResolver = \Drupal::service('gv_fanatics_plus_my_grandski.menu_resolver');
+		kint($menuResolver->resolve());
 		return [
 			'#theme' => 'gv_fanatics_plus_my_grandski_menu_top',
 			'#main_menu' => $menuResolver->resolve()

@@ -199,3 +199,23 @@ input#edit-phone-number::-moz-placeholder,
 input#edit-phone-number::-ms-input-placeholder {
 	color: lightgray;
 }
+
+.path-checkout.profile #block-fanatics-content .title-container > .radial-progress-bar {
+	opacity: 0;
+	visibility: hidden;
+	width: 0;
+}
+
+fieldset.form-item-dni-expired-date {
+	margin-top: 32px !important;
+}
+
+#edit-base-address {
+	width: 100%;
+}
+
+.country-select-wrapper {
+	margin-top: 32px !important;
+}
+
+/* Fin RG */

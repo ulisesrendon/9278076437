@@ -429,14 +429,28 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$defaultProfileDni = $this->storeGet('dni');
 			}
 
-			$form['dni'] = array(
+			$defaultDniExpirationDate = $profile->IDCardExpiration;
+			if (!$hasProfile && $this->storeGet('dni_expired_date') != NULL) {
+				$defaultDniExpirationDate = $this->storeGet('dni_expired_date');
+			}
+
+			$form['dni'] = [
 				'#type' => 'textfield',
 				'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_FORM_TITLE'),
 				'#default_value' => $defaultProfileDni,
 				'#required' => TRUE,
 				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
 				'#suffix' => '</div>'
-			);
+			];
+			$form['dni_expired_date'] = [
+				'#type' => 'textfield',
+				'#title' => "Fecha de caducidad del pasaporte", /** @TODO1: Quitar el título test y poner cadena de traducción*/
+				//'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_TITLE'),
+				'#default_value' => $defaultDniExpirationDate,
+				'#required' => TRUE,
+				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
+				'#suffix' => '</div>'
+			];
 
 			if ($isIntegrantActive) {
 				unset($form['dni']['#required']);
@@ -525,7 +539,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			$firstCountryOptions = [];
 			$IDLanguage = $languageResolver->resolve()->id();
 
-
 			$minAgeForBuying = $formBasicValidations->minimumAgeForBuying($session->getIdentifier())->MinimumAgeForNewsletter;
 			$userBirthDate = $profile->BirthDate;
 			if (isset($userBirthDate)) {
@@ -564,12 +577,42 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			$form['base_address_container'] = [
 				'#type' => 'markup',
-				'#prefix' => '<div id="edit-base-address">',
+				'#prefix' => '<div id="edit-base-address" class="row">',
 				'#suffix' => '</div>'
 			];
 
 
-			$form['base_address_container']['country'] = array(
+			$form['base_address_container']['nacionality_country'] = [
+				'#type' => 'select',
+				'#title' => "Nacionalidad", /** @TODO2: Asignar la cadena de traducción */
+				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.NACIONALITY_COUNTRY'),
+				'#default_value' => $profile->IDCountry,
+				'#options' => $countryOptions,
+				'#options_attributes' => $countryDataOptions,
+				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
+				'#required' => TRUE,
+				'#prefix' => '<div class="col-md-6 col-sm-6 col-xs-12 country-select-wrapper">',
+				'#suffix' => '</div>',
+				'#attributes' => [
+					'id' => 'nacionality_country_selector'
+				],
+			];
+			$form['base_address_container']['residence_country'] = [
+				'#type' => 'select',
+				'#title' => "Pais de residencia", /** @TODO3: Asignar la cadena de traducción */
+				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.RESIDENCE_COUNTRY'),
+				'#default_value' => $profile->IDCountry,
+				'#options' => $countryOptions,
+				'#options_attributes' => $countryDataOptions,
+				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
+				'#required' => TRUE,
+				'#prefix' => '<div class="col-md-6 col-sm-6 col-xs-12 country-select-wrapper">',
+				'#suffix' => '</div>',
+				'#attributes' => [
+					'id' => 'residence_country_selector'
+				],
+			];
+			$form['base_address_container']['country'] = [
 				'#type' => 'select',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.COUNTRY_FORM_TITLE'),
 				'#default_value' => $profile->IDCountry,
@@ -577,20 +620,12 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#options_attributes' => $countryDataOptions,
 				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
 				'#required' => TRUE,
-				/*'#ajax' => [
-                    'callback' => '::countryChangeAjaxCallback', // don't forget :: when calling a class method.
-                   'disable-refocus' => TRUE, // Or TRUE to prevent re-focusing on the triggering element.
-                   'event' => 'change',
-                   'wrapper' => 'edit-postal-code-inner', // This element is updated with this AJAX callback.,
-                   'method' => 'replace',
-                   'progress' => [
-                         'type' => 'throbber',
-                         'message' => $this->t('Verifying...'),
-                   ],
-                 ],*/
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
-				'#suffix' => '</div>'
-			);
+				'#prefix' => '<div class="ghidden col-md-12 col-sm-12 col-xs-12">',
+				'#suffix' => '</div>',
+				'#attributes' => [
+					'id' => 'normal_country'
+				],
+			];
 
 			if (!$canEditCountry) {
 				$form['base_address_container']['country']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
@@ -664,7 +699,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
                    '#suffix' => '</div></div>'
             ];*/
 
-			$form['phone_number'] = array(
+			$form['phone_number'] = [
 				'#type' => 'tel',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.MOBILE_PHONE_FORM_TITLE'),
 				'#default_value' => $profile->Phone,
@@ -676,7 +711,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 						':input[name="country"]' => ['value' => ''],
 					]
 				]
-			);
+			];
 
 			//ksm($this->storeGet('profile_image'));
 
@@ -715,7 +750,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			if ((!isset($profile->Census) || $profile->Census == '')) {
 				$form['census_number']['#prefix'] = '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container warning">';
 			}
-
 
 			/*$form['has_colective'] = [
                '#type' => 'radios',
@@ -834,10 +868,10 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			$form['actions']['submit']['#attributes']['data-style'] = 'contract-overlay';
 			$form['actions']['submit']['#attributes']['class'][] = 'ladda-button';
+			$form['actions']['submit']['#attributes']['class'][] = 'mr-3';
+			$form['actions']['submit']['#attributes']['style'][] = 'margin-top: 0 !important;';
 
 			$form['#suffix'] = '</div>';
-
-			$form['#attached']['library'][] = 'gv_fplus_auth/residence-data-form';
 
 			//FIN JMP
 

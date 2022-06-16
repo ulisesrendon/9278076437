@@ -39,7 +39,25 @@ class IntegrantListController extends ControllerBase {
 	}
 
 	public function integrantList() {
+
+		$user = \Drupal::service('gv_fplus_auth.user');
+		$session = \Drupal::service('gv_fplus.session');
+		$email = $session->getEmail();
+
+		$profile = $user->getProfile($email, TRUE, TRUE);
+		$profile->Email = str_replace('#at#', '@', $profile->Email);
+
+		
+		$profileImage = new \stdClass();
+		$profileImage->ImageBase64 = $profile->Image;
+		$profileImage->Expired = $profile->ImageExpired;
+		$profileImage->CanEdit = $profile->CanEditImage;
+		$profileImage->ImagedefaultImg = isset($profileImage->ImageBase64) ? 'data:image/jpeg;base64,' . $profileImage->ImageBase64 : '';
+
+
+
 		$integrants = $this->integrant->listMember($this->session->getIDClient())->List;
+		
 		foreach ($integrants as $index => $integrant) {
 			$valid_email = $this->emailValidator->isValid($integrant->Email);
 			if (!$valid_email) {
@@ -47,6 +65,7 @@ class IntegrantListController extends ControllerBase {
 			}
 
 			$switchIntegrantBuyUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PRODUCT_SELECTION], ['query' => ['switch-integrant' => '1', 'integrant-client-id' => $this->checkoutOrderManager->encrypt($integrant->IntegrantID)]]);
+			
 			$switchIntegrantEditDataUrl = Url::fromRoute('gv_fplus_auth.user_profile_personal_data_form', [], ['query' => ['switch-integrant' => '1', 'integrant-client-id' => $this->checkoutOrderManager->encrypt($integrant->IntegrantID)]]);
 			$seeSkiSlopesUrl = Url::fromRoute('gv_fanatics_plus_ski_slopes.history_integrant', [], ['query' => ['integrant' => Crypto::encrypt($integrant->IntegrantID)]]);
 			$integrants[$index]->SwitchBuyUrl = $switchIntegrantBuyUrl;
@@ -56,7 +75,15 @@ class IntegrantListController extends ControllerBase {
 		
 		$addNewIntegrantUrl = Url::fromRoute('gv_fplus_auth.user_profile_personal_data_form', [], ['query' => ['register-new-integrant' => '1']]);
 		
-		return ['#attached' => ['library' => ['gv_fanatics_plus_checkout/integrant_list'], ], '#theme' => 'gv_fanatics_plus_checkout_integrant_list', '#integrants' => $integrants, '#add_new_integrant_url' => $addNewIntegrantUrl];
+		return [
+			'#attached' => ['library' => ['gv_fanatics_plus_checkout/integrant_list'], ],
+			'#theme' => 'gv_fanatics_plus_checkout_integrant_list',
+			'#integrants' => [
+				'list' => $integrants,
+				'profile' => $profile,
+			],
+			'#add_new_integrant_url' => $addNewIntegrantUrl,
+		];
 	}
 
 }

@@ -37,10 +37,11 @@ jQuery(document).ready(function($) {
 		jQuery('#gv-fplus-auth-personal-data-form').submit();
 	});*/
 	
-	// Warning
-	$(window).on('beforeunload', function(){
-	    return "Any changes will be lost";
-	});
+	// Warningw
+	// $(window).on('beforeunload', function(){
+	//     return "Any changes will be lost";
+	// });
+	$(window).off('beforeunload');
 		
 	// Form Submit
 	$(document).on("submit", '#gv-fplus-auth-personal-data-form', function(e){
@@ -77,18 +78,6 @@ jQuery(document).ready(function($) {
 		var fullNumber = iti.getNumber();
 		jQuery('#edit-full-phone-number').val(fullNumber);
 
-	});
-
-	/*$('#edit-submit').click(function() {
-       var l = Ladda.create(document.querySelector('#edit-submit'));
-       l.start();
-
-       jQuery('#gv-fplus-auth-residence-data-form').submit();
-   });*/
-
-	// Warning
-	$(window).on('beforeunload', function(){
-		return "Any changes will be lost";
 	});
 
 	// Form Submit
@@ -128,5 +117,21 @@ jQuery(document).ready(function($) {
 		} else {
 			$('.census-field-container').addClass('warning');
 		}
+	});
+
+	/* RG: Lógicas selección paises de nacionalidad + residencia */
+	$('#nacionality_country_selector').on("change", function() {
+		// no marcar el campo oculto si el valor de la nacionalidad no es andorra
+		if ($(this).val() != 5) {
+			return;
+		}
+		$('#normal_country').val($(this).val()).change();
+	});
+	$('#residence_country_selector').on("change", function() {
+		// Si la nacionalidad es 5 (andorra), no marcamos ya que siempre va a ser Andorra
+		if ($('#nacionality_country_selector').val() == 5) {
+			return;
+		}
+		$('#normal_country').val($(this).val()).change();
 	});
 });
