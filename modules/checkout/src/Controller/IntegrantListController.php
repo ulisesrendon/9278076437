@@ -54,7 +54,13 @@ class IntegrantListController extends ControllerBase {
 		$profileImage->CanEdit = $profile->CanEditImage;
 		$profileImage->ImagedefaultImg = isset($profileImage->ImageBase64) ? 'data:image/jpeg;base64,' . $profileImage->ImageBase64 : '';
 
+		//\Drupal::request()->getSchemeAndHttpHost()
 
+
+		$profile->SwitchBuyUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PRODUCT_SELECTION], ['query' => ['switch-integrant' => '0', 'integrant-client-id' => $this->checkoutOrderManager->encrypt($profile->IDClient)]]);
+		$profile->SeeSkiSlopesUrl = Url::fromRoute('gv_fanatics_plus_ski_slopes.history_integrant', [], ['query' => ['integrant' => Crypto::encrypt($profile->IDClient)]]);
+		$profile->SwitchEditProfileUrl = Url::fromRoute('gv_fplus_auth.user_profile_personal_data_form', [], ['query' => ['switch-integrant' => '0', 'integrant-client-id' => $this->checkoutOrderManager->encrypt($profile->IDClient)]]);
+		
 
 		$integrants = $this->integrant->listMember($this->session->getIDClient())->List;
 		
