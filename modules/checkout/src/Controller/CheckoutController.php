@@ -65,7 +65,13 @@ class CheckoutController extends ControllerBase {
 
 		$requested_step_id = $route_match->getParameter('step');
 		$step_id = $this->checkoutOrderManager->getCheckoutStepId($requested_step_id);
-		
+
+		// var_dump($requested_step_id);
+		// echo "<br>";
+		// var_dump($step_id);
+		// die();
+
+
 		$minAgeForBuying = $this->formBasicValidations->minimumAgeForBuying($this->session->getIdentifier())->MinimumAgeForNewsletter;
 		$IDUser = $this->session->getIDUser();
 		
@@ -87,6 +93,7 @@ class CheckoutController extends ControllerBase {
      			return new RedirectResponse($url->toString(), 307);
 			}
 		}
+
 		
 		if ($requested_step_id != $step_id && $step_id != CheckoutOrderSteps::POST_PAYMENT) {
       		$url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => $step_id]);
@@ -99,7 +106,9 @@ class CheckoutController extends ControllerBase {
 		
 		$request = \Drupal::request();
 		$subStep = $request->query->get('step');
+
 		switch ($requested_step_id) {
+
 			case CheckoutOrderSteps::PROFILE_DATA: {
 
 				$metricsCollector->setStep('profile_data');
@@ -127,6 +136,28 @@ class CheckoutController extends ControllerBase {
 				$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
 				return $form;
 			}
+
+			// case CheckoutOrderSteps::PRODUCT_SELECTION: {
+			// 	$metricsCollector->setStep('select_products');
+			// 	if ($metricsCollector->getInitialLoad()) {
+			// 		$metricsCollector->incStepCounter();
+			// 	}
+				
+			// 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::DOCUMENTS]);
+			// 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
+			// 	return $form;
+			// }
+
+			// case CheckoutOrderSteps::DOCUMENTS: {
+			// 	$metricsCollector->setStep('pending_documents');
+			// 	if ($metricsCollector->getInitialLoad()) {
+			// 		$metricsCollector->incStepCounter();
+			// 	}
+				
+			// 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+			// 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV2::class, $destination_url->toString());
+			// 	return $form;
+			// }
 			
 			
 			case CheckoutOrderSteps::PAYMENT: {
