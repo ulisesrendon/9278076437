@@ -200,7 +200,7 @@ class ShippingDataForm extends MultistepFormBase {
 			unset($form['shipping_data'][$shippingMethod][$serviceID]['recharge_data']);
 		} catch(\Exception $e) {
 		    \Drupal::messenger()->addMessage($forfaitCodePartial." ". $this->t('Invalid forfait code', [], ['context' => TranslationContext::POST_PAYMENT]), 'error');
-			
+
 			$message = [
       			'#theme' => 'status_messages',
       			'#message_list' => drupal_get_messages(),
@@ -397,7 +397,7 @@ class ShippingDataForm extends MultistepFormBase {
 		];
 		
 		
-		\Drupal::messenger()->addMessage('');
+//		\Drupal::messenger()->addMessage('');
 		
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		// from OrderInfo -> group services by shipping method

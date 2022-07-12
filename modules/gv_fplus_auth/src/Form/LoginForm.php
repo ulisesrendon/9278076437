@@ -184,7 +184,7 @@ class LoginForm extends FormBase {
 			
 			return $form_state->setResponse( new TrustedRedirectResponse($destination_url, 307) );
 		} catch(\Exception $e) {
-			//ksm($e->getResponse()->getBody()->getContents());
+			ksm($e->getResponse()->getBody()->getContents());
 			return \Drupal::messenger()->addMessage($this->translationService->translate('LOGIN_FORM.UNEXPECTED_ERROR'), 'error');
 		}
 	}

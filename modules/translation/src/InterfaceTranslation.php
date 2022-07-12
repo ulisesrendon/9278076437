@@ -37,6 +37,8 @@ class InterfaceTranslation {
 			$this->currentTranslationContext = 'gv_plus';
 		} else if ($this->currentSalesChannel->isTemporadaOA()) {
 			$this->currentTranslationContext = 'oa_temporada';
+		} else if ($this->currentSalesChannel->isPal()) {
+			$this->currentTranslationContext = 'pal';
 		} else {
 			$this->currentTranslationContext = 'gv';
 		}

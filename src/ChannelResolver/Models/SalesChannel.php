@@ -117,6 +117,10 @@ class SalesChannel {
 	public function isTemporadaOA() {
 		return ($this->dbm_id == 25);
 	}
+
+	public function isPal() {
+		return ($this->dbm_id == 41);
+	}
 	
 	public function getGTMCode() {
 		return $this->gtmCode;

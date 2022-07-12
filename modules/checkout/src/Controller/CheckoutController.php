@@ -128,6 +128,7 @@ class CheckoutController extends ControllerBase {
 				return $form;
 			}
 			
+			
 			case CheckoutOrderSteps::PAYMENT: {
 				$metricsCollector->setStep('select_payment_method');
 				if ($metricsCollector->getInitialLoad()) {

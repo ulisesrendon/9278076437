@@ -51,7 +51,7 @@ class SelectPaymentMethodForm extends FormBase {
 		$checkoutOrderManager = \Drupal::service('gv_fanatics_plus_checkout.checkout_order_manager');
 		$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
-		
+
 		$this->session = $session;
 		$this->cart = $cart;
 		$this->user = $user;
@@ -87,7 +87,7 @@ class SelectPaymentMethodForm extends FormBase {
 				$defaultPaymentMethod = $paymentMethod->Identifier;
 			}
 
-			$paymentMethodOptions[$paymentMethod->Identifier] = $paymentMethod->PaymentMethod;
+			$paymentMethodOptions[$paymentMethod->Identifier] = ucfirst(mb_strtolower($paymentMethod->PaymentMethod));
 			$paymentMethodDescriptions[$paymentMethod->Identifier] = $paymentMethod->Description;
 		}
 		
@@ -109,7 +109,7 @@ class SelectPaymentMethodForm extends FormBase {
 			'#prefix' => '<div class="payment-method-descriptors">',
 			'#suffix' => '</div></div>'
 		];
-		
+
 		foreach($paymentMethodOptions as $index => $paymentMethod) {
 			$form['payment_method_descriptors']['payment-method-' . $index] = [
 				'#prefix' => '<div class="payment-method-descriptors--inner payment-method-' . $index . '" data-payment-method-id="' . $index . '">',
@@ -117,6 +117,11 @@ class SelectPaymentMethodForm extends FormBase {
 				'#markup' => '<div class="payment-method-description">' . $paymentMethodDescriptions[$index] . '</div>'
 			];
 		}
+
+        $form['test'] = [
+            '#type' => 'item',
+            '#markup' => '<div class="alert alert-primary" role="alert">ESTO ES UNA ALERTA DE PRUEBA '.$this->session->getIdentifier().'</div>'
+        ];
 		
 		$form['actions'] = [
 			'#prefix' => '<div class="checkout-form-main-actions">',

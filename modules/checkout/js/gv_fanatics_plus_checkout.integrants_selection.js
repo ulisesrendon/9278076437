@@ -5,4 +5,6 @@ jQuery(document).ready(function($) {
 		
 		img.attr('src', imgBase64);
 	});
+
+	$('.available-integrants.scrollable').removeClass("scrollable");
 });

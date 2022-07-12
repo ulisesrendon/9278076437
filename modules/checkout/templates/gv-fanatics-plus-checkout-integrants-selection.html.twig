@@ -27,11 +27,14 @@
   </a>
 </div>
 <div class="wrapper-integrants">
+	<div class="integrants-block-label">
+		<div class="integrants-block-label--content"> {{ 'CHECKOUT_SELECT_PRODUCTS.MY_INTEGRANTS.HEADER'|gv_t }} </div>
+	</div>
     <div class="available-integrants">
       {% for integrant in integrants %}
       <a href="{{ integrant.SwitchUrl }}">
      	<div class="available-integrants--item {% if integrant.Active == true %} active {% endif %}" {% if loop.index == 1 %} data-step="2" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.INTEGRANTS'|gv_t}}" {% endif %}>
-     	  <label>{{integrant.Name }}</label>
+     	  <label class="integrant-label">{{integrant.Name }}</label>
      	  <div class="available-integrants--item-avatar">
      	    <div class="available-integrants--item-avatar--inner image-container {% if owner.ImageBase64 is null %} empty {% endif %}">
      	     {% if integrant.ImageBase64 is not null %}
@@ -56,8 +59,5 @@
         </div>
       </a>
       {% endif %}
-    </div>
-    <div class="integrants-block-label">
-      <div class="integrants-block-label--content"> {{ 'CHECKOUT_SELECT_PRODUCTS.MY_INTEGRANTS.HEADER'|gv_t }} </div>
     </div>
 </div>

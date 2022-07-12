@@ -17,6 +17,13 @@ use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\gv_fanatics_plus_checkout\Ajax\DisableFullscreenLoader;
 use Drupal\gv_fplus\TranslationContext;
 
+use Drupal\gv_fplus_auth\Event\AuthEvents;
+use Drupal\gv_fplus_auth\Event\ResidenceDataFormSubmitEvent;
+
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Ajax\AppendCommand;
+use Drupal\Core\Ajax\InvokeCommand;
+
 class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFormBase
 {
 
@@ -203,53 +210,26 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			}
 
 			$form['#prefix'] = '<div class="container">
-								<div class="title-container">
-									<div class="radial-progress-bar">
-										<div class="circle">
-											<div class="fill">
-												<div class="paso">
-													<div class="text">
-														<span class="current-step">1</span>
-														<span>/</span>
-														<span class="total-steps">2</span>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="layout-and-title">
+								<div class="title-container">'.
+//									<div class="radial-progress-bar" style="display: none !important;">
+//										<div class="circle">
+//											<div class="fill">
+//												<div class="paso">
+//													<div class="text">
+//														<span class="current-step">1</span>
+//														<span>/</span>
+//														<span class="total-steps">2</span>
+//													</div>
+//												</div>
+//											</div>
+//										</div>
+//									</div>
+									' '
+									.'<div class="layout-and-title">
 										<div class="text-layout-bg">' . $translationService->translate('PERSONAL_DATA_FORM.BG_HEADER') . '</div>
 										<h1>' . $pageTitle . '</h1>
 									</div>
 								</div>';
-
-			if ($isIntegrantActive) {
-				$defaultProfileEmail = $profile->Email;
-				if (!$hasProfile && $this->storeGet('email') != NULL) {
-					$defaultProfileEmail = $this->storeGet('email');
-				}
-
-				if (!\Drupal::service('email.validator')->isValid($defaultProfileEmail)) {
-					$defaultProfileEmail = NULL;
-				}
-
-				$form['integrant_email'] = [
-					'#type' => 'email',
-					'#title' => $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_TITLE'),
-					'#default_value' => $defaultProfileEmail,
-					'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
-					'#suffix' => '</div>',
-				];
-
-				if (!isset($defaultProfileEmail) || strlen($defaultProfileEmail) <= 0) {
-					$form['integrant_email_notice'] = [
-						'#prefix' => '<div id="integrant-email-notice-container" class="col-md-12 col-sm-12 col-xs-12"',
-						'#markup' => '<div id="integrant-email-notice" class="panel warning"><div class="panel--inner"><div class="panel-heading"><p>'
-							. $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_WARNING')/*$this->t('*Optional. Insert your email address to get updated about the latest news', [], ['context' => TranslationContext::PROFILE_DATA])*/ . '</p></div></div></div>',
-						'#suffix' => '</div>'
-					];
-				}
-			}
 
 			$form['webcam_container'] = [
 				'#type' => 'markup',
@@ -317,11 +297,39 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				//$form['image_base64']['#required'] = TRUE;
 			}
 
+			if ($isIntegrantActive) {
+				$defaultProfileEmail = $profile->Email;
+				if (!$hasProfile && $this->storeGet('email') != NULL) {
+					$defaultProfileEmail = $this->storeGet('email');
+				}
+
+				if (!\Drupal::service('email.validator')->isValid($defaultProfileEmail)) {
+					$defaultProfileEmail = NULL;
+				}
+
+				$form['integrant_email'] = [
+					'#type' => 'email',
+					'#title' => $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_TITLE'),
+					'#default_value' => $defaultProfileEmail,
+					'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+					'#suffix' => '</div>',
+				];
+
+				if (!isset($defaultProfileEmail) || strlen($defaultProfileEmail) <= 0) {
+					$form['integrant_email_notice'] = [
+						'#prefix' => '<div id="integrant-email-notice-container" class="col-md-12 col-sm-12 col-xs-12"',
+						'#markup' => '<div id="integrant-email-notice" class="panel warning"><div class="panel--inner"><div class="panel-heading"><p>'
+							. $translationService->translate('PERSONAL_DATA_FORM.EMAIL_FORM_WARNING')/*$this->t('*Optional. Insert your email address to get updated about the latest news', [], ['context' => TranslationContext::PROFILE_DATA])*/ . '</p></div></div></div>',
+						'#suffix' => '</div>'
+					];
+				}
+			}
+
 			$defaultProfileName = $profile->Name;
 			if (!$hasProfile && $this->storeGet('name') != NULL) {
 				$defaultProfileName = $this->storeGet('name');
 			}
-			$form['name'] = array(
+			$form['name'] = [
 				'#type' => 'textfield',
 				'#title' => $translationService->translate('PERSONAL_DATA_FORM.FIRST_NAME_FORM_TITLE'),
 				'#default_value' => $defaultProfileName,
@@ -329,14 +337,14 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#maxlength' => 32,
 				'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			$defaultProfileSurname = $profile->Surname;
 			if (!$hasProfile && $this->storeGet('surname') != NULL) {
 				$defaultProfileSurname = $this->storeGet('surname');
 			}
 
-			$form['surname'] = array(
+			$form['surname'] = [
 				'#type' => 'textfield',
 				'#title' => $translationService->translate('PERSONAL_DATA_FORM.SURNAME_FORM_TITLE'),
 				'#default_value' => $defaultProfileSurname,
@@ -344,7 +352,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#maxlength' => 32,
 				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
 				'#suffix' => '</div></div>'
-			);
+			];
 
 			$defaultGender = $profile->Sex;
 			if ($defaultGender === FALSE) {
@@ -357,18 +365,18 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$defaultGender = $this->storeGet('gender');
 			}
 
-			$form['gender'] = array(
+			$form['gender'] = [
 				'#type' => 'radios',
 				'#title' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_FORM_TITLE'),
 				'#default_value' => $defaultGender,
-				'#options' => array(
+				'#options' => [
 					'H' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_OPTIONS.MALE'),
 					'M' => $translationService->translate('PERSONAL_DATA_FORM.GENDER_OPTIONS.FEMALE'),
-				),
+				],
 				'#required' => TRUE,
 				'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			$defaultBirthdate = $profile->BirthDate;
 			if (!$hasProfile && $this->storeGet('birthdate') != NULL) {
@@ -382,7 +390,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			$maxBirthdate = date("Y-m-d", $maxBirthdateTime);
 			$minBirthdate = date('Y-m-d', strtotime('01-01-1900'));
 			$minAgeForBuying = $formBasicValidations->minimumAgeForBuying($session->getIdentifier())->MinimumAgeForNewsletter;
-			$form['birthdate'] = array(
+			$form['birthdate'] = [
 				'#type' => 'date',
 				'#title' => $translationService->translate('PERSONAL_DATA_FORM.BIRTHDATE_FORM_TITLE'),
 				'#required' => TRUE,
@@ -396,7 +404,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					'min' => $minBirthdate,
 					'data-min-age-buying' => $minAgeForBuying
 				]
-			);
+			];
 
 			if ($defaultBirthdate != "0001-01-01") {
 				$form['birthdate']['#default_value'] = $defaultBirthdate;
@@ -443,13 +451,16 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#suffix' => '</div>'
 			];
 			$form['dni_expired_date'] = [
-				'#type' => 'textfield',
-				'#title' => "Fecha de caducidad del pasaporte", /** @TODO1: Quitar el título test y poner cadena de traducción*/
+				'#type' => 'date',
+				'#title' => "Fecha de caducidad del pasaporte", /** @TODO1 */
 				//'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_TITLE'),
+				'#description' => "Inserte la fecha en formato DD/MM/YYYY",
+				//'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_DESCRIPTION'),
 				'#default_value' => $defaultDniExpirationDate,
 				'#required' => TRUE,
 				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
-				'#suffix' => '</div>'
+				'#suffix' => '</div>',
+				'#min' => date("Y-m-d", time()),
 			];
 
 			if ($isIntegrantActive) {
@@ -620,7 +631,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#options_attributes' => $countryDataOptions,
 				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
 				'#required' => TRUE,
-				'#prefix' => '<div class="ghidden col-md-12 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="btnb-hide-element col-md-12 col-sm-12 col-xs-12">',
 				'#suffix' => '</div>',
 				'#attributes' => [
 					'id' => 'normal_country'
@@ -635,10 +646,30 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$form['base_address_container']['country']['#default_value'] = $ownerProfile->IDCountry;
 			}
 
+
+			$form['base_address_container']['census_number'] = [
+				'#type' => 'textfield',
+				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.CENSUS_FORM_TITLE'),
+				'#description' => $translationService->translate('RESIDENCE_DATA_FORM.CENSUS_FORM_DESCRIPTION'),
+				'#default_value' => $profile->Census,
+				'#states' => [
+					'visible' => [
+						':input[name="country"]' => ['value' => ResidenceDataForm::ANDORRA_COUNTRY_CODE],
+					],
+					'required' => [
+						':input[name="country"]' => ['value' => ResidenceDataForm::ANDORRA_COUNTRY_CODE],
+					],
+				],
+				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container spaced-wrapper">',
+				'#suffix' => '</div>'
+			];
+
+			if ((!isset($profile->Census) || $profile->Census == '')) {
+				$form['base_address_container']['census_number']['#prefix'] = '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container spaced-wrapper warning">';
+			}
+
 			$countriesRequirePostalCode = array_map(fn($value) => ['value' => $value], $formBasicValidations->getCountriesThatRequirePostalCode());
-			$form['base_address_container']['postal_code'] = array(
-				'#prefix' => '<div id="edit-postal-code-inner">',
-				'#suffix' => '</div>',
+			$form['base_address_container']['postal_code'] = [
 				'#type' => 'textfield',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.POSTCODE_FORM_TITLE'),
 				'#default_value' => $profile->PostalCode,
@@ -662,9 +693,9 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 						':input[name="country"]' => $countriesRequirePostalCode,
 					],
 				],
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 spaced-wrapper">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			if ($isCreatingIntegrant) {
 				$form['base_address_container']['postal_code']['#default_value'] = $ownerProfile->PostalCode;
@@ -704,7 +735,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.MOBILE_PHONE_FORM_TITLE'),
 				'#default_value' => $profile->Phone,
 				'#required' => TRUE,
-				'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12 spaced-wrapper">',
 				'#suffix' => '</div>',
 				'#states' => [
 					'invisible' => [
@@ -715,7 +746,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			//ksm($this->storeGet('profile_image'));
 
-			$form['full_phone_number'] = array(
+			$form['full_phone_number'] = [
 				'#type' => 'tel',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.MOBILE_PHONE_FORM_TITLE'),
 				'#default_value' => $profile->Phone,
@@ -723,32 +754,11 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#attributes' => [
 					'class' => ['hidden']
 				]
-			);
+			];
 
 			if ($isIntegrantActive) {
 				unset($form['phone_number']['#required']);
 				unset($form['full_phone_number']['#required']);
-			}
-
-			$form['census_number'] = array(
-				'#type' => 'textfield',
-				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.CENSUS_FORM_TITLE'),
-				'#description' => $translationService->translate('RESIDENCE_DATA_FORM.CENSUS_FORM_DESCRIPTION'),
-				'#default_value' => $profile->Census,
-				'#states' => [
-					'visible' => [
-						':input[name="country"]' => ['value' => ResidenceDataForm::ANDORRA_COUNTRY_CODE],
-					],
-					'required' => [
-						':input[name="country"]' => ['value' => ResidenceDataForm::ANDORRA_COUNTRY_CODE],
-					],
-				],
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container ">',
-				'#suffix' => '</div>'
-			);
-
-			if ((!isset($profile->Census) || $profile->Census == '')) {
-				$form['census_number']['#prefix'] = '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container warning">';
 			}
 
 			/*$form['has_colective'] = [
@@ -767,7 +777,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$profile->IDClub = $profile->ClubID;
 			}
 
-			$form['collective_type'] = array(
+			$form['collective_type'] = [
 				'#type' => 'select',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.COLLECTIVE_FORM_TITLE'),
 				//'#description' => $translationService->translate('RESIDENCE_DATA_FORM.COLLECTIVE_FORM_DESCRIPTION'),
@@ -779,16 +789,16 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 						':input[name="country"]' => ['value' => ResidenceDataForm::ANDORRA_COUNTRY_CODE],
 					]
 				],
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 spaced-wrapper btnb-top-border">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			if ($profile->IDCountry == ResidenceDataForm::ANDORRA_COUNTRY_CODE) {
 				$form['collective_type']['#default_value'] = NULL;
 			}
 
 			$collectiveCodeTriggerValues = array_map(fn($value) => ['value' => $value], array_keys($collectiveOptions));
-			$form['collective_code'] = array(
+			$form['collective_code'] = [
 				'#type' => 'textfield',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.COLLECTIVE_CODE_FORM_TITLE'),
 				'#default_value' => $profile->ClubIdentification,
@@ -800,9 +810,9 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 						':input[name="collective_type"]' => $collectiveCodeTriggerValues,
 					],
 				],
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 spaced-wrapper">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
 			$currentChannel = $channelResolver->resolve();
@@ -813,7 +823,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$newsletterUrl = $this->t('Yes, <a href="https://www.ordinoarcalis.com/en/consent-clause-newsletter" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
 			}
 
-			$form['newsletter'] = array(
+			$form['newsletter'] = [
 				'#type' => 'radios',
 				'#title' => $translationService->translate('BASIC_REGISTER_FORM.NEWSLETTER_FORM_TITLE'),
 				'#required' => TRUE,
@@ -822,9 +832,9 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					0 => $this->t('No')
 				],
 				'#default_value' => 0,
-				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12">',
+				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 spaced-wrapper">',
 				'#suffix' => '</div>'
-			);
+			];
 
 			if ($profile->ReceiveInformation == TRUE || $isIntegrantActive) {
 				unset($form['newsletter']);
@@ -843,7 +853,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			$form['actions']['go_back'] = [
 				'#type' => 'markup',
-				'#markup' => '<a href="' . Url::fromRoute('gv_fplus_auth.user_profile_personal_data_form')->toString() . '">'
+				'#markup' => '<a href="' . Url::fromRoute('gv_fanatics_plus_my_grandski.main_menu')->toString() . '">'
 					. $translationService->translate('RESIDENCE_DATA_FORM.GO_BACK_LINK_LABEL') . '</a>'
 			];
 
@@ -875,6 +885,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			//FIN JMP
 
+			ksm($form);
 
 			return $form;
 
@@ -903,8 +914,47 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 		$maxBirthdateTime = strtotime("-16 year", time());
 		$minBirthdateTime = \DateTime::createFromFormat('d M Y', '1 Jan 1900');
 
+		$expiration_date = $form_state->getValue('dni_expired_date');
+		$expiration_date = explode("-", $expiration_date);
+
+		if (count($expiration_date) != 3) {
+			$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.INVALID_EXPIRATION_FORMAT'));
+		}
+		try {
+			$year = (int)$expiration_date[0];
+			$month = (int)$expiration_date[1];
+			$day = (int)$expiration_date[2];
+
+			// Si mes o día formato incorrecto, error de
+			if (($month < 1 || $month > 12) || ($day < 1 || $day > 31)) {
+				$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.INVALID_DATA_FORMAT'));
+			}
+
+			$nowDateTime = new \DateTime();
+			$nowDay = (int)$nowDateTime->format("d");
+			$nowMonth = (int)$nowDateTime->format("m");
+			$nowYear = (int)$nowDateTime->format("y");
+			if ($year < $nowYear) {
+				$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.EXPIRED_DOCUMENT'));
+			} else if ($year <= $nowYear && $month < $nowMonth) {
+				$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.EXPIRED_DOCUMENT'));
+			} else if ($year == $nowYear && $month == $nowMonth && $day < $nowDay) {
+				$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.EXPIRED_DOCUMENT'));
+			}
+		} catch (Exception $e) {
+			$form_state->setErrorByName('dni_expired_date', $translationService->translate('PERSONAL_DATA_FORM.INVALID_DATA_FORMAT'));
+		}
+
 		if ($isIntegrantActive) {
 			$maxBirthdateTime = strtotime("-0 day", time());
+		}
+
+		$integrantEmail = $form_state->getValue('integrant_email');
+		if ($integrantEmail) {
+			$domain = explode("@", $integrantEmail)[1];
+			if (!checkdnsrr($domain,"MX")) {
+				$form_state->setErrorByName("integrant_email", $translationService->translate('LOGIN_FORM.INVALID_MAIL'));
+			}
 		}
 
 		if (!$isIntegrantActive && $birthdate->getTimestamp() > $maxBirthdateTime) {
@@ -916,7 +966,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 		if ($birthdate < $minBirthdateTime) {
 			$form_state->setErrorByName('birthdate', $translationService->translate('PERSONAL_DATA_FORM.INVALID_BIRTHDATE_UNDERAGE_PARAMETER_ERROR', ['@minBirthDate' => $minBirthdateTime->format('d/m/Y')]));
 		}
-
 	}
 
 	/**
@@ -924,6 +973,8 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 	 */
 	public function submitForm(array &$form, FormStateInterface $form_state)
 	{
+		$hasProfile = $this->storeGet('has_profile');
+
 		$name = $form_state->getValue('name');
 		$surname = $form_state->getValue('surname');
 		$gender = $form_state->getValue('gender');
@@ -931,159 +982,175 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 		$birthdate = $form_state->getValue('birthdate');
 		$date = new \DateTime($birthdate);
 		$finalBirthdate = $date->format('Y-m-d\TH:i:s\Z');
+		$integrantEmail = $form_state->getValue('integrant_email');
+		$integrantType = $form_state->getValue('integrant_type');
 
 		$dni = $form_state->getValue('dni');
 		$profileImage = $form_state->getValue('image_base64');
+
+		/* RG: Unificación pasos */
 		$session = \Drupal::service('gv_fplus.session');
+		$user = \Drupal::service('gv_fplus_auth.user');
 		$image = \Drupal::service('gv_fplus_auth.image');
+		$apiClient = \Drupal::service('gv_fplus_dbm_api.client');
 		$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
 		$apiIncidenceDecoder = \Drupal::service('gv_fanatics_plus_utils.api_incidence_decoder');
+		$formBasicValidations = \Drupal::service('gv_fplus_auth.form_basic_validations');
 
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 
 		$this->setStoreKeyPrefix($session->getIDUser());
 
+//		if (!$hasProfile) {
+//			$name = $this->storeGet('name');
+//			$surname = $this->storeGet('surname');
+//			$gender = $this->storeGet('gender');
+//			$birthdate = $this->storeGet('birthdate');
+//			$dni = $this->storeGet('dni');
+//			$integrantType = $this->storeGet('integrant_type');
+//			$email = $this->storeGet('email');
+//		}
+
+//		if (isset($birthdate)) {
+//			$date = new \DateTime($birthdate);
+//			$finalBirthdate = $date->format('Y-m-d\TH:i:s\Z');
+//		}
+
+		$country = intval($form_state->getValue('country'));
+		$postalCode = ($form_state->getValue('postal_code') != NULL) ? $form_state->getValue('postal_code') : ' ';
+		$phoneNumber = $form_state->getValue('full_phone_number');
+		$address = NULL;
+		$censusNumber = $form_state->getValue('census_number');
+		$city = NULL;
+		$province = NULL;
+		$addressNumber = NULL;
+		$addressTypeID = NULL;
+		$otherAdress = NULL;
+
+		$newsletter = $form_state->getValue('newsletter');
+		if (isset($newsletter) && $newsletter == 1) {
+			$newsletter = TRUE;
+		} else if (isset($newsletter) && $newsletter == 0) {
+			$newsletter = FALSE;
+		} else {
+			$newsletter = NULL;
+		}
+
+		$collectiveTypeID = $form_state->getValue('collective_type');
+		$collectiveCode = $form_state->getValue('collective_code');
+
+		if (!isset($collectiveTypeID) || $collectiveTypeID == '' || $collectiveTypeID == 0 || $country == ResidenceDataForm::ANDORRA_COUNTRY_CODE) {
+			$collectiveTypeID = 0;
+			$collectiveCode = '';
+		}
+
 		$isCreatingIntegrant = $session->isCreatingIntegrant();
 		$isManagingIntegrant = $session->isManagingIntegrant();
 		$isIntegrantActive = $session->isIntegrantActive();
+		$IDIntegrant = NULL;
 
-		$integrantEmail = $form_state->getValue('integrant_email');
-		$integrantType = $form_state->getValue('integrant_type');
+		$IDCountryNationality = $form_state->getValue('nacionality_country');
+		$IDCountryResidence = $form_state->getValue('residence_country');
+		$PassportExpirationDate = $form_state->getValue('dni_expired_date');
 
-		if ($isIntegrantActive && !$isCreatingIntegrant) {
-			$activeIntegrantID = $session->getActiveIntegrantClientID();
-			$integrants = $integrant->listMembers($session->getIDClient(), TRUE)->List;
-			foreach ($integrants as $integrant) {
-				if ($integrant->IntegrantID == $activeIntegrantID) {
-					$activeIntegrant = $integrant;
-				}
-			}
+		$passportExpired = new \DateTime($PassportExpirationDate);
+		$FinalPassportExpirationDate = $passportExpired->format('Y-m-d\TH:i:s\Z'); 
 
-			$profile = $activeIntegrant;
-			if ($integrantEmail == $profile->Email) { // TODO: remove this case, pending DBM release for this effect
-				$integrantEmail = NULL;
-			}
-		}
-
-		$hasProfile = $this->storeGet('has_profile');
-		$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+		// Modificación/creación integrantes/perfil
 		try {
-			if (isset($profileImage) && $profileImage != "" && ((!$hasProfile || $isCreatingIntegrant))) {
-				$profileImage = str_replace('data:image/jpeg;base64,', '', $profileImage);
-				$this->storeSet('profile_image', $profileImage);
-				/*$isIntegrantActive = $session->isIntegrantActive();
-                if (!$isIntegrantActive) {
-                    $uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
-                } else {
-                    $activeIntegrantID = $session->getActiveIntegrantClientID();
-                    $uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg', NULL, $activeIntegrantID);
-                }*/
+			/*if (isset($profileImage)) {
+                $profileImage = str_replace('data:image/jpeg;base64,', '', $profileImage);
+                $uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
+            }*/
 
-			}
-		} catch (Exception $e) {
-			return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
-		}
-
-		if (!$hasProfile) {
-			$this->storeSet('name', $name);
-			$this->storeSet('surname', $surname);
-			$this->storeSet('gender', $gender);
-			$this->storeSet('birthdate', $birthdate);
-			$this->storeSet('dni', $dni);
-			$this->storeSet('integrant_type', $integrantType);
-			$this->storeSet('email', $integrantEmail);
-		} else {
-			$user = \Drupal::service('gv_fplus_auth.user');
-
-			try {
-				if (!$isManagingIntegrant) {
-
-					$updateResponse = $user->fanatics()->update(
-						NULL,
-						$session->getEmail(),
-						$name,
-						$surname,
-						NULL,
-						$dni,
-						$gender,
-						$finalBirthdate,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL,
-						NULL
-					);
-
-				} else {
-
-					/*$updateResponse = $user->fanatics()->update(
+			if (!$isIntegrantActive) {
+				$updateResponse = $user->fanatics()->update(
+					NULL,
+					$session->getEmail(),
+					$name,
+					$surname,
+					NULL,
+					$dni,
+					$gender,
+					$finalBirthdate,
+					$country,
+					$postalCode,
+					$city,
+					$province,
+					$address,
+					$addressNumber,
+					$addressTypeID,
+					$otherAdress,
+					$phoneNumber,
+					NULL,
+					$newsletter,
+					$censusNumber,
+					$collectiveTypeID,
+					$collectiveCode,
+					NULL,
+					NULL,
+					$IDCountryNationality,
+					$IDCountryResidence,
+					$FinalPassportExpirationDate
+				);
+				/*$updateResponse = $user->fanatics()->update(
                         NULL,
                         $session->getEmail(),
-                        $name,
-                        $surname,
-                        NULL,
-                        $dni,
-                        $gender,
-                        $finalBirthdate,
                         NULL,
                         NULL,
                         NULL,
                         NULL,
                         NULL,
                         NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL
-                    );*/
-					//ksm('update_response');
-					//ksm($updateResponse->Response);
-					/*
-                    $integrant->update(
-                        $sessionID,
-                        $integrantID,
-                        $integrantType,
-                        $email,
-                        $name,
-                        $surname,
-                        $surname2,
-                        $IDCard,
-                        $gender,
-                        $birthdate,
-                        $IDCountry,
+                        $country,
                         $postalCode,
                         $city,
-                        $IDProvince,
-                        $provinceName,
+                        $province,
                         $address,
                         $addressNumber,
-                        $IDAddressType,
-                        $addressMoreInfo,
+                        $addressTypeID,
+                        $otherAdress,
                         $phoneNumber,
-                        $telephoneNumber,
-                        $renewPass,
-                        $census,
-                        $IDClub,
-                        $clubIdentification
-                    );*/
-
-					if ($isManagingIntegrant) {
-						$response = $integrant->update(
+                        NULL,
+                        $newsletter,
+                        $censusNumber,
+                        $collectiveTypeID,
+                        $collectiveCode
+                );*/
+			} else {
+				// managing
+				if ($isManagingIntegrant) {
+					$response = $integrant->update(
+						$session->getIdentifier(),
+						$session->getActiveIntegrantClientID(),
+						NULL, //$integrantType,
+						$integrantEmail, //$email,
+						NULL, //$name,
+						NULL, //$surname,
+						NULL, //$surname2,
+						NULL, //$IDCard,
+						NULL, //$gender,
+						NULL, //$birthdate,
+						$country,
+						$postalCode,
+						$city,
+						$province,
+						NULL, //$provinceName,
+						NULL, //$address,
+						NULL, //$addressNumber,
+						NULL, //$IDAddressType,
+						NULL, //$addressMoreInfo,
+						$phoneNumber, //$phoneNumber,
+						NULL, //$telephoneNumber,
+						NULL, //$renewPass,
+						$censusNumber, //$census,
+						$collectiveTypeID,
+						$collectiveCode
+					);
+				} else { // Creating
+					try {
+						$response = $integrant->create(
 							$session->getIdentifier(),
-							$session->getActiveIntegrantClientID(),
 							$integrantType,
 							$integrantEmail,
 							$name,
@@ -1091,75 +1158,332 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 							NULL,
 							$dni,
 							$gender,
-							$finalBirthdate,
+							$birthdate,
+							$country,
+							$postalCode,
 							NULL,
 							NULL,
 							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL
+							NULL, //$address,
+							NULL, //$addressNumber,
+							NULL, //$IDAddressType,
+							NULL, //$addressMoreInfo,
+							$phoneNumber, //$phoneNumber,
+							NULL, //$telephoneNumber,
+							NULL, //$renewPass,
+							$censusNumber,
+							$collectiveTypeID,
+							$collectiveCode
 						);
-					} else { // New integrant
-						$response = $integrant->update(
-							$session->getIdentifier(),
-							$session->getActiveIntegrantClientID(),
-							$integrantType,
-							NULL,
-							$name,
-							$surname,
-							NULL,
-							$dni,
-							$gender,
-							$finalBirthdate,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							NULL
-						);
-					}
 
+						$IDIntegrant = $response->ClientID;
+					} catch (ClientException $e) {
+						if ($e->getResponse()->getStatusCode() == 409 && FALSE) { // This check is unnecessary
+							return \Drupal::messenger()->addMessage($this->t('The email address you provided already exists, please review the previous step information', [], ['context' => TranslationContext::PROFILE_DATA]), 'error');
+						} else {
+							throw $e;
+						}
+					}
 				}
-			} catch (ClientException $e) {
-				if ($e->getResponse()->getStatusCode() == 409) {
-					return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.EMAIL_ALREADY_EXISTS'), 'error');
-				} else {
-					throw $e;
-				}
-			} catch (\Exception $e) {
-				\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
-				return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
 			}
+		} catch (\Exception $e) {
+			//ksm($e->getResponse()->getBody()->getContents());
+			\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+			return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
 		}
 
-		$final_destination = $this->storeGet('destination_url');
-		$this->deleteStoreKeys(['has_profile']);
+		// Imagenes
+		try {
+			if (!$hasProfile || $isCreatingIntegrant) {
+				$profileImage = $this->storeGet('profile_image');
+				if (isset($profileImage) && strlen($profileImage) > 0) {
+					if (!$isIntegrantActive) {
+						$profile = $user->getProfile($session->getEmail(), TRUE, TRUE, FALSE);
+						$profileOldImage = $profile->Image;
+						if ($profileImage != $profileOldImage) {
+							$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
+						}
+					} else {
+						//$activeIntegrantID = $session->getActiveIntegrantClientID();
+						$uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg', NULL, $IDIntegrant);
+					}
+				}
+			}
+		} catch (\Exception $e) {
+			\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+			return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
+		}
 
-		if ((!isset($final_destination) || (\Drupal::routeMatch()->getRouteName() == 'gv_fplus_auth.user_profile_personal_data_form'))) {
-			$form_state->setResponse(new RedirectResponse(Url::fromRoute('gv_fplus_auth.user_profile_residence_data_form')->toString(), 307));
+
+		$this->deleteStoreKeys([
+			'name',
+			'surname',
+			'gender',
+			'birthdate',
+			'dni',
+			'has_profile',
+			'email',
+			'integrant_type',
+			'profile_image'
+		]);
+
+		$this->eventDispatcher->dispatch(AuthEvents::RESIDENCE_DATA_FORM_SUBMIT, new ResidenceDataFormSubmitEvent($isCreatingIntegrant, $isManagingIntegrant, $IDIntegrant));
+
+		$final_destination = $this->storeGet('destination_url');
+		unset($final_destination);
+
+		$originalUrl = $session->getOriginalRedirectUrl();
+//		if (isset($originalUrl) && strlen($originalUrl) > 0) {
+//			$final_destination = $originalUrl;
+//			$session->deleteOriginalRedirectUrl();
+//		}
+
+		if (!isset($final_destination)) {
+			if ($isManagingIntegrant || $isCreatingIntegrant) {
+				$form_state->setResponse(new RedirectResponse(Url::fromRoute('gv_fanatics_plus_checkout.integrant_list')->toString(), 307));
+			} else {
+				$form_state->setResponse(new RedirectResponse(Url::fromRoute('gv_fanatics_plus_my_grandski.main_menu')->toString(), 307));
+			}
 		} else {
 			$this->deleteStoreKeys(['destination_url']);
 			$form_state->setResponse(new TrustedRedirectResponse($final_destination, 307));
 		}
+
+		if ($isCreatingIntegrant) {
+			\Drupal::messenger()->addMessage($translationService->translate('RESIDENCE_DATA_FORM.INTEGRANT_PROFILE_CREATED'));
+		} else if ($isManagingIntegrant) {
+			\Drupal::messenger()->addMessage($translationService->translate('RESIDENCE_DATA_FORM.INTEGRANT_PROFILE_UPDATED'));
+		} else {
+			\Drupal::messenger()->addMessage($translationService->translate('RESIDENCE_DATA_FORM.PROFILE_UPDATED'));
+		}
+		/* Fin RG */
+
+//		$session = \Drupal::service('gv_fplus.session');
+//		$image = \Drupal::service('gv_fplus_auth.image');
+//		$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+//		$apiIncidenceDecoder = \Drupal::service('gv_fanatics_plus_utils.api_incidence_decoder');
+//
+//		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+//
+//		$this->setStoreKeyPrefix($session->getIDUser());
+//
+//		$isCreatingIntegrant = $session->isCreatingIntegrant();
+//		$isManagingIntegrant = $session->isManagingIntegrant();
+//		$isIntegrantActive = $session->isIntegrantActive();
+//
+//		$integrantEmail = $form_state->getValue('integrant_email');
+//		$integrantType = $form_state->getValue('integrant_type');
+//
+//		if ($isIntegrantActive && !$isCreatingIntegrant) {
+//			$activeIntegrantID = $session->getActiveIntegrantClientID();
+//			$integrants = $integrant->listMembers($session->getIDClient(), TRUE)->List;
+//			foreach ($integrants as $integrant) {
+//				if ($integrant->IntegrantID == $activeIntegrantID) {
+//					$activeIntegrant = $integrant;
+//				}
+//			}
+//
+//			$profile = $activeIntegrant;
+//			if ($integrantEmail == $profile->Email) { // TODO: remove this case, pending DBM release for this effect
+//				$integrantEmail = NULL;
+//			}
+//		}
+//
+//		$hasProfile = $this->storeGet('has_profile');
+//		$integrant = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+//		try {
+//			if (isset($profileImage) && $profileImage != "" && ((!$hasProfile || $isCreatingIntegrant))) {
+//				$profileImage = str_replace('data:image/jpeg;base64,', '', $profileImage);
+//				$this->storeSet('profile_image', $profileImage);
+//				/*$isIntegrantActive = $session->isIntegrantActive();
+//                if (!$isIntegrantActive) {
+//                    $uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg');
+//                } else {
+//                    $activeIntegrantID = $session->getActiveIntegrantClientID();
+//                    $uploadResponse = $image->upload($session->getIdentifier(), $profileImage, '.jpeg', NULL, $activeIntegrantID);
+//                }*/
+//
+//			}
+//		} catch (Exception $e) {
+//			return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
+//		}
+//
+//		if (!$hasProfile) {
+//			$this->storeSet('name', $name);
+//			$this->storeSet('surname', $surname);
+//			$this->storeSet('gender', $gender);
+//			$this->storeSet('birthdate', $birthdate);
+//			$this->storeSet('dni', $dni);
+//			$this->storeSet('integrant_type', $integrantType);
+//			$this->storeSet('email', $integrantEmail);
+//		} else {
+//			$user = \Drupal::service('gv_fplus_auth.user');
+//
+//			try {
+//				if (!$isManagingIntegrant) {
+//
+//					$updateResponse = $user->fanatics()->update(
+//						NULL,
+//						$session->getEmail(),
+//						$name,
+//						$surname,
+//						NULL,
+//						$dni,
+//						$gender,
+//						$finalBirthdate,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL,
+//						NULL
+//					);
+//
+//				} else {
+//
+//					/*$updateResponse = $user->fanatics()->update(
+//                        NULL,
+//                        $session->getEmail(),
+//                        $name,
+//                        $surname,
+//                        NULL,
+//                        $dni,
+//                        $gender,
+//                        $finalBirthdate,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL,
+//                        NULL
+//                    );*/
+//					//ksm('update_response');
+//					//ksm($updateResponse->Response);
+//					/*
+//                    $integrant->update(
+//                        $sessionID,
+//                        $integrantID,
+//                        $integrantType,
+//                        $email,
+//                        $name,
+//                        $surname,
+//                        $surname2,
+//                        $IDCard,
+//                        $gender,
+//                        $birthdate,
+//                        $IDCountry,
+//                        $postalCode,
+//                        $city,
+//                        $IDProvince,
+//                        $provinceName,
+//                        $address,
+//                        $addressNumber,
+//                        $IDAddressType,
+//                        $addressMoreInfo,
+//                        $phoneNumber,
+//                        $telephoneNumber,
+//                        $renewPass,
+//                        $census,
+//                        $IDClub,
+//                        $clubIdentification
+//                    );*/
+//
+//					if ($isManagingIntegrant) {
+//						$response = $integrant->update(
+//							$session->getIdentifier(),
+//							$session->getActiveIntegrantClientID(),
+//							$integrantType,
+//							$integrantEmail,
+//							$name,
+//							$surname,
+//							NULL,
+//							$dni,
+//							$gender,
+//							$finalBirthdate,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL
+//						);
+//					} else { // New integrant
+//						$response = $integrant->update(
+//							$session->getIdentifier(),
+//							$session->getActiveIntegrantClientID(),
+//							$integrantType,
+//							NULL,
+//							$name,
+//							$surname,
+//							NULL,
+//							$dni,
+//							$gender,
+//							$finalBirthdate,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL,
+//							NULL
+//						);
+//					}
+//
+//				}
+//			} catch (ClientException $e) {
+//				if ($e->getResponse()->getStatusCode() == 409) {
+//					return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.EMAIL_ALREADY_EXISTS'), 'error');
+//				} else {
+//					throw $e;
+//				}
+//			} catch (\Exception $e) {
+//				\Drupal::logger('php')->error($e->getResponse()->getBody()->getContents());
+//				return \Drupal::messenger()->addMessage($translationService->translate('PERSONAL_DATA_FORM.INTERNAL_ERROR'), 'error');
+//			}
+//		}
+//
+//		$final_destination = $this->storeGet('destination_url');
+//		$this->deleteStoreKeys(['has_profile']);
+//
+//		if ((!isset($final_destination) || (\Drupal::routeMatch()->getRouteName() == 'gv_fplus_auth.user_profile_personal_data_form'))) {
+//			$form_state->setResponse(new RedirectResponse(Url::fromRoute('gv_fplus_auth.user_profile_residence_data_form')->toString(), 307));
+//		} else {
+//			$this->deleteStoreKeys(['destination_url']);
+//			$form_state->setResponse(new TrustedRedirectResponse($final_destination, 307));
+//		}
 
 	}
 }

@@ -7,6 +7,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\EmailValidation;
+use Egulias\EmailValidator\Validation\RFCValidation;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -21,6 +24,11 @@ class EmailCheckForm extends FormBase {
 	private $apiClient;
 	private $user;
 	private $translationService;
+	/**
+	 * Email validator
+	 * @var \Egulias\EmailValidator\EmailValidator
+	 */
+	protected $emailValidator;
 
 	/**
 	 * {@inheritdoc}.
@@ -41,6 +49,7 @@ class EmailCheckForm extends FormBase {
 		$this->user = $user;
 		$this->channelResolver = $channelResolver;
 		$this->translationService = $translationService;
+		$this->emailValidator = new EmailValidator;
   	}
 
 	public function getPageTitle() {		
@@ -112,7 +121,13 @@ class EmailCheckForm extends FormBase {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function validateForm(array &$form, FormStateInterface $form_state) {}
+	public function validateForm(array &$form, FormStateInterface $form_state) {
+		$email = trim($form_state->getValue('email'));
+		$domain = explode("@", $email)[1];
+//		if (!checkdnsrr($domain,"MX")) {
+//			$form_state->setErrorByName("email", $this->translationService->translate('LOGIN_FORM.INVALID_MAIL'));
+//		}
+	}
 
 	/**
 	 * {@inheritdoc}
@@ -120,7 +135,7 @@ class EmailCheckForm extends FormBase {
 	public function submitForm(array &$form, FormStateInterface $form_state) {
 		$email = $form_state->getValue('email');
 		$userExists = $this->user->exists($email);
-		
+
 		// A - Email exists and it is active
 		// B - Email exists but is inactive
 		// C - Email does not exist

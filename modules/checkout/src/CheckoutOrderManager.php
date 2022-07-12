@@ -42,6 +42,7 @@ function previousAndNextKey(array $phpArray, $key) : array {
 final class CheckoutOrderSteps {
 	const PROFILE_DATA = 'profile-data';
 	const PRODUCT_SELECTION = 'select-products';
+	const DOCUMENTS = 'pending-documents';
 	const PAYMENT = 'payment';
 	const POST_PAYMENT = 'post-payment';
 	const COMPLETE = 'complete';
@@ -335,6 +336,7 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 		$currentStepId = $this->getCurrentStepId();
 		
 		$availableStepIds = $this->getVisibleSteps();
+		
 		if (!in_array($requestedStepId, array_keys($availableStepIds))) {
 			return CheckoutOrderSteps::PRODUCT_SELECTION;
 		}

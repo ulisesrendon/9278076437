@@ -154,7 +154,6 @@ fieldset.form-group {
 .description.error {
 	color: #E63946!important;
 }
-
 .description.success {
 	color: green!important;
 }
@@ -167,18 +166,15 @@ fieldset.form-group {
 	padding-left: 25px;
 	padding-right: 25px;
 }
-
 .title-container .radial-progress-bar {
 	display: inline-block;
 }
-
 .title-container h1 {
 	display: inline-block;
 	margin-left: 15px;
 	font-size: 24px;
 	text-transform: none;
 }
-
 .title-container h1:after {
 	display: none;
 }
@@ -200,12 +196,6 @@ input#edit-phone-number::-ms-input-placeholder {
 	color: lightgray;
 }
 
-.path-checkout.profile #block-fanatics-content .title-container > .radial-progress-bar {
-	opacity: 0;
-	visibility: hidden;
-	width: 0;
-}
-
 fieldset.form-item-dni-expired-date {
 	margin-top: 32px !important;
 }
@@ -214,8 +204,104 @@ fieldset.form-item-dni-expired-date {
 	width: 100%;
 }
 
-.country-select-wrapper {
+.country-select-wrapper, .spaced-wrapper > fieldset {
 	margin-top: 32px !important;
 }
 
+.btnb-custom-control input {
+	display: none;
+}
+.btnb-custom-control-label {
+	position: relative;
+	margin-bottom: 0;
+	vertical-align: top;
+	padding: 10px 0 10px 30px;
+}
+.btnb-custom-control-label-before {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	display: block;
+	width: 1rem;
+	height: 1rem;
+	pointer-events: none;
+	content: "";
+	background-color: #fff;
+	border: #adb5bd solid 1px;
+	border-radius: 100px;
+	transform: translateY(-50%);
+}
+.btnb-custom-control-label-after {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	display: block;
+	width: 1rem;
+	height: 1rem;
+	content: "" !important;
+	background: no-repeat 50% / 50% 50%;
+	background-color: transparent;
+	transform: translateY(-50%) scale(0.7);
+	border-radius: 100px;
+	transition: all .4s ease;
+}
+.btnb-custom-control-label.checked .btnb-custom-control-label-after {
+	background-color: #45B9DD !important;
+}
+
+#edit-gender .bg-auxiliar {
+	width: 100% !important;
+}
+
+.form-item-census-number {
+	max-width: unset !important;
+}
+.description {
+	font-size: 13px !important;
+}
+
+.btnb-no-transform {
+	width: 100% !important;
+	transform: translateX(0) !important;
+}
+.btnb-hide-element {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	height: 0;
+	width: 0;
+}
+
+#gv-fplus-auth-personal-data-form .js-form-item-integrant-email.form-item-integrant-email, #gv-fplus-auth-personal-data-form #integrant-email-notice-container {
+	display: block !important;
+}
+body.path-checkout.checkout-without-sidebar form#gv-fplus-auth-personal-data-form .form-item-integrant-email input,
+.path-my-grandski:not(.path-checkout).profile-aux .block > .content > .container form#gv-fplus-auth-personal-data-form .form-item-integrant-email input {
+	max-width: unset !important;
+}
+#integrant-email-notice-container .panel-heading p:last-child {
+	font-size: 14px !important;
+}
+#integrant-email-notice-container {
+	padding-right: 30px;
+}
+
+.btnb-top-border > fieldset::before {
+	content: '';
+	width: calc(100% - 30px);
+	position: absolute;
+	background-color: #E1E4EB;
+	height: 2px;
+	top: -20px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#gv-fplus-auth-personal-data-form {
+	overflow-x: hidden !important;
+}
+
+.panel.warning.image-expired {
+	margin-right: 30px;
+}
 /* Fin RG */

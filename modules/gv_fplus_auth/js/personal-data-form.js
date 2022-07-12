@@ -2,7 +2,52 @@ jQuery(document).ready(function($) {
 	//'.form-item-image'
 	// '.image-preview'
 	// '.edit-image-btn'
-	
+
+	/* RG: Newsletter logic */
+	$('#edit-newsletter').find('.custom-control-label').removeClass().addClass('btnb-custom-control-label');
+	$('#edit-newsletter').find('.custom-control-input').removeClass().addClass('btnb-custom-control-input');
+	$('#edit-newsletter').find('.custom-control').removeClass().addClass('btnb-custom-control');
+
+	// Add manual before and after elements as SPAN, ::after and ::before not working due to unfindable content:unset!important in ::after
+	let newsletterBefore = "<span class='btnb-custom-control-label-before'></span>";
+	let newsletterAfter = "<span class='btnb-custom-control-label-after'></span>";
+	$('.btnb-custom-control-label').prepend(newsletterBefore, newsletterAfter);
+
+	// Set add checked class to default input;
+	$('.btnb-custom-control').find('input').each(function() {
+		if ($(this).is(":checked")) {
+			$(this).parent().find('.btnb-custom-control-label').addClass('checked');
+		} else {
+			$(this).parent().find('.btnb-custom-control-label').removeClass('checked');
+		}
+	});
+
+	// Listen changes on input to set checked class;
+	$('.btnb-custom-control').find('input').on("change", function() {
+		$('.btnb-custom-control-label').removeClass('checked');
+		if ($(this).is(":checked")) {
+			$(this).parent().find('.btnb-custom-control-label').addClass('checked');
+		}
+	});
+
+	// Remove wrong default background and set background to default checked gender
+	$('#edit-gender').find('.bg-auxiliar').remove();
+	const prependedBackground = '<div class="bg-auxiliar btnb-no-transform hidden" style="width: 100% !important; transform: unset !important;"></div>';
+	$('#edit-gender').find('input').each(function() {
+		if ($(this).is(":checked")) {
+			$(this).parent().prepend(prependedBackground);
+		}
+	});
+
+	// Listen changes on gender input to set background;
+	$('#edit-gender').find('input').on("change", function() {
+		$('#edit-gender').find('.bg-auxiliar').remove();
+		if ($(this).is(":checked")) {
+			$(this).parent().prepend(prependedBackground);
+		}
+	});
+	/* Fin RG */
+
 	function showLoader() {
 		var pathIds = ['cable', 'ski', 'mountain'];
 		var myIcons = new SVGMorpheus('#loaderSvg');
@@ -30,17 +75,7 @@ jQuery(document).ready(function($) {
   			jQuery('.loader-checkout').addClass('hidden');
   		}
 	}
-	
-	/*jQuery('#edit-submit').click(function() {
 
-		
-		jQuery('#gv-fplus-auth-personal-data-form').submit();
-	});*/
-	
-	// Warningw
-	// $(window).on('beforeunload', function(){
-	//     return "Any changes will be lost";
-	// });
 	$(window).off('beforeunload');
 		
 	// Form Submit
@@ -123,7 +158,9 @@ jQuery(document).ready(function($) {
 	$('#nacionality_country_selector').on("change", function() {
 		// no marcar el campo oculto si el valor de la nacionalidad no es andorra
 		if ($(this).val() != 5) {
-			return;
+			if ($('#residence_country_selector').val() == 5) {
+				return;
+			}
 		}
 		$('#normal_country').val($(this).val()).change();
 	});
