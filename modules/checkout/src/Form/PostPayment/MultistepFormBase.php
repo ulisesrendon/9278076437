@@ -112,6 +112,7 @@ abstract class MultistepFormBase extends FormBase {
 		$this->destinationUrl = $destinationUrl;
 		
 		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+		
 		$bookingLocator = NULL;
 		if ($currentOrderID != NULL) {
 			$booking = $this->order::getFromID($currentOrderID, FALSE, FALSE);

@@ -42,7 +42,7 @@ function previousAndNextKey(array $phpArray, $key) : array {
 final class CheckoutOrderSteps {
 	const PROFILE_DATA = 'profile-data';
 	const PRODUCT_SELECTION = 'select-products';
-	const DOCUMENTS = 'pending-documents';
+	const DOCUMENTS = 'need-documents';
 	const PAYMENT = 'payment';
 	const POST_PAYMENT = 'post-payment';
 	const COMPLETE = 'complete';
@@ -208,6 +208,9 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
       		CheckoutOrderSteps::PRODUCT_SELECTION =>  [
         		'label' => 'CHECKOUT_PROGRESS.SELECT_PRODUCTS'
       		],
+			CheckoutOrderSteps::DOCUMENTS => [
+				'label' => 'CHECKOUT_PROGRESS.DOCUMENTS'
+			],
       		CheckoutOrderSteps::PAYMENT =>  [
         		'label' => 'CHECKOUT_PROGRESS.PAYMENT'
       		],

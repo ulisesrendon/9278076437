@@ -71,6 +71,7 @@ class CheckoutController extends ControllerBase {
 		// var_dump($step_id);
 		// die();
 
+		ksm($this->session->getIdentifier());
 
 		$minAgeForBuying = $this->formBasicValidations->minimumAgeForBuying($this->session->getIdentifier())->MinimumAgeForNewsletter;
 		$IDUser = $this->session->getIDUser();
@@ -94,7 +95,6 @@ class CheckoutController extends ControllerBase {
 			}
 		}
 
-		
 		if ($requested_step_id != $step_id && $step_id != CheckoutOrderSteps::POST_PAYMENT) {
       		$url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => $step_id]);
      		return new RedirectResponse($url->toString(), 307);
@@ -126,38 +126,38 @@ class CheckoutController extends ControllerBase {
 				}
 			}
 			
-			case CheckoutOrderSteps::PRODUCT_SELECTION: {
-				$metricsCollector->setStep('select_products');
-				if ($metricsCollector->getInitialLoad()) {
-					$metricsCollector->incStepCounter();
-				}
-				
-				$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
-				$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
-				return $form;
-			}
+//			case CheckoutOrderSteps::PRODUCT_SELECTION: {
+//				$metricsCollector->setStep('select_products');
+//				if ($metricsCollector->getInitialLoad()) {
+//					$metricsCollector->incStepCounter();
+//				}
+//
+//				$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+//				$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
+//				return $form;
+//			}
 
-			// case CheckoutOrderSteps::PRODUCT_SELECTION: {
-			// 	$metricsCollector->setStep('select_products');
-			// 	if ($metricsCollector->getInitialLoad()) {
-			// 		$metricsCollector->incStepCounter();
-			// 	}
+			 case CheckoutOrderSteps::PRODUCT_SELECTION: {
+			 	$metricsCollector->setStep('select_products');
+			 	if ($metricsCollector->getInitialLoad()) {
+			 		$metricsCollector->incStepCounter();
+			 	}
 				
-			// 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::DOCUMENTS]);
-			// 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
-			// 	return $form;
-			// }
+			 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::DOCUMENTS]);
+			 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
+			 	return $form;
+			 }
 
-			// case CheckoutOrderSteps::DOCUMENTS: {
-			// 	$metricsCollector->setStep('pending_documents');
-			// 	if ($metricsCollector->getInitialLoad()) {
-			// 		$metricsCollector->incStepCounter();
-			// 	}
+			 case CheckoutOrderSteps::DOCUMENTS: {
+			 	$metricsCollector->setStep('pending_documents');
+			 	if ($metricsCollector->getInitialLoad()) {
+			 		$metricsCollector->incStepCounter();
+			 	}
 				
-			// 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
-			// 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV2::class, $destination_url->toString());
-			// 	return $form;
-			// }
+			 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+			 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV3::class, $destination_url->toString());
+			 	return $form;
+			 }
 			
 			
 			case CheckoutOrderSteps::PAYMENT: {

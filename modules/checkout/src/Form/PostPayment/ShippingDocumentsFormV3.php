@@ -20,7 +20,7 @@ use Drupal\gv_fplus\TranslationContext;
 /**
  * Formulario correspondiente al paso de gestión documental del proceso de Post-pago (versión 2).
  */
-class ShippingDocumentsFormV2 extends MultistepFormBase {
+class ShippingDocumentsFormV3 extends MultistepFormBase {
 
   	/**
    	* {@inheritdoc}.
@@ -80,6 +80,9 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 	 * {@inheritdoc}
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
+
+		//ksm($currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
+		
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		
 		$this -> formTitle = 'POST_PAYMENT.DOCUMENTS.MAIN_TITLE';
@@ -92,14 +95,16 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-		ksm($this->order, $this->order->hasPendingDocuments(), $this->order->getPendingData());
+		//ksm($this->order, $this->order->hasPendingDocuments(), $this->order->getPendingData());
+
 
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
 		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
 
-		$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
+		//$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
+		$orderInfo = $this->order->getOrder();
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
 		

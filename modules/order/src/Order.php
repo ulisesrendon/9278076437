@@ -511,6 +511,26 @@ class Order implements OrderInterface {
 		return $order;
 	}
 
+	public static function getOrder() {
+		$apiClient = \Drupal::service('gv_fplus_dbm_api.client');
+		$session = \Drupal::service('gv_fplus.session');
+		$user = \Drupal::service('gv_fplus_auth.user');
+		$image = \Drupal::service('gv_fplus_auth.image');
+		$dateFormatter = \Drupal::service('date.formatter');
+		$integrantService = \Drupal::service('gv_fanatics_plus_checkout.integrant');
+		
+		$langCode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+		
+		if ($session->getIdentifier() == NULL) {
+			return NULL;
+		}
+		
+
+		ksm($apiClient->booking());
+
+		return $apiClient->booking()->getByID($session->getIdentifier(), $orderID);
+	}
+
 	public static function editBookingOffice($IDBooking, $IDBookingOffice, $IDSession = NULL) {
 		$apiClient = \Drupal::service('gv_fplus_dbm_api.client');
 		$session = \Drupal::service('gv_fplus.session');

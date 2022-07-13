@@ -32,9 +32,9 @@
 	</div>
     <div class="available-integrants">
       {% for integrant in integrants %}
-      <a href="{{ integrant.SwitchUrl }}">
+      <a href="{{ integrant.SwitchUrl }}" class="available-integrant-wrapper {% if integrant.Active == true %} active {% endif %}">
      	<div class="available-integrants--item {% if integrant.Active == true %} active {% endif %}" {% if loop.index == 1 %} data-step="2" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.INTEGRANTS'|gv_t}}" {% endif %}>
-     	  <label class="integrant-label">{{integrant.Name }}</label>
+     	  <label class="integrant-label {% if integrant.Active == true %} active {% endif %}">{{integrant.Name }}</label>
      	  <div class="available-integrants--item-avatar">
      	    <div class="available-integrants--item-avatar--inner image-container {% if owner.ImageBase64 is null %} empty {% endif %}">
      	     {% if integrant.ImageBase64 is not null %}
@@ -48,8 +48,10 @@
       </a>
       {% endfor %}
       {% if add_new_integrant_url is not null %}
-      <a href="{{ add_new_integrant_url }}">
-        <div class="add-new-integrant">
+      <a href="{{ add_new_integrant_url }}" class="new-integrant">
+		  {#			<label class="add-new-integrant-label">{{'CHECKOUT_SELECT_PRODUCTS.ADD_MORE_INTEGRANTS'|gv_t}}</label>#}
+		  <label class="add-new-integrant-label">Añadir nuevo</label>
+		  <div class="add-new-integrant">
         	<div class="add-new-integrant-inner" data-step="3" data-intro="{{'CHECKOUT_SELECT_PRODUCTS.TOUR.CREATE_INTEGRANT'|gv_t}}">
     			<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     				<path fill-rule="evenodd" clip-rule="evenodd" d="M15.1429 15.1429V10H16.8571V15.1429H22V16.8571H16.8571V22H15.1429V16.8571H10V15.1429H15.1429Z" fill="#348BA6"/>

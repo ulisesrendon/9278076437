@@ -885,8 +885,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			//FIN JMP
 
-			ksm($form);
-
 			return $form;
 
 		} catch (Exception $e) {
