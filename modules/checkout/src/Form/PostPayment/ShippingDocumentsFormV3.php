@@ -103,11 +103,12 @@ class ShippingDocumentsFormV3 extends MultistepFormBase {
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
 		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
 
+
 		//$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
 		$orderInfo = $this->order->getOrder();
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
-		
+
 		/*$shippingMethodOptions = [
 			BookingOfficeOptions::RECHARGE_FORFAIT => $this->t('Top-ups', [], ['context' => TranslationContext::POST_PAYMENT]),
 			BookingOfficeOptions::HOME_DELIVERY => $this->t('Delivery to my address', [], ['context' => TranslationContext::POST_PAYMENT]),
@@ -124,13 +125,13 @@ class ShippingDocumentsFormV3 extends MultistepFormBase {
 			'#tree' => TRUE
 		];
 		
-		if (!$orderInfo->hasPendingDocuments()) {
-			$form['shipping_documents']['no_results_behaviour'] = [
-				'#markup' => '<div class="no-results-behaviour"><h6>' 
-					. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS') 
-					. '</h6></div>'
-			];
-		}
+		// if (!$orderInfo->hasPendingDocuments()) {
+		// 	$form['shipping_documents']['no_results_behaviour'] = [
+		// 		'#markup' => '<div class="no-results-behaviour"><h6>' 
+		// 			. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS') 
+		// 			. '</h6></div>'
+		// 	];
+		// }
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
 		foreach($orderInfo->Services as $serviceIndex => $service) {
@@ -221,9 +222,10 @@ class ShippingDocumentsFormV3 extends MultistepFormBase {
 		$form['actions']['#type'] = 'actions';
 		$form['actions']['complete_later'] = [
 			'#type' => 'markup',
-			'#markup' => '<a href="' 
-				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">' 
-				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>' 
+			// '#markup' => '<a href="' 
+			// 	. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">' 
+			// 	. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>' 
+			'#markup' => '<a href="#">'. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>' 
 		];
 		
 		$form['actions']['submit'] = [

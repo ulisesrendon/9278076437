@@ -524,11 +524,8 @@ class Order implements OrderInterface {
 		if ($session->getIdentifier() == NULL) {
 			return NULL;
 		}
-		
 
-		ksm($apiClient->booking());
-
-		return $apiClient->booking()->getByID($session->getIdentifier(), $orderID);
+		return $apiClient->booking()->getCurrentDetail( $session->getIdentifier() );
 	}
 
 	public static function editBookingOffice($IDBooking, $IDBookingOffice, $IDSession = NULL) {
