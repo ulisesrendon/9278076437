@@ -119,6 +119,13 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#suffix' => '</div>',
 			'#tree' => TRUE
 		];
+
+		$form['shipping_documents']['left_aside'] = [
+			'#type' => 'container',
+			'#attributes' => [
+				'id' => "left_aside",
+			]
+		];
 		
 //		if (!$orderInfo->hasPendingDocuments()) {
 //			$form['shipping_documents']['no_results_behaviour'] = [
@@ -130,7 +137,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
-			ksm($service);
+			
 //			if (!$service->hasPendingDocuments()) {
 //				continue;
 //			}
@@ -141,6 +148,17 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			];
 			
 			$imageBase64 = $service->IntegrantData->ImageBase64;
+
+			$service->IntegrantData->Name = "%no name%";
+
+			$form['shipping_documents']['left_aside'][$serviceIndex] = [
+				"#type" => 'inline_template',
+				"#template" => '<div class="left_aside_editdocitem">
+					<div>'.$service->IntegrantData->Name.'</div>
+					<div><img src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" /></div>
+				</div>',
+			];
+			
 			if (isset($imageBase64)) {
 				$form['shipping_documents'][$service->Identifier]['header'] = [
 					'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="" data-src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" /></div><span class="name">' . $service->IntegrantData->Name . ' ' . $service->IntegrantData->Surname . '</span></div></div>'
