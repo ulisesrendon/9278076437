@@ -71,8 +71,6 @@ class CheckoutController extends ControllerBase {
 		// var_dump($step_id);
 		// die();
 
-		ksm($this->session->getIdentifier());
-
 		$minAgeForBuying = $this->formBasicValidations->minimumAgeForBuying($this->session->getIdentifier())->MinimumAgeForNewsletter;
 		$IDUser = $this->session->getIDUser();
 		
@@ -155,7 +153,7 @@ class CheckoutController extends ControllerBase {
 			 	}
 				
 			 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
-			 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV3::class, $destination_url->toString());
+			 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV2::class, $destination_url->toString());
 			 	return $form;
 			 }
 			

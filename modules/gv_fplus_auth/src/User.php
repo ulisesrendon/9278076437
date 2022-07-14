@@ -155,8 +155,8 @@ class UserFanatics {
 		$this->apiClient = $apiClient;
 	}
 	
-	public function update($sessionID = NULL, $email = NULL, $name = NULL, $surname1 = NULL, $surname2 = NULL, $cardID = NULL, $gender = NULL, $birthDate = NULL, $countryID = NULL, $postalCode = NULL, $city = NULL, $provinceID = NULL, $address = NULL, $addressNumber = NULL, $addressTypeID = NULL, $otherAdress = NULL, $phoneNumber = NULL, $newPassword = NULL, $receiveInfo = NULL, $census = NULL, $clubID = NULL, $clubCode = NULL, $province = NULL, $currentPassword = NULL) {
-		return $this->apiClient->users()->fanatics()->update($sessionID, $email, $name, $surname1, $surname2, $cardID, $gender, $birthDate, $countryID, $postalCode, $city, $provinceID, $address, $addressNumber, $addressTypeID, $otherAdress, $phoneNumber, $newPassword, $receiveInfo, $census, $clubID, $clubCode, $province, $currentPassword);
+	public function update($sessionID = NULL, $email = NULL, $name = NULL, $surname1 = NULL, $surname2 = NULL, $cardID = NULL, $gender = NULL, $birthDate = NULL, $countryID = NULL, $postalCode = NULL, $city = NULL, $provinceID = NULL, $address = NULL, $addressNumber = NULL, $addressTypeID = NULL, $otherAdress = NULL, $phoneNumber = NULL, $newPassword = NULL, $receiveInfo = NULL, $census = NULL, $clubID = NULL, $clubCode = NULL, $province = NULL, $currentPassword = NULL, $IDCountryNationality = NULL, $IDCountryResidence = NULL, $PassportExpirationDate = NULL) {
+		return $this->apiClient->users()->fanatics()->update($sessionID, $email, $name, $surname1, $surname2, $cardID, $gender, $birthDate, $countryID, $postalCode, $city, $provinceID, $address, $addressNumber, $addressTypeID, $otherAdress, $phoneNumber, $newPassword, $receiveInfo, $census, $clubID, $clubCode, $province, $currentPassword, $IDCountryNationality, $IDCountryResidence, $PassportExpirationDate);
 	}
 }
 

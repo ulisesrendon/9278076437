@@ -81,6 +81,8 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
+
+		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
 		
 		$this -> formTitle = 'POST_PAYMENT.DOCUMENTS.MAIN_TITLE';
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
@@ -92,14 +94,13 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-		ksm($this->order, $this->order->hasPendingDocuments(), $this->order->getPendingData());
-
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
-		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+//		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
 
-		$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
+//		$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
+		$orderInfo = $this->order->getOrder();
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
 		
@@ -109,7 +110,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			BookingOfficeOptions::BOX_OFFICE_PICKUP => $this->t('Pick up point', [], ['context' => TranslationContext::POST_PAYMENT])
 		];*/
 		
-		$this->storeSet('order_id', $currentOrderID);
+//		$this->storeSet('order_id', $currentOrderID);
 		$this->storeSet('order_owner_client_id', $orderOwnerClientID);
 		
 		$form['shipping_documents'] = [
@@ -119,19 +120,20 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#tree' => TRUE
 		];
 		
-		if (!$orderInfo->hasPendingDocuments()) {
-			$form['shipping_documents']['no_results_behaviour'] = [
-				'#markup' => '<div class="no-results-behaviour"><h6>' 
-					. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS') 
-					. '</h6></div>'
-			];
-		}
+//		if (!$orderInfo->hasPendingDocuments()) {
+//			$form['shipping_documents']['no_results_behaviour'] = [
+//				'#markup' => '<div class="no-results-behaviour"><h6>'
+//					. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS')
+//					. '</h6></div>'
+//			];
+//		}
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
-		foreach($orderInfo->Services as $serviceIndex => $service) {
-			if (!$service->hasPendingDocuments()) {
-				continue;
-			}
+		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
+			ksm($service);
+//			if (!$service->hasPendingDocuments()) {
+//				continue;
+//			}
 			
 			$form['shipping_documents'][$service->Identifier] = [
 				'#type' => 'fieldset',
@@ -155,9 +157,9 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			];
 			
 			foreach ($service->SeasonPassData->Documents as $documentIndex => $document) {
-				if (!$document->isPending()) {
-					continue;
-				}
+//				if (!$document->isPending()) {
+//					continue;
+//				}
 				
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);
@@ -214,12 +216,13 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		$form['#attached']['library'][] = 'gv_fanatics_plus_checkout/shipping_documents_form_v2';
 		
 		$form['actions']['#type'] = 'actions';
-		$form['actions']['complete_later'] = [
-			'#type' => 'markup',
-			'#markup' => '<a href="' 
-				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">' 
-				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>' 
-		];
+//		$form['actions']['complete_later'] = [
+//			'#type' => 'markup',
+//			'#markup' => '<a href="'
+//				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">'
+//				.  'https://www.grandvalira.com">'
+//				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>'
+//		];
 		
 		$form['actions']['submit'] = [
 			'#type' => 'submit', 
@@ -301,7 +304,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			\Drupal::messenger()->addMessage($translationService->translate('POST_PAYMENT.DOCUMENTS.ALL_DOCUMENTS_UPLOADED'));
 		}
 		
-  		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $orderID]);
+//  		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $orderID]);
   	}	
 }
 

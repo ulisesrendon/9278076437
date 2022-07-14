@@ -116,8 +116,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 
 			$form = parent::buildForm($form, $form_state);
 
-			\Drupal::messenger()->addMessage('');
-
 			$session = \Drupal::service('gv_fplus.session');
 			$user = \Drupal::service('gv_fplus_auth.user');
 			$image = \Drupal::service('gv_fplus_auth.image');
@@ -534,6 +532,8 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$collectiveOptions[$collectiveType->Identifier] = $collectiveType->Colective;
 			}
 
+			ksm($profile);
+
 			$collectiveTypes = $dbmApi->core()->getCollectives();
 
 			if (!$isIntegrantActive) {
@@ -597,7 +597,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#type' => 'select',
 				'#title' => "Nacionalidad", /** @TODO2: Asignar la cadena de traducción */
 				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.NACIONALITY_COUNTRY'),
-				'#default_value' => $profile->IDCountry,
+				'#default_value' => $profile->IDCountryNationality,
 				'#options' => $countryOptions,
 				'#options_attributes' => $countryDataOptions,
 				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
@@ -612,7 +612,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#type' => 'select',
 				'#title' => "Pais de residencia", /** @TODO3: Asignar la cadena de traducción */
 				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.RESIDENCE_COUNTRY'),
-				'#default_value' => $profile->IDCountry,
+				'#default_value' => $profile->IDCountryResidence,
 				'#options' => $countryOptions,
 				'#options_attributes' => $countryDataOptions,
 				'#empty_option' => $translationService->translate('RESIDENCE_DATA_FORM.EMPTY_OPTION'),
@@ -1091,6 +1091,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					$IDCountryResidence,
 					$FinalPassportExpirationDate
 				);
+				ksm($country, $updateResponse);
 				/*$updateResponse = $user->fanatics()->update(
                         NULL,
                         $session->getEmail(),
@@ -1224,6 +1225,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			'integrant_type',
 			'profile_image'
 		]);
+		
 
 		$this->eventDispatcher->dispatch(AuthEvents::RESIDENCE_DATA_FORM_SUBMIT, new ResidenceDataFormSubmitEvent($isCreatingIntegrant, $isManagingIntegrant, $IDIntegrant));
 
