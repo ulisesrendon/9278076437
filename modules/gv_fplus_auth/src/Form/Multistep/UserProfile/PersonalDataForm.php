@@ -532,8 +532,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$collectiveOptions[$collectiveType->Identifier] = $collectiveType->Colective;
 			}
 
-			ksm($profile);
-
 			$collectiveTypes = $dbmApi->core()->getCollectives();
 
 			if (!$isIntegrantActive) {
@@ -1071,7 +1069,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					$dni,
 					$gender,
 					$finalBirthdate,
-					$country,
+					NULL,//$country, // No le pasamos el país, DBM calcula el país en función de IDCountryNationality e IDCountryResidence
 					$postalCode,
 					$city,
 					$province,
@@ -1091,7 +1089,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					$IDCountryResidence,
 					$FinalPassportExpirationDate
 				);
-				ksm($country, $updateResponse);
 				/*$updateResponse = $user->fanatics()->update(
                         NULL,
                         $session->getEmail(),
@@ -1225,7 +1222,6 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			'integrant_type',
 			'profile_image'
 		]);
-		
 
 		$this->eventDispatcher->dispatch(AuthEvents::RESIDENCE_DATA_FORM_SUBMIT, new ResidenceDataFormSubmitEvent($isCreatingIntegrant, $isManagingIntegrant, $IDIntegrant));
 

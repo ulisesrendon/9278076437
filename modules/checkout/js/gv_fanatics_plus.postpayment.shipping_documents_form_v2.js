@@ -55,9 +55,9 @@
 
 			containerEditDocument[i].insertBefore(uploadIcon, containerEditDocument[i].firstElementChild);
 
-			// containerEditDocument[i].addEventListener("click", function () {
-			// 	filesEditDocument[i].click();
-			// });
+			containerEditDocument[i].addEventListener("click", function () {
+				filesEditDocument[i].click();
+			});
 		}
 
 		const left_aside_original = document.querySelector("#left_aside");
@@ -66,7 +66,17 @@
 		left_aside_original.remove();
 
 		big_container.insertBefore(left_aside, big_container.firstElementChild);
-		
+
+		window.addEventListener("load", function(){
+			const main_avatrs = document.querySelectorAll(".step-need-documents .shipping-option-data-integrants .integrant img");
+			
+			for (let i = 0; i < main_avatrs.length; i++) {
+				let aside_avtr = main_avatrs[i].getAttribute("data-index");
+				aside_avtr = document.querySelector(`.left_aside_editdocitem_img [data-index="${aside_avtr}"]`);
+				aside_avtr.src = main_avatrs[i].getAttribute("src");
+			}
+		});
+
 	});
 	
 	Drupal.behaviors.document_upload_behaviour = {

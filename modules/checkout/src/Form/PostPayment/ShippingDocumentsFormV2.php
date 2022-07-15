@@ -134,9 +134,12 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 //					. '</h6></div>'
 //			];
 //		}
+
+		$_SESSION['shippingDocumentsData'] = \Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager::encrypt( $orderInfo->Booking->BookingLocator );
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
+			//ksm($orderInfo->Booking->Services, $service);
 			
 //			if (!$service->hasPendingDocuments()) {
 //				continue;
@@ -149,24 +152,25 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			
 			$imageBase64 = $service->IntegrantData->ImageBase64;
 
-			$service->IntegrantData->Name = "%no name%";
+			/** @TODOULISES: Comprobar cuando es integrante */
+			$service->IntegrantData->Name = $this->apiClient->users()->getUserProfile(NULL, NULL, NULL, NULL, $service->SeasonPassData->IDClient)->Name ?? "??Integrant??";
 
 			$form['shipping_documents']['left_aside'][$serviceIndex] = [
 				"#type" => 'inline_template',
-				"#template" => '<div class="left_aside_editdocitem">
-					<div>'.$service->IntegrantData->Name.'</div>
-					<div><img src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" /></div>
+				"#template" => '<div class="left_aside_editdocitem" data-index="'.$serviceIndex.'">
+					<div class="left_aside_editdocitem_img"><img src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" data-index="'.$serviceIndex.'" /></div>
+					<div class="left_aside_editdocitem_name">'.$service->IntegrantData->Name.'</div>
 				</div>',
 			];
 			
 			if (isset($imageBase64)) {
 				$form['shipping_documents'][$service->Identifier]['header'] = [
-					'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="" data-src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" /></div><span class="name">' . $service->IntegrantData->Name . ' ' . $service->IntegrantData->Surname . '</span></div></div>'
+					'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="" data-src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" data-index="'.$serviceIndex.'" /></div><span class="name">' . $service->IntegrantData->Name . ' ' . $service->IntegrantData->Surname . '</span></div></div>'
 				];
 			} else {
 				//Order::getDefaultUserAvatar()
 				$form['shipping_documents'][$service->Identifier]['header'] = [
-					'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="' . Order::getDefaultUserAvatar() .'" /></div><span class="name">' . $service->IntegrantData->Name . ' ' . $service->IntegrantData->Surname . '</span></div></div>'
+					'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="' . Order::getDefaultUserAvatar() .'" data-index="'.$serviceIndex.'" /></div><span class="name">' . $service->IntegrantData->Name . ' ' . $service->IntegrantData->Surname . '</span></div></div>'
 				];
 			}
 			
@@ -265,8 +269,10 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
   	public function submitForm(array &$form, FormStateInterface $form_state) {
   		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		
-  		$orderID = $this->storeGet('order_id');
-		$this->deleteStoreKeys(['order_id']);
+  		// $orderID = $this->storeGet('order_id');
+
+		// ksm($orderID);
+		// $this->deleteStoreKeys(['order_id']);
 		
 		$fileManager = \Drupal::entityTypeManager()->getStorage('file');
 		$fileSystem = \Drupal::service('file_system');
@@ -303,7 +309,11 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			}
 		}
 		
+
+		ksm($documentsToUpload, 1);
+		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
+		ksm($documentation, 2);
 		if (count($documentsToUpload) > 0) {
 			$result = $documentation->uploadDocuments($documentsToUpload);
 			$documentResultList = $result->DocumentResultList;
@@ -322,7 +332,14 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			\Drupal::messenger()->addMessage($translationService->translate('POST_PAYMENT.DOCUMENTS.ALL_DOCUMENTS_UPLOADED'));
 		}
 		
-//  		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $orderID]);
+
+		// TODO: esto da error de permisos
+ 		//$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $_SESSION['shippingDocumentsData']]);
+
+
+		// TODO: esto debería ser lo correcto, pero hay que averiguar la logica correcta
+ 		// $url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::POST_PAYMENT]);
+     	// return new RedirectResponse($url->toString(), 307);
   	}	
 }
 
