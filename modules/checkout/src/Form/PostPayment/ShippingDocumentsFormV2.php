@@ -87,6 +87,8 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		$this -> formTitle = 'POST_PAYMENT.DOCUMENTS.MAIN_TITLE';
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
 
+		$form2 = $form;
+
 		if ($destinationUrl) {
 			$this->destinationUrl = $destinationUrl;
 		}
@@ -98,14 +100,14 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
+		//ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
 
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
-//		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+		//		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
 
-//		$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
+		//		$orderInfo = $this->order->getFromID($currentOrderID, TRUE, TRUE);
 		$orderInfo = $this->order->getOrder();
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
@@ -145,23 +147,29 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			]
 		];
 		
-//		if (!$orderInfo->hasPendingDocuments()) {
-//			$form['shipping_documents']['no_results_behaviour'] = [
-//				'#markup' => '<div class="no-results-behaviour"><h6>'
-//					. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS')
-//					. '</h6></div>'
-//			];
-//		}
+		// if (!$orderInfo->hasPendingDocuments()) {
+		// 	$form['shipping_documents']['no_results_behaviour'] = [
+		// 		'#markup' => '<div class="no-results-behaviour"><h6>'
+		// 			. $translationService->translate('POST_PAYMENT.DOCUMENTS.NO_PENDING_DOCUMENTS')
+		// 			. '</h6></div>'
+		// 	];
+		// }
 
-		$_SESSION['shippingDocumentsData'] = \Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager::encrypt( $orderInfo->Booking->BookingLocator );
+		//$_SESSION['shippingDocumentsData'] = \Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager::encrypt( $orderInfo->Booking->BookingLocator );
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
+		$allDocuments = [];
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
-			//ksm($orderInfo->Booking->Services, $service);
 			
-//			if (!$service->hasPendingDocuments()) {
-//				continue;
-//			}
+			//ksm($orderInfo->Booking->Services, $service);
+
+			$allDocuments = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
+
+			foreach($allDocuments as $k => $v){
+				if( $v->Estado == 1 ) unset($allDocuments[$k]);
+			}
+
+			if ( count($allDocuments) < 1 ) continue;
 			
 			$form['shipping_documents'][$service->Identifier] = [
 				'#type' => 'fieldset',
@@ -200,13 +208,12 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			$form['shipping_documents'][$service->Identifier]['documents'] = [
 				'#type' => 'fieldset'
 			];
-
-			$allDocuments = $service->SeasonPassData->Documents + $service->SeasonPassData->ClientDocuments;
 			
 			foreach ($allDocuments as $documentIndex => $document) {
-//				if (!$document->isPending()) {
-//					continue;
-//				}
+				// if (!$document->isPending()) {
+				// 	continue;
+				// }
+				
 
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);
@@ -224,7 +231,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				}
 				
 				if (isset($description) && strlen($description) > 0) {
-//					$baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
+					// $baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
 					$baseDescription .= '<p class="document-description">Arrastra y suelta en este espacio, o clica para añadir un fichero</p>';
 				}
 				
@@ -244,6 +251,11 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
         			'#suffix' => '</div>'
 				];
 			}
+		}
+
+		// Pasar al siguiente paso cuando ya no hay documentos por subir
+		if( count($allDocuments) < 1 ){
+			return new TrustedRedirectResponse($this->destinationUrl, 307);
 		}
 		
 		$form['#attached']['library'][] = 'core/drupal.dialog.ajax';
@@ -281,8 +293,6 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 
 		// ksm($orderID);
 		// $this->deleteStoreKeys(['order_id']);
-
-		ksm($form_state);
 		
 		$fileManager = \Drupal::entityTypeManager()->getStorage('file');
 		$fileSystem = \Drupal::service('file_system');
@@ -339,12 +349,10 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			\Drupal::messenger()->addMessage($translationService->translate('POST_PAYMENT.DOCUMENTS.ALL_DOCUMENTS_UPLOADED'));
 		}
 
-		ksm($this->destinationUrl);
 		if (isset($this->destinationUrl)) {
-			ksm('aaaa ' . $this->destinationUrl);
-			$form_state->setResponse( new TrustedRedirectResponse($this->destinationUrl, 307) );
+			//$form_state->setResponse( new TrustedRedirectResponse($this->destinationUrl, 307) );
 
-			//return new TrustedRedirectResponse($this->destinationUrl, 307);
+			return new TrustedRedirectResponse($this->destinationUrl, 307);
 		}
 		
 // 		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $_SESSION['shippingDocumentsData']]);

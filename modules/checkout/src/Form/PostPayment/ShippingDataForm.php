@@ -383,6 +383,7 @@ class ShippingDataForm extends MultistepFormBase {
 	 * {@inheritdoc}
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
+		ksm("shipping");
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		
 		$this -> formTitle = 'POST_PAYMENT.SHIPPING_DATA.MAIN_TITLE';

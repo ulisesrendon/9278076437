@@ -93,10 +93,11 @@ class CheckoutController extends ControllerBase {
 			}
 		}
 
-		if ($requested_step_id != $step_id && $step_id != CheckoutOrderSteps::POST_PAYMENT) {
-      		$url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => $step_id]);
-     		return new RedirectResponse($url->toString(), 307);
-    	}
+
+		// if ($requested_step_id != $step_id && $step_id != CheckoutOrderSteps::POST_PAYMENT) {
+      	// 	$url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => $step_id]);
+     	// 	return new RedirectResponse($url->toString(), 307);
+    	// }
 		
 		$this->checkoutOrderManager->setCurrentStepId($requested_step_id);
 		

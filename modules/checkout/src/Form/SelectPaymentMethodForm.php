@@ -65,6 +65,7 @@ class SelectPaymentMethodForm extends FormBase {
 	 * {@inheritdoc}.
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $destinationUrl = NULL) {
+
 		$request = $this->getRequest();
 		$sessionID = $this->session->getIdentifier();
 		
