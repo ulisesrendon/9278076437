@@ -100,7 +100,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-		//ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
+		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
 
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
@@ -158,18 +158,20 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		//$_SESSION['shippingDocumentsData'] = \Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager::encrypt( $orderInfo->Booking->BookingLocator );
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
-		$allDocuments = [];
+		$allDocuments = [
+
+		];
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
 			
 			//ksm($orderInfo->Booking->Services, $service);
 
-			$allDocuments = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
+			$allDocuments[$serviceIndex] = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
 
-			foreach($allDocuments as $k => $v){
-				if( $v->Estado == 1 ) unset($allDocuments[$k]);
+			foreach($allDocuments[$serviceIndex] as $k => $v){
+				if( $v->Estado == 1 ) unset($allDocuments[$serviceIndex][$k]);
 			}
 
-			if ( count($allDocuments) < 1 ) continue;
+			if ( count($allDocuments[$serviceIndex]) < 1 ) continue;
 			
 			$form['shipping_documents'][$service->Identifier] = [
 				'#type' => 'fieldset',
@@ -212,8 +214,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			foreach ($allDocuments as $documentIndex => $document) {
 				// if (!$document->isPending()) {
 				// 	continue;
-				// }
-				
+				// }				
 
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);
