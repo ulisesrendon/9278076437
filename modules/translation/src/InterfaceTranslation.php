@@ -70,8 +70,15 @@ class InterfaceTranslation {
 			$plus = $this->_string_replace($this->t($string, $variableData, ['context' => 'gv_plus'])->render(), $variableData);
 			$temporada = $this->_string_replace($this->t($string, $variableData, ['context' => 'oa_temporada'])->render(), $variableData);
 		}
-		
-		return $this->_string_replace($this->t($string, $variableData, $baseTranslationParams), $variableData);
+
+		$text = $this->t($string, $variableData, $baseTranslationParams);
+		if($text != $string){
+			return $this->_string_replace($text, $variableData);
+		}
+		else{
+			$baseTranslationParams['context'] = 'gv_fanatics';
+			return $this->_string_replace($this->t($string, $variableData, $baseTranslationParams), $variableData);
+		}
 	}
 	
 	/**

@@ -42,9 +42,9 @@
   					<div class="product-owner-container">
   						<div class="product-owner-image image-container {% if service.UserData.ImageBase64 is null %} empty {% endif %}">
   							{% if service.UserData.ImageBase64 is not null %}
-  								<img data-src="{{service.UserData.ImageBase64}}" src="" />
+  								<img class="cart-user-image" data-src="{{service.UserData.ImageBase64}}" src="" />
   							{% else %}
-  								<img src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/user-line-white--default-avatar.svg" />
+  								<img class="cart-user-image" src="/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/user-line-white--default-avatar.svg" />
   							{% endif %}
   						</div>
   						<div class="product-owner-title">

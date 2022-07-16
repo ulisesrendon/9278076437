@@ -5,6 +5,8 @@ namespace Drupal\gv_fanatics_plus_checkout\Form\PostPayment;
 use Drupal\gv_fanatics_plus_checkout\Form\PostPayment\MultistepFormBase;
 use Drupal\gv_fanatics_plus_checkout\BookingOfficeOptions;
 
+use Drupal\Core\Routing\TrustedRedirectResponse;
+
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -81,11 +83,13 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
-
-		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
 		
 		$this -> formTitle = 'POST_PAYMENT.DOCUMENTS.MAIN_TITLE';
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
+
+		if ($destinationUrl) {
+			$this->destinationUrl = $destinationUrl;
+		}
 		
 		$form['#attributes']['enctype'] = 'multipart/form-data';
 		
@@ -93,6 +97,8 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#markup' => $this->_buildTitleMarkup(),
 			'#weight' => -1
 		];
+
+		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
 
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
@@ -112,6 +118,18 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		
 //		$this->storeSet('order_id', $currentOrderID);
 		$this->storeSet('order_owner_client_id', $orderOwnerClientID);
+
+		$form['step_description'] = [
+			'#type' => 'inline_template',
+//			'#template' => '<div class="documents-info-warning alert alert-warning">
+//<span class="documents-info-icon">
+//<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
+//</span>'.$translationService->translate('DOCUMENTS.STEP_WARNING_ALERT').'</div>',
+		'#template' => '<div class="documents-info-warning alert alert-warning">
+<span class="documents-info-icon">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
+</span>Para los Forfait de Temporada en modalidad de Residente es necesario acreditar la residencia en Andorra con el Certificado de Residencia que se emite en el Comú correspondiente</div>'
+		];
 		
 		$form['shipping_documents'] = [
 			'#type' => 'fieldset',
@@ -149,15 +167,20 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				'#type' => 'fieldset',
 				//'#tree' => TRUE
 			];
-			
-			$imageBase64 = $service->IntegrantData->ImageBase64;
 
-			/** @TODOULISES: Comprobar cuando es integrante */
-			$service->IntegrantData->Name = $this->apiClient->users()->getUserProfile(NULL, NULL, NULL, NULL, $service->SeasonPassData->IDClient)->Name ?? "??Integrant??";
+			$userProfile = $this->apiClient->users()->getUserProfile(NULL, TRUE, NULL, NULL, $service->SeasonPassData->IDClient);
+			$service->IntegrantData->Name = $userProfile->Name;
+
+			$imageBase64 = $userProfile->Image;
+
+			$isActive = '';
+			if ($serviceIndex == 0) {
+				$isActive = 'active';
+			}
 
 			$form['shipping_documents']['left_aside'][$serviceIndex] = [
 				"#type" => 'inline_template',
-				"#template" => '<div class="left_aside_editdocitem" data-index="'.$serviceIndex.'">
+				"#template" => '<div class="left_aside_editdocitem '.$isActive.'" data-index="'.$serviceIndex.'">
 					<div class="left_aside_editdocitem_img"><img src="' . 'data:image/jpeg;base64,' . $imageBase64 .'" data-index="'.$serviceIndex.'" /></div>
 					<div class="left_aside_editdocitem_name">'.$service->IntegrantData->Name.'</div>
 				</div>',
@@ -177,12 +200,14 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			$form['shipping_documents'][$service->Identifier]['documents'] = [
 				'#type' => 'fieldset'
 			];
+
+			$allDocuments = $service->SeasonPassData->Documents + $service->SeasonPassData->ClientDocuments;
 			
-			foreach ($service->SeasonPassData->Documents as $documentIndex => $document) {
+			foreach ($allDocuments as $documentIndex => $document) {
 //				if (!$document->isPending()) {
 //					continue;
 //				}
-				
+
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);
 				$form['shipping_documents'][$service->Identifier]['documents'][$document->Identifier] = [
@@ -199,16 +224,15 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				}
 				
 				if (isset($description) && strlen($description) > 0) {
-					$baseDescription .= '<p class="document-description">' . $description . '</p>';
+//					$baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
+					$baseDescription .= '<p class="document-description">Arrastra y suelta en este espacio, o clica para añadir un fichero</p>';
 				}
-				
-				// TODO: Añadir mapeo de descripciones de tipo de documento -> descriptivo de documento
 				
 				$form['shipping_documents'][$service->Identifier]['documents'][$document->Identifier]['file_upload'] = [
       				'#type' => 'managed_file',
         			'#title' => $document->Titulo,
         			'#description' => $baseDescription 
-        				. $translationService->translate('POST_PAYMENT.DOCUMENTS.ALLOWED_FILE_TYPES') . ' pdf jpg jpeg png' . '</br>' 
+        				. $translationService->translate('POST_PAYMENT.DOCUMENTS.ALLOWED_FILE_TYPES') . ' pdf jpg jpeg png' . \Drupal::service('gv_fplus.session')->getIdentifier() . '</br>'
         				. $translationService->translate('POST_PAYMENT.DOCUMENTS.MAX_FILE_SIZE') . ' 4MB',
         			'#upload_location' => 'temporary://gv_fanatics_plus_document_management/',
         			'#upload_validators' => [
@@ -219,15 +243,6 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
         			'#prefix' => '<div class="area">',
         			'#suffix' => '</div>'
 				];
-				
-				/*$form['shipping_documents'][$service->Identifier]['documents'][$document->Identifier]['iframe'] = [
-					'#type' => 'inline_template',
-					'#template' => '<iframe class="document-upload-iframe" src="{{ url }}" name="iframe-doc-id-' . $document->Identifier . '"></iframe>',
-					'#context' => [
-      					'url' => $documentationResult->URLUpload
-    				],
-    				'#prefix' => '<div class="document-title"><span>' . $document->Titulo . '</span></div><div class="document-description">' . $document->DescripcionPublica . '</div>'
-				];*/
 			}
 		}
 		
@@ -238,13 +253,6 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		$form['#attached']['library'][] = 'gv_fanatics_plus_checkout/shipping_documents_form_v2';
 		
 		$form['actions']['#type'] = 'actions';
-//		$form['actions']['complete_later'] = [
-//			'#type' => 'markup',
-//			'#markup' => '<a href="'
-//				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">'
-//				.  'https://www.grandvalira.com">'
-//				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL') . '</a>'
-//		];
 		
 		$form['actions']['submit'] = [
 			'#type' => 'submit', 
@@ -273,6 +281,8 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 
 		// ksm($orderID);
 		// $this->deleteStoreKeys(['order_id']);
+
+		ksm($form_state);
 		
 		$fileManager = \Drupal::entityTypeManager()->getStorage('file');
 		$fileSystem = \Drupal::service('file_system');
@@ -308,12 +318,9 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				}
 			}
 		}
-		
 
-		ksm($documentsToUpload, 1);
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
-		ksm($documentation, 2);
 		if (count($documentsToUpload) > 0) {
 			$result = $documentation->uploadDocuments($documentsToUpload);
 			$documentResultList = $result->DocumentResultList;
@@ -331,15 +338,16 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			
 			\Drupal::messenger()->addMessage($translationService->translate('POST_PAYMENT.DOCUMENTS.ALL_DOCUMENTS_UPLOADED'));
 		}
+
+		ksm($this->destinationUrl);
+		if (isset($this->destinationUrl)) {
+			ksm('aaaa ' . $this->destinationUrl);
+			$form_state->setResponse( new TrustedRedirectResponse($this->destinationUrl, 307) );
+
+			//return new TrustedRedirectResponse($this->destinationUrl, 307);
+		}
 		
-
-		// TODO: esto da error de permisos
- 		//$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $_SESSION['shippingDocumentsData']]);
-
-
-		// TODO: esto debería ser lo correcto, pero hay que averiguar la logica correcta
- 		// $url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::POST_PAYMENT]);
-     	// return new RedirectResponse($url->toString(), 307);
+// 		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data', ['orderID' => $_SESSION['shippingDocumentsData']]);
   	}	
 }
 

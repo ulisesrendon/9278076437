@@ -43,6 +43,7 @@ final class CheckoutOrderSteps {
 	const PROFILE_DATA = 'profile-data';
 	const PRODUCT_SELECTION = 'select-products';
 	const DOCUMENTS = 'need-documents';
+	const RECHARGES = 'recharges';
 	const PAYMENT = 'payment';
 	const POST_PAYMENT = 'post-payment';
 	const COMPLETE = 'complete';
@@ -210,6 +211,9 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
       		],
 			CheckoutOrderSteps::DOCUMENTS => [
 				'label' => 'CHECKOUT_PROGRESS.DOCUMENTS'
+			],
+			CheckoutOrderSteps::RECHARGES => [
+				'label' => 'CHECKOUT_PROGRESS.RECHARGES'
 			],
       		CheckoutOrderSteps::PAYMENT =>  [
         		'label' => 'CHECKOUT_PROGRESS.PAYMENT'
