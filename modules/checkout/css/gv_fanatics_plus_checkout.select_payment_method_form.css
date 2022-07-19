@@ -63,6 +63,44 @@
 	margin-left: 15px;
 }
 
+.payment-method-title {
+    display: flex;
+    align-items: center;
+}
+
+.payment-description-icon {
+    margin-right: 10px;
+}
+
+.payment-description-more-info {
+    margin-left: auto;
+    text-decoration: underline;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.payment-description-body {
+    margin-top: 20px;
+    display: none;
+}
+
+.btnb-custom-alert {
+    background-color: #EDF9FC !important;
+    color: #4C7AA8 !important;
+    border-color: transparent !important;
+    border-radius: 8px !important;
+}
+
+.payment-method-description {
+    font-size: 14px !important;
+    color: #4C7AA8;
+    font-weight: bold;
+}
+
+.payment-description-body {
+    font-size: 14px !important;
+}
+
 /* RG: nuevo diseño */
 
 /* End RG */

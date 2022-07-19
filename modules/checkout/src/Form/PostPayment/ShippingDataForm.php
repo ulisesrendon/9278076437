@@ -61,8 +61,9 @@ class ShippingDataForm extends MultistepFormBase {
 			$serviceRechargeInfo =  $orderRechargeInfo->Services[$index];
 			$bookingOfficeOption = $bookingOffice->getOptionFromID($order->IDBookingOffice);
 			$service->rechargeInfo = $serviceRechargeInfo;
-			
-			if ((isset($serviceRechargeInfo->RechargeRequest) && $serviceRechargeInfo->RechargeRequest == TRUE) || $serviceRechargeInfo->Recharged == TRUE) {
+			ksm($serviceRechargeInfo, $bookingOfficeOption, rand(0,9999));
+
+			if ((isset($serviceRechargeInfo->RechargeRequest) && $serviceRechargeInfo->RechargeRequest == TRUE) || $serviceRechargeInfo->Recharged == TRUE || $serviceRechargeInfo->Rechargeable == TRUE) {
 				// group by recharge
 				$group[BookingOfficeOptions::RECHARGE_FORFAIT]['services'][] = $service;
 			} else if ($bookingOfficeOption == BookingOfficeOptions::HOME_DELIVERY) {
@@ -383,21 +384,19 @@ class ShippingDataForm extends MultistepFormBase {
 	 * {@inheritdoc}
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
-		ksm("shipping");
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		
 		$this -> formTitle = 'POST_PAYMENT.SHIPPING_DATA.MAIN_TITLE';
 		
-		$currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
-		$totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
+//		$currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
+//		$totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
 		
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
 		$form['top_description_container'] = [
 			'#markup' => $this->_buildTitleMarkup(),
 			'#weight' => -1
 		];
-		
-		
+
 //		\Drupal::messenger()->addMessage('');
 		
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
@@ -405,12 +404,15 @@ class ShippingDataForm extends MultistepFormBase {
 		// #states api + Ajax actions for the recharge
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
-		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+//		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+
+//		$orderInfo = $this->order->getFromID($currentOrderID, TRUE)->Booking;
+		$order = $this->order->getOrder();
+		$orderInfo = $order->Booking;
 		if (!isset($currentOrderID)) {
-			$currentOrderID = 66707166;
+			$currentOrderID = $orderInfo->Identifier;
 		}
-		
-		$orderInfo = $this->order->getFromID($currentOrderID, TRUE)->Booking;
+
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
 		
@@ -421,8 +423,10 @@ class ShippingDataForm extends MultistepFormBase {
 		$activeChannel = \Drupal::service('gv_fplus.channel_resolver')->resolve();
 		
 		$orderRechargeInfo = $recharge->bookingRechargeable($session->getIdentifier(), $currentOrderID);
-		
+
+
 		$shippingMethodOptionGroup = $this->_groupServicesByShippingMethod($orderInfo, $orderRechargeInfo);
+		ksm($orderRechargeInfo, $shippingMethodOptionGroup);
 		$shippingMethodOptions = [
 			BookingOfficeOptions::RECHARGE_FORFAIT => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_OPTIONS'),
 			BookingOfficeOptions::HOME_DELIVERY => $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.HOME_DELIVERY_LABEL'),
@@ -641,6 +645,7 @@ class ShippingDataForm extends MultistepFormBase {
 					}
 				}
 			}
+			ksm(BookingOfficeOptions::HOME_DELIVERY);
 
 			if ($index == BookingOfficeOptions::HOME_DELIVERY) {
 				$user = \Drupal::service('gv_fplus_auth.user');
@@ -865,13 +870,13 @@ class ShippingDataForm extends MultistepFormBase {
 		
 		$form['actions']['#type'] = 'actions';
 		
-		$form['actions']['complete_later'] = [
-			'#type' => 'markup',
-			'#markup' => '<a href="' 
-				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">' 
-				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL')
-				. '</a>' 
-		];
+//		$form['actions']['complete_later'] = [
+//			'#type' => 'markup',
+//			'#markup' => '<a href="'
+//				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">'
+//				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL')
+//				. '</a>'
+//		];
 		
 		$form['actions']['submit'] = ['#type' => 'submit', '#value' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.FINISH_BTN_LABEL'), '#button_type' => 'primary', '#weight' => 10 ];
 		$form['#cache']['contexts'][] = 'session';
@@ -1012,6 +1017,7 @@ class ShippingDataForm extends MultistepFormBase {
 		
 		$this->deleteStoreKeys(['order_id']);
 		$this->postPaymentOrderManager->increaseStepNumber();
+		/** @TODOULISES: Sete redirection to $destinationUrl */
 		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
 	}
 }

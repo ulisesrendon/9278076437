@@ -100,8 +100,6 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-		ksm(\Drupal::service('gv_fplus.session')->getIdentifier());
-
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
@@ -158,20 +156,18 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		//$_SESSION['shippingDocumentsData'] = \Drupal\gv_fanatics_plus_checkout\CheckoutOrderManager::encrypt( $orderInfo->Booking->BookingLocator );
 		
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
-		$allDocuments = [
-
-		];
+		$allDocuments = [];
+		$totalDocumentsCount = 0;
+		ksm($orderInfo->Booking->Services, $orderInfo, $orderInfo->Booking);
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
-			
-			//ksm($orderInfo->Booking->Services, $service);
 
-			$allDocuments[$serviceIndex] = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
-
-			foreach($allDocuments[$serviceIndex] as $k => $v){
-				if( $v->Estado == 1 ) unset($allDocuments[$serviceIndex][$k]);
-			}
-
-			if ( count($allDocuments[$serviceIndex]) < 1 ) continue;
+//			foreach($allDocuments[$serviceIndex] as $k => $v){
+//				if( $v->Estado == 1 ) unset($allDocuments[$serviceIndex][$k]);
+//			}
+//
+//			if ( count($allDocuments[$serviceIndex]) < 1 ) {
+//				continue;
+//			}
 			
 			$form['shipping_documents'][$service->Identifier] = [
 				'#type' => 'fieldset',
@@ -210,11 +206,16 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 			$form['shipping_documents'][$service->Identifier]['documents'] = [
 				'#type' => 'fieldset'
 			];
+
+			$allDocuments = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
+			ksm($allDocuments, $service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
 			
 			foreach ($allDocuments as $documentIndex => $document) {
-				// if (!$document->isPending()) {
-				// 	continue;
-				// }				
+
+				if ($document->Estado != 0) {
+					continue;
+				}
+				$totalDocumentsCount++;
 
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);
@@ -229,12 +230,13 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				$baseDescription = '';
 				if (isset($document->DescripcionPublica) && strlen($document->DescripcionPublica) > 0) {
 					$baseDescription = $document->DescripcionPublica . '</br>';
-				}
-				
-				if (isset($description) && strlen($description) > 0) {
+				} else {
 					// $baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
 					$baseDescription .= '<p class="document-description">Arrastra y suelta en este espacio, o clica para añadir un fichero</p>';
 				}
+
+//				if (isset($description) && strlen($description) > 0) {
+//				}
 				
 				$form['shipping_documents'][$service->Identifier]['documents'][$document->Identifier]['file_upload'] = [
       				'#type' => 'managed_file',
@@ -255,7 +257,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		}
 
 		// Pasar al siguiente paso cuando ya no hay documentos por subir
-		if( count($allDocuments) < 1 ){
+		if( $totalDocumentsCount == 0 ){
 			return new TrustedRedirectResponse($this->destinationUrl, 307);
 		}
 		

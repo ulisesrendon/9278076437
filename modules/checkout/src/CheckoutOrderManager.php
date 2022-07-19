@@ -161,16 +161,24 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 		$IDPayment = $event->getIDPayment();
 		
 		$bookingReferral = $this->cart->getBookingReferral();
+		ksm($IDSession, $IDBooking, $IDPayment, $bookingReferral);
 		try {
-			$this->TPV->confirmBooking($IDSession, $IDPayment, $bookingReferral);
+			$confirmResponse = $this->TPV->confirmBooking($IDSession, $IDPayment, $bookingReferral);
+			ksm($confirmResponse);
 			$finalBooking = $this->order->getFromID($IDBooking, FALSE, TRUE);
+			ksm($finalBooking);
 			
 			$targetPaymentID = array_pop(array_reverse($finalBooking->Payments))->Identifier;
+			ksm($targetPaymentID);
 			
 			$urlOK = $this->TPV->getOKUrl($IDBooking);
 			$urlKO = $this->TPV->getKOUrl($targetPaymentID);
+
+			ksm($urlOK, $urlKO);
 			
 			$paymentResult = $this->TPV->pay($IDSession, $IDBooking, $targetPaymentID, $urlOK, $urlKO);
+
+			ksm($paymentResult);
 			
 			$URLTPV = $paymentResult->URLTPV;
 			
@@ -180,6 +188,7 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 			$response->send();
 			\Drupal::service('page_cache_kill_switch')->trigger();
 		} catch(\Exception $e) {
+			ksm($e, $e->getResponse());
 			if ($e->getResponse()->getStatusCode() == 409) {
 				\Drupal::messenger()->addMessage(t('There are pending payments or profile updates for this order.', [], ['context' => TranslationContext::PROFILE_DATA]), 'error');
 			} else {

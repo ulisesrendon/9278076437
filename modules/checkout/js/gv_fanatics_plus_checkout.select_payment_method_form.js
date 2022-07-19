@@ -7,6 +7,10 @@ jQuery(document).ready(function($) {
 	
 	onPaymentMethodChange();
 	$('#edit-payment-method').change(onPaymentMethodChange);
+
+	$('.payment-method-title').on("click", function() {
+		$(this).parent().find('.payment-description-body').toggle();
+	});
 	
 	$('.gv-fanatics-plus-checkout-select-payment-method').submit(function(e) {
 		var selectedPaymentMethod = jQuery('input[name="payment_method"]').val();

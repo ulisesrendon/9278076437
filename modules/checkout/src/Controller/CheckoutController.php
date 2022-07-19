@@ -153,9 +153,19 @@ class CheckoutController extends ControllerBase {
 			 		$metricsCollector->incStepCounter();
 			 	}
 				
-			 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+			 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::RECHARGES]);
 			 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDocumentsFormV2::class, NULL, 1, 1, $destination_url->toString());
 			 	return $form;
+			 }
+
+			 case CheckoutOrderSteps::RECHARGES: {
+				 $metricsCollector->setStep('recharges');
+				 if ($metricsCollector->getInitialLoad()) {
+					 $metricsCollector->incStepCounter();
+				 }
+
+				 $destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+				 return $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDataForm::class, NULL, NULL, NULL, $destination_url);
 			 }
 			
 			
