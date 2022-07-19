@@ -6,6 +6,9 @@ use Drupal\gv_fanatics_plus_checkout\Form\PostPayment\MultistepFormBase;
 use Drupal\gv_fanatics_plus_checkout\BookingOfficeOptions;
 use Drupal\gv_fanatics_plus_checkout\Ajax\DisableFullscreenLoader;
 
+use Drupal\gv_fanatics_plus_checkout\CheckoutOrderSteps;
+use Drupal\Core\Routing\TrustedRedirectResponse;
+
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -61,7 +64,7 @@ class ShippingDataForm extends MultistepFormBase {
 			$serviceRechargeInfo =  $orderRechargeInfo->Services[$index];
 			$bookingOfficeOption = $bookingOffice->getOptionFromID($order->IDBookingOffice);
 			$service->rechargeInfo = $serviceRechargeInfo;
-			ksm($serviceRechargeInfo, $bookingOfficeOption, rand(0,9999));
+			//--ksm($serviceRechargeInfo, $bookingOfficeOption, rand(0,9999));
 
 			if ((isset($serviceRechargeInfo->RechargeRequest) && $serviceRechargeInfo->RechargeRequest == TRUE) || $serviceRechargeInfo->Recharged == TRUE || $serviceRechargeInfo->Rechargeable == TRUE) {
 				// group by recharge
@@ -81,6 +84,7 @@ class ShippingDataForm extends MultistepFormBase {
 	}
 
 	private function _buildShippingIntegrantsMarkup($boxOfficeOption, $orderInfo) {
+		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		$markup = '<div class="shipping-option-data-integrants">';
 		//<div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>';
 		foreach ($boxOfficeOption['services'] as $service) {
@@ -93,13 +97,18 @@ class ShippingDataForm extends MultistepFormBase {
 				$name = $orderInfo->OwnerIntegrant->Name;
 				$surname = $orderInfo->OwnerIntegrant->Surname;
 			}
+
+			$image = $imageBase64 ?? Order::getDefaultUserAvatar();
 			
-			if (isset($imageBase64)) {
-				$markup .= '<div class="integrant"><div class="img"><img data-src="' . $imageBase64 . '" src=""/></div><span class="name">' . $name . ' ' . $surname .'</span></div>';
-			} else {
-				$markup .= '<div class="integrant"><div class="img"><img src="' . Order::getDefaultUserAvatar() . '" src=""/></div><span class="name">' . $name . ' ' . $surname .'</span></div>';
-			}
-			
+			$markup .= '
+				<div class="integrant">
+					<div class="img">
+						<img data-src="' . $image . '" src=""/>
+					</div>
+					<span class="name">' . $name . ' ' . $surname .'</span>
+					<div class="norecharge_cont">'.$translationService->translate('POST_PAYMENT.SHIPPING_DATA.NORECHARGE_CONTENT').'</div>
+				</div>
+			';
 		}
 		
 		$markup .= '</div>';
@@ -134,7 +143,7 @@ class ShippingDataForm extends MultistepFormBase {
 	}
 	
 	private function _buildShippingMethodSelectorMarkup($boxOfficeOption, $boxOfficeOptionIndex, $orderInfo) {
-		$markup = '<a href="#shipping-option-data-item-' . $boxOfficeOptionIndex . '"><div data-target-id="shipping-option-data-item-' . $boxOfficeOptionIndex . '" class="shipping-method-option option-id-' . $boxOfficeOptionIndex . '"><div class="shipping-method-option--inner"><div class="images">';
+		$markup = '<div data-target-id="shipping-option-data-item-' . $boxOfficeOptionIndex . '" class="shipping-method-option option-id-' . $boxOfficeOptionIndex . '"><div class="shipping-method-option--inner"><div class="images">';
 		//<div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>';
 		foreach ($boxOfficeOption['services'] as $service) {
 			if (isset($service->IntegrantData)) {
@@ -154,7 +163,7 @@ class ShippingDataForm extends MultistepFormBase {
 			}
 		}
 		
-		$markup .= '</div><div class="label"><span>' . $boxOfficeOption['label'] . '</span></div></div></div></a>';
+		$markup .= '</div></div></div>';
 		return $markup;
 	}
 
@@ -388,8 +397,8 @@ class ShippingDataForm extends MultistepFormBase {
 		
 		$this -> formTitle = 'POST_PAYMENT.SHIPPING_DATA.MAIN_TITLE';
 		
-//		$currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
-//		$totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
+		// $currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
+		// $totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
 		
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
 		$form['top_description_container'] = [
@@ -397,16 +406,16 @@ class ShippingDataForm extends MultistepFormBase {
 			'#weight' => -1
 		];
 
-//		\Drupal::messenger()->addMessage('');
+		// \Drupal::messenger()->addMessage('');
 		
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
 		// from OrderInfo -> group services by shipping method
 		// #states api + Ajax actions for the recharge
 		
 		$defaultImgURL = 'https://via.placeholder.com/134x164';
-//		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+		// $currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
 
-//		$orderInfo = $this->order->getFromID($currentOrderID, TRUE)->Booking;
+		// $orderInfo = $this->order->getFromID($currentOrderID, TRUE)->Booking;
 		$order = $this->order->getOrder();
 		$orderInfo = $order->Booking;
 		if (!isset($currentOrderID)) {
@@ -426,7 +435,7 @@ class ShippingDataForm extends MultistepFormBase {
 
 
 		$shippingMethodOptionGroup = $this->_groupServicesByShippingMethod($orderInfo, $orderRechargeInfo);
-		ksm($orderRechargeInfo, $shippingMethodOptionGroup);
+		//--ksm($orderRechargeInfo, $shippingMethodOptionGroup);
 		$shippingMethodOptions = [
 			BookingOfficeOptions::RECHARGE_FORFAIT => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_OPTIONS'),
 			BookingOfficeOptions::HOME_DELIVERY => $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.HOME_DELIVERY_LABEL'),
@@ -435,6 +444,7 @@ class ShippingDataForm extends MultistepFormBase {
 		
 		$allServicesPrinted = TRUE;
 		$oneServicePrinted = FALSE;
+		
 		foreach ($orderInfo->Services as $service) {
 			if ($service->SeasonPassData->Printed == TRUE && !$service->SeasonPassData->Recharged) {
 				$oneServicePrinted = TRUE;
@@ -454,6 +464,7 @@ class ShippingDataForm extends MultistepFormBase {
 			'#prefix' => '<div class="shipping-data-container"><div id="shipping-method-selector">',
 			'#suffix' => '</div>'
 		];
+
 		
 		foreach ($shippingMethodOptionGroup as $index => $shippingData) {
 			$form['shipping_method_selector']['method_id_' + $index] = [
@@ -462,12 +473,12 @@ class ShippingDataForm extends MultistepFormBase {
 			];
 		}
 		
-		$form['shipping_method_selector']['go_back'] = [
-			'#type' => 'markup',
-			'#markup' => '<a href="' . Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_method', ['orderID' => $currentOrderID])->toString() 
-				. '">' . $translationService->translate('POST_PAYMENT.SHIPPING_DATA.GO_BACK_BTN_LABEL') 
-				. '</a>' 
-		];
+		// $form['shipping_method_selector']['go_back'] = [
+		// 	'#type' => 'markup',
+		// 	'#markup' => '<a href="' . Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_method', ['orderID' => $currentOrderID])->toString() 
+		// 		. '">' . $translationService->translate('POST_PAYMENT.SHIPPING_DATA.GO_BACK_BTN_LABELLLLLLLL') 
+		// 		. '</a>' 
+		// ];
 		
 		$form['shipping_data'] = [
 			'#prefix' => '<div id="shipping-method-data">',
@@ -482,11 +493,13 @@ class ShippingDataForm extends MultistepFormBase {
 			];
 			
 			$form['shipping_data'][$index]['title'] = [
-				'#markup' => '<div class="shipping-data-title"><span>' . $shippingData['label'] . '</span></div>'
+				'#markup' => '<div class="shipping-data-title">'.$translationService->translate('POST_PAYMENT.TITLE.VALID_FORFAIT').'</div>'
 			];
 			
 			$services = $shippingData['services'];
-			if ($index == BookingOfficeOptions::RECHARGE_FORFAIT) {
+
+			/* -- Renderizar contenido para cuando usuarios tienen recargas -- */
+			if ( $index == BookingOfficeOptions::RECHARGE_FORFAIT ) {
 				foreach ($services as $serviceIndex => $service) {
 					$integrantIndex = $service->Identifier;
 					$rechargeInfo = $orderRechargeInfo->Services[$serviceIndex];
@@ -522,8 +535,8 @@ class ShippingDataForm extends MultistepFormBase {
 							'#type' => 'radios',
 							'#options' => [
 								0 => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_NOW'),
-								1 => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_LATER'),
-								2 => $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.BOX_OFFICE_PICKUP_LABEL')
+								1 => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_SUPPORT'),
+								//2 => $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.BOX_OFFICE_PICKUP_LABEL')
 							],
 							'#default_value' => 0,
 						];
@@ -557,35 +570,35 @@ class ShippingDataForm extends MultistepFormBase {
 	     					],
 						];
 						
-						$form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup'] = [
-						    '#type' => 'fieldset',
-						    '#attributes' => array(
-						        'class' => array(
-						            'recharge-options-data',
-						        ),
-						    ),
-						   	'#states' => [
-	       						'visible' => [
-	         						':input[name="' . $index . '[' . $integrantIndex . '][recharge_options]"]' => ['value' => 2],
-	       						]
-	     					],
-						];
+						// $form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup'] = [
+						//     '#type' => 'fieldset',
+						//     '#attributes' => array(
+						//         'class' => array(
+						//             'recharge-options-data',
+						//         ),
+						//     ),
+						//    	'#states' => [
+	       				// 		'visible' => [
+	         			// 			':input[name="' . $index . '[' . $integrantIndex . '][recharge_options]"]' => ['value' => 2],
+	       				// 		]
+	     				// 	],
+						// ];
 						
 						
-						/*if (isset($activeChannel) && $activeChannel->isTemporadaOA()) {
-							$form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup']['message_box_office'] = [
-								'#markup' => '<div class="rechage-info">' . '<p class="bold">'.$this->t("CAN YOU DEFINITELY NOT FIND THE PASS THAT YOU WANT TO TOP UP, OR DO YOU DEFINITELY NOT HAVE IT? Caring for the environment is everyone’s responsibility, so if you kept your Season Ski Pass from last year, please help us reduce the use of plastic. If you didn’t, select the collection point that you would like us to deliver your pass to.", [], ['context' => TranslationContext::POST_PAYMENT]).'<p></div>'
-							];
-						} else {*/
-						$form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup']['message_box_office'] = [
-							'#markup' => '<div class="rechage-info">' . '<p class="bold">'
-								. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_INSTRUCTIONS') //$this->t("CAN YOU DEFINITELY NOT FIND THE PASS THAT YOU WANT TO TOP UP, OR DO YOU DEFINITELY NOT HAVE IT? Caring for the environment is everyone’s responsibility, so if you kept your Season Ski Pass or Ski Pass Plus+ from last year, please help us reduce the use of plastic. If you didn’t, select the collection point that you would like us to deliver your pass to.", [], ['context' => TranslationContext::POST_PAYMENT])
-								. '<p></div>'
-						];
-						//}
+						// /*if (isset($activeChannel) && $activeChannel->isTemporadaOA()) {
+						// 	$form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup']['message_box_office'] = [
+						// 		'#markup' => '<div class="rechage-info">' . '<p class="bold">'.$this->t("CAN YOU DEFINITELY NOT FIND THE PASS THAT YOU WANT TO TOP UP, OR DO YOU DEFINITELY NOT HAVE IT? Caring for the environment is everyone’s responsibility, so if you kept your Season Ski Pass from last year, please help us reduce the use of plastic. If you didn’t, select the collection point that you would like us to deliver your pass to.", [], ['context' => TranslationContext::POST_PAYMENT]).'<p></div>'
+						// 	];
+						// } else {*/
+						// $form['shipping_data'][$index][$integrantIndex]['dummy_box_office_pickup']['message_box_office'] = [
+						// 	'#markup' => '<div class="rechage-info">' . '<p class="bold">'
+						// 		. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_INSTRUCTIONS') //$this->t("CAN YOU DEFINITELY NOT FIND THE PASS THAT YOU WANT TO TOP UP, OR DO YOU DEFINITELY NOT HAVE IT? Caring for the environment is everyone’s responsibility, so if you kept your Season Ski Pass or Ski Pass Plus+ from last year, please help us reduce the use of plastic. If you didn’t, select the collection point that you would like us to deliver your pass to.", [], ['context' => TranslationContext::POST_PAYMENT])
+						// 		. '<p></div>'
+						// ];
+						// //}
 
 						
-						$form['shipping_data'][$index][$integrantIndex]['dummy_recharge_later'] = [
+						$form['shipping_data'][$index][$integrantIndex]['recharge_support'] = [
 						    '#type' => 'fieldset',
 						    '#attributes' => array(
 						        'class' => array(
@@ -606,8 +619,8 @@ class ShippingDataForm extends MultistepFormBase {
                             	</div>'
 							];
 						} else {*/
-						$form['shipping_data'][$index][$integrantIndex]['dummy_recharge_later']['message_recharge_later'] = [
-							'#markup' => '<div class="rechage-info">' . '<p class="bold">'. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_LATER_INSTRUCTIONS') .'</p>' . '</div>'
+						$form['shipping_data'][$index][$integrantIndex]['recharge_support']['message_recharge_support'] = [
+							'#markup' => '<div class="rechage-info">' . '<p class="bold">'. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_SUPPORT_INSTRUCTIONS') .'</p>' . '</div>'
 						];
 						//}
 
@@ -644,177 +657,10 @@ class ShippingDataForm extends MultistepFormBase {
 						];
 					}
 				}
-			}
-			ksm(BookingOfficeOptions::HOME_DELIVERY);
-
-			if ($index == BookingOfficeOptions::HOME_DELIVERY) {
-				$user = \Drupal::service('gv_fplus_auth.user');
-				$location = \Drupal::service('gv_fplus_auth.location');
-				$formBasicValidations = \Drupal::service('gv_fplus_auth.form_basic_validations');
-				
-				$profile = $user->getProfile($session->getEmail());
-				$countries = $location->getCountries()->List;
-
-				$countryOptions = [];
-				$firstCountryOptions = [];
-				$countryDataOptions = [];
-				
-				$languageResolver = \Drupal::service('gv_fplus.language_resolver');
-				$IDLanguage = $languageResolver->resolve()->id();
-				foreach ($countries as $country) {
-					$countryLabel = $country->Country;
-					if (isset($IDLanguage) && $IDLanguage != 1) {
-						foreach($country->Translations as $translation) {
-							if ($IDLanguage == $translation->IDLanguage) {
-								$countryLabel = $translation->Translation;
-								break;
-							}
-						}
-					}
-					
-					if ($country->Code == 'ES' || $country->Code == 'AD' || $country->Code == 'FR' || $country->Code == 'GB') {
-						$firstCountryOptions[$country->Identifier] = $countryLabel;
-					} else {
-						$countryOptions[$country->Identifier] = $countryLabel;
-					}
-					
-					$countryDataOptions[$country->Identifier] = ['data-country-iso-code' => $country->Code];
-				}
-		
-				$countryOptions = $firstCountryOptions + $countryOptions;
-				
-				$country = $form_state->getValue('country') != NULL ? $form_state->getValue('country') : $profile->IDCountry;
-				$postalCode = $form_state->getValue('postal_code') != NULL ? $form_state->getValue('postal_code') : $profile->PostalCode;
-				
-				$provinces = [];
-				$cities = [];
-				$locationData = $this->_getLocations($postalCode, $country);
-				if ($locationData != NULL) {
-					$provinces = $locationData['provinces'];
-					$cities = $locationData['cities'];
-				}
-				
-				$countriesRequirePostalCode = array_map(fn($value) => ['value' => $value], $formBasicValidations->getCountriesThatRequirePostalCode());
-				$form['shipping_data'][$index]['integrant-item'] = [
-					'#type' => 'fieldset',
-					'#tree' => TRUE
-				];
-				
-				$form['shipping_data'][$index]['integrant-item']['label'] = [
-					//'#markup' => '<div class="shipping-option-data-integrants"><div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>'
-					'#markup' => $this->_buildShippingIntegrantsMarkup($shippingData, $orderInfo)
-				];
-				
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data'] = [
-					'#type' => 'fieldset'
-				];
-				
-				$canEditCountry = $formBasicValidations->canEditCountry($session->getIdentifier())->CanEdit;
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['country'] = [
-					'#type' => 'select',
-					'#title' => $translationService->translate('RESIDENCE_DATA_FORM.COUNTRY_FORM_TITLE'),
-					'#options' => $countryOptions,
-					'#options_attributes' => $countryDataOptions,
-					'#default_value' => $profile->IDCountry,
-					'#required' => TRUE,
-					'#ajax' => [
-			     		'callback' => '::countryChangeAjaxCallback', // don't forget :: when calling a class method.
-		    			'disable-refocus' => TRUE, // Or TRUE to prevent re-focusing on the triggering element.
-		    			'event' => 'change',
-		    			'progress' => [
-		      				'type' => 'throbber',
-		      				'message' => $this->t('Verificando...', [], ['langcode' => 'es']),
-		    			],
-  					]
-				];
-				
-				if (!$canEditCountry) {
-	   				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['country']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
-	   			}
-				
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['postal_code'] = [
-					'#type' => 'textfield',
-					'#title' => $translationService->translate('RESIDENCE_DATA_FORM.POSTCODE_FORM_TITLE'),
-					'#default_value' => $profile->PostalCode,
-					'#required' => TRUE,
-					'#states' => [
-	       				'visible' => [
-	         				':input[name="country"]' => $countriesRequirePostalCode,
-	       				],
-	       				'required' => [
-	         				':input[name="country"]' => $countriesRequirePostalCode,
-	       				],
-	     			],
-	     			'#ajax' => [
-    					'callback' => '::postalCodeAjaxCallback', // don't forget :: when calling a class method.
-    					'disable-refocus' => TRUE, // Or TRUE to prevent re-focusing on the triggering element.
-    					'event' => 'blur',
-    					//'wrapper' => 'edit-base-address', // This element is updated with this AJAX callback.
-    					'progress' => [
-      						'type' => 'throbber',
-      						'message' => $this->t('Verificando...', [], ['langcode' => 'es']),
-    					],
-  					],
-				];
-				
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province'] = [
-					'#type' => 'select',
-					'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.PROVINCE_FORM_TITLE'),
-					'#options' => $provinces,
-					'#default_value' => $profile->IDProvince,
-					'#validated' => TRUE,
-					'#attributes' => [
-						'class' => ['hidden']
-					],
-					'#wrapper_attributes' => [
-						'class' => ['hidden']
-					],
-				];
-				
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text'] = [
-					'#type' => 'textfield',
-					'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.PROVINCE_FORM_TITLE'),
-					'#default_value' => $profile->Province,
-					'#validated' => TRUE,
-					'#required' => TRUE
-				];
-
-				if (isset($provinces) && count($provinces) > 0) {
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text']['#attributes']['class'][] = 'hidden';
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text']['#wrapper_attributes']['class'][] = 'hidden';
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province']['#required'] = TRUE;
-					if (!isset($profile->Province) || strlen($profile->Province) == 0) {
-						$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text']['#default_value'] = array_pop(array_reverse($provinces));
-					}
-				} else {
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province']['#attributes']['class'][] = 'hidden';
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province']['#wrapper_attributes']['class'][] = 'hidden';
-					//$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text']['#required'] = TRUE;
-				}
-				
-				$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['address'] = [
-					'#type' => 'textfield',
-					'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.ADDRESS_FORM_TITLE'),
-					'#default_value' => $profile->Address,
-					'#required' => TRUE
-				];
-				
-				if ($oneServicePrinted) {
-					$form['shipping_data'][$index]['integrant-item']['#attributes']['class'][] = 'success';
-					$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['#attributes']['class'][] = 'success';
-					$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['address']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
-					$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['province_text']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
-					$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['postal_code']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
-					$form['shipping_data'][$index]['integrant-item']['home_delivery_data']['country']['#attributes'] = ['readonly' => 'readonly', 'disabled' => 'disabled'];
-				}
-				
-				$triggeringElement = $form_state->getTriggeringElement();
-				if ($triggeringElement['#name'] == '7[integrant-item][home_delivery_data][postal_code]') {
-					$form_state->setValue([BookingOfficeOptions::HOME_DELIVERY, 'integrant-item', 'home_delivery_data', 'province'], NULL);
-				}
-			}
-
-			if ($index == BookingOfficeOptions::BOX_OFFICE_PICKUP) {
+			
+			
+			}else{
+				/* -- Renderizar contenido para cuando usuarios no tienen recargas -- */
 				$bookingOffice = \Drupal::service('gv_fanatics_plus_checkout.booking_office');
 				$boxOfficeOptions = $bookingOffice->getBoxOfficeOptions();
 				$finalBoxOfficeOptions = [];
@@ -832,34 +678,34 @@ class ShippingDataForm extends MultistepFormBase {
 				    '#markup' => $this->_buildShippingIntegrantsMarkup($shippingData, $orderInfo)
 				];
 				
-				$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data'] = [
-					'#type' => 'fieldset'
-				];
+				// $form['shipping_data'][$index]['integrant-item']['box_office_pickup_data'] = [
+				// 	'#type' => 'fieldset'
+				// ];
 				
-				$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office'] = [
-					'#type' => 'select',
-					'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.BOX_OFFICE_PICKUP_OPTIONS'),
-					'#options' => $finalBoxOfficeOptions,
-					'#required' => TRUE
-				];
+				// $form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office'] = [
+				// 	'#type' => 'select',
+				// 	'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.BOX_OFFICE_PICKUP_OPTIONS'),
+				// 	'#options' => $finalBoxOfficeOptions,
+				// 	'#required' => TRUE
+				// ];
 				
-				if (isset($orderInfo->IDBookingOffice)) {
-					$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#default_value'] = $orderInfo->IDBookingOffice;
-				}
+				// if (isset($orderInfo->IDBookingOffice)) {
+				// 	$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#default_value'] = $orderInfo->IDBookingOffice;
+				// }
 				
-				if ($oneServicePrinted) {
-					$boxOfficeOptions = $bookingOffice->getBoxOfficeOptions(NULL, TRUE);
-					$finalBoxOfficeOptions = [];
-					foreach ($boxOfficeOptions as $boxOfficeOption) {
-						$finalBoxOfficeOptions[$boxOfficeOption->Identifier] = $boxOfficeOption->BookingOffice;
-					}
+				// if ($oneServicePrinted) {
+				// 	$boxOfficeOptions = $bookingOffice->getBoxOfficeOptions(NULL, TRUE);
+				// 	$finalBoxOfficeOptions = [];
+				// 	foreach ($boxOfficeOptions as $boxOfficeOption) {
+				// 		$finalBoxOfficeOptions[$boxOfficeOption->Identifier] = $boxOfficeOption->BookingOffice;
+				// 	}
 					
-					$form['shipping_data'][$index]['integrant-item']['#attributes']['class'][] = 'success';
-					$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['#attributes']['class'][] = 'success';
-					$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#attributes']['class'] = ['success', 'one-service-printed'];
-					$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#options'] = 
-						array_filter($finalBoxOfficeOptions, function($id) use ($orderInfo) { return $id == $orderInfo->IDBookingOffice; }, ARRAY_FILTER_USE_KEY);
-				}
+				// 	$form['shipping_data'][$index]['integrant-item']['#attributes']['class'][] = 'success';
+				// 	$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['#attributes']['class'][] = 'success';
+				// 	$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#attributes']['class'] = ['success', 'one-service-printed'];
+				// 	$form['shipping_data'][$index]['integrant-item']['box_office_pickup_data']['box_office']['#options'] = 
+				// 		array_filter($finalBoxOfficeOptions, function($id) use ($orderInfo) { return $id == $orderInfo->IDBookingOffice; }, ARRAY_FILTER_USE_KEY);
+				// }
 			}
 		}
 		
@@ -870,13 +716,13 @@ class ShippingDataForm extends MultistepFormBase {
 		
 		$form['actions']['#type'] = 'actions';
 		
-//		$form['actions']['complete_later'] = [
-//			'#type' => 'markup',
-//			'#markup' => '<a href="'
-//				. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">'
-//				. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL')
-//				. '</a>'
-//		];
+		// $form['actions']['complete_later'] = [
+		// 	'#type' => 'markup',
+		// 	'#markup' => '<a href="'
+		// 		. Url::fromRoute('gv_fanatics_plus_order.order_detail', ['orderID' => $currentOrderID])->toString() . '">'
+		// 		. $translationService->translate('POST_PAYMENT.SHIPPING_METHOD.RECHARGE_LATER_LABEL')
+		// 		. '</a>'
+		// ];
 		
 		$form['actions']['submit'] = ['#type' => 'submit', '#value' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.FINISH_BTN_LABEL'), '#button_type' => 'primary', '#weight' => 10 ];
 		$form['#cache']['contexts'][] = 'session';
@@ -1018,7 +864,12 @@ class ShippingDataForm extends MultistepFormBase {
 		$this->deleteStoreKeys(['order_id']);
 		$this->postPaymentOrderManager->increaseStepNumber();
 		/** @TODOULISES: Sete redirection to $destinationUrl */
-		$form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
+		// $form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
+		
+
+		$destinationUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT])->toString();
+		ksm($destinationUrl);
+		return new TrustedRedirectResponse($destinationUrl, 307);
 	}
 }
 
