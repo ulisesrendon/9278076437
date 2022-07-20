@@ -158,16 +158,14 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		$documentation = \Drupal::service('gv_fanatics_plus_order.documentation');
 		$allDocuments = [];
 		$totalDocumentsCount = 0;
-		ksm($orderInfo->Booking->Services, $orderInfo, $orderInfo->Booking);
 		foreach($orderInfo->Booking->Services as $serviceIndex => $service) {
+			$serviceDocuments = 0;
 
-//			foreach($allDocuments[$serviceIndex] as $k => $v){
-//				if( $v->Estado == 1 ) unset($allDocuments[$serviceIndex][$k]);
-//			}
-//
-//			if ( count($allDocuments[$serviceIndex]) < 1 ) {
-//				continue;
-//			}
+			$allDocuments = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
+
+			if (count($allDocuments) == 0) {
+				continue;
+			}
 			
 			$form['shipping_documents'][$service->Identifier] = [
 				'#type' => 'fieldset',
@@ -207,8 +205,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				'#type' => 'fieldset'
 			];
 
-			$allDocuments = array_merge($service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
-			ksm($allDocuments, $service->SeasonPassData->Documents, $service->SeasonPassData->ClientDocuments);
+
 			
 			foreach ($allDocuments as $documentIndex => $document) {
 
@@ -216,6 +213,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 					continue;
 				}
 				$totalDocumentsCount++;
+				$serviceDocuments++;
 
 				$description = $this->_getDescriptionFromDocumentType($document->IDTipo);
 				//$documentationResult = $documentation->getURLUpload($document->Identifier);

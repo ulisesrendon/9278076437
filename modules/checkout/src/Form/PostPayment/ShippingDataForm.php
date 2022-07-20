@@ -34,6 +34,10 @@ class ShippingDataForm extends MultistepFormBase {
   	/**
    	* {@inheritdoc}.
    	*/
+
+	  protected $orderID;
+
+
   	public function getFormId() {
     	return 'gv_fplus_checkout_shipping_data_form';
   	}
@@ -87,15 +91,18 @@ class ShippingDataForm extends MultistepFormBase {
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		$markup = '<div class="shipping-option-data-integrants">';
 		//<div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>';
+
 		foreach ($boxOfficeOption['services'] as $service) {
+			$IDClient = $service->SeasonPassData->IDClient;
+			$userProfile = $this->apiClient->users()->getUserProfile(NULL, TRUE, NULL, NULL, $IDClient);
 			if (isset($service->IntegrantData)) {
 				$imageBase64 = $service->IntegrantData->ImageBase64;
 				$name = $service->IntegrantData->Name;
 				$surname = $service->IntegrantData->Surname;
 			} else {
-				$imageBase64 = $orderInfo->OwnerIntegrant->ImageBase64;
-				$name = $orderInfo->OwnerIntegrant->Name;
-				$surname = $orderInfo->OwnerIntegrant->Surname;
+				$imageBase64 = $userProfile->Image;
+				$name = $userProfile->Name;
+				$surname = $userProfile->Surname;
 			}
 
 			$image = $imageBase64 ?? Order::getDefaultUserAvatar();
@@ -121,15 +128,17 @@ class ShippingDataForm extends MultistepFormBase {
 			$markup = '<div class="shipping-option-data-integrants success">';
 		}
 		//<div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>';
+		$IDClient = $service->SeasonPassData->IDClient;
+		$userProfile = $this->apiClient->users()->getUserProfile(NULL, TRUE, NULL, NULL, $IDClient);
 		
 		if (isset($service->IntegrantData)) {
 			$imageBase64 = $service->IntegrantData->ImageBase64;
 			$name = $service->IntegrantData->Name;
 			$surname = $service->IntegrantData->Surname;
 		} else {
-			$imageBase64 = $orderInfo->OwnerIntegrant->ImageBase64;
-			$name = $orderInfo->OwnerIntegrant->Name;
-			$surname = $orderInfo->OwnerIntegrant->Surname;
+			$imageBase64 = $userProfile->Image;
+			$name = $userProfile->Name;
+			$surname = $userProfile->Surname;
 		}
 		
 		if (isset($imageBase64)) {
@@ -145,22 +154,33 @@ class ShippingDataForm extends MultistepFormBase {
 	private function _buildShippingMethodSelectorMarkup($boxOfficeOption, $boxOfficeOptionIndex, $orderInfo) {
 		$markup = '<div data-target-id="shipping-option-data-item-' . $boxOfficeOptionIndex . '" class="shipping-method-option option-id-' . $boxOfficeOptionIndex . '"><div class="shipping-method-option--inner"><div class="images">';
 		//<div class="integrant"><div class="img"><img src="' . $defaultImgURL . '" /></div><span class="name">Josep Vera</span></div><div class="integrant"><div class="img"><img src="' . $defaultImgURL .'" /></div><span class="name">Carla Vera</span></div></div>';
+		$integrantIndex = 0;
 		foreach ($boxOfficeOption['services'] as $service) {
+			$IDClient = $service->SeasonPassData->IDClient;
+			$userProfile = $this->apiClient->users()->getUserProfile(NULL, TRUE, NULL, NULL, $IDClient);
 			if (isset($service->IntegrantData)) {
 				$imageBase64 = $service->IntegrantData->ImageBase64;
 				$name = $service->IntegrantData->Name;
 				$surname = $service->IntegrantData->Surname;
 			} else {
-				$imageBase64 = $orderInfo->OwnerIntegrant->ImageBase64;
-				$name = $orderInfo->OwnerIntegrant->Name;
-				$surname = $orderInfo->OwnerIntegrant->Surname;
+				$imageBase64 = $userProfile->Image;
+				$name = $userProfile->Name;
+				$surname = $userProfile->Surname;
 			}
-			
-			if (isset($imageBase64)) {
-				$markup .=  '<img src="" data-src="' . $imageBase64 . '" />';
-			} else {
-				$markup .=  '<img src="' . Order::getDefaultUserAvatar() . '" />';
+
+			$activeClass = "active";
+			if ($integrantIndex != 0) {
+				$activeClass = "";
 			}
+			$markup .= '<div class="sidebar-integrant"><div class="sidebar-integrant-image-wrapper">';
+			$markup .= isset($imageBase64) ? '<img class="sidebar-integrant-image '.$activeClass.'" src="" data-src="' . $imageBase64 . '" />' : '<img class="sidebar-integrant-image '.$activeClass.'" src="' . Order::getDefaultUserAvatar() . '" />';
+//			if (isset($imageBase64)) {
+//				$markup .=  '<img src="" data-src="' . $imageBase64 . '" />';
+//			} else {
+//				$markup .=  '<img src="' . Order::getDefaultUserAvatar() . '" />';
+//			}
+			$markup .= '</div><div class="sidebar-integrant-name">'.$name.' '.$surname.'</div></div>';
+			$integrantIndex++;
 		}
 		
 		$markup .= '</div></div></div>';
@@ -189,10 +209,7 @@ class ShippingDataForm extends MultistepFormBase {
 			return $response;
 		}
 		
-		
-		
-		
-		$orderID = \Drupal::routeMatch()->getParameter('orderID');
+		$orderID = \Drupal::routeMatch()->getParameter('orderID') ?? $this->orderID;
 		if (!isset($orderID)) {
 			return $response;
 		}
@@ -406,6 +423,10 @@ class ShippingDataForm extends MultistepFormBase {
 			'#weight' => -1
 		];
 
+		$removedTitleContainer = $form['title_container'];
+
+		unset($form['title_container']);
+
 		// \Drupal::messenger()->addMessage('');
 		
 		//$bookingStatuses = $this->apiClient->core()->getBookingStatuses();
@@ -420,6 +441,7 @@ class ShippingDataForm extends MultistepFormBase {
 		$orderInfo = $order->Booking;
 		if (!isset($currentOrderID)) {
 			$currentOrderID = $orderInfo->Identifier;
+			$this->orderID = $currentOrderID;
 		}
 
 		$orderOwnerClientID = $orderInfo->IDClient;
@@ -484,6 +506,13 @@ class ShippingDataForm extends MultistepFormBase {
 			'#prefix' => '<div id="shipping-method-data">',
 			'#suffix' => '</div></div>',
 		];
+
+		$form['shipping_data']['title_container'] = [
+			'#type' => 'inline_template',
+			'#template' => '<div class="title-container"><div class="title-container"><h1>Completa los datos para finalizar</h1></div></div>'
+		];
+
+		ksm($shippingMethodOptionGroup);
 		
 		foreach ($shippingMethodOptionGroup as $index => $shippingData) {
 			$form['shipping_data'][$index] = [

@@ -1,5 +1,7 @@
 .shipping-data-container {
 	display: flex;
+	overflow: auto;
+	height: 100%;
 }
 
 #shipping-method-selector {
@@ -9,3 +11,32 @@
 #shipping-method-data {
 	width: 80%;
 }
+
+/* RG: Fase 1 */
+.shipping-method-option {
+	width: 100%;
+}
+
+img.sidebar-integrant-image {
+	object-fit: cover;
+	object-position: center;
+	border-radius: 1000px;
+}
+.sidebar-integrant-image-wrapper {
+	max-width: 40px;
+	max-height: 40px;
+	border: 2px solid white;
+	border-radius: 1000px;
+	margin-right: 4px;
+	display: flex;
+}
+.sidebar-integrant-name {
+	font-size: 14px;
+	color: #348BA6;
+	font-weight: bold;
+}
+.sidebar-integrant {
+	display: flex;
+	align-items: center;
+}
+/* Fin RG */

@@ -99,8 +99,6 @@ class OrderDetailController extends ControllerBase {
 		
 		$orderPendingData = $order->getPendingData();
 
-		ksm($order);
-
 		//JMP: Se reporta un cambio de lógica. Si el forfet está impreso o recargado, la foto no caduca
 		$needsAlert = FALSE;
 		$recharged = false;
@@ -157,7 +155,7 @@ class OrderDetailController extends ControllerBase {
 		} else if (!$order->isConsumed() && $order->isPaid() && $order->isInitialSale()) {
 			$showPostPaymentRevisionBanner = TRUE;
 		}
-		ksm($showPendingDataBanner);
+		
 		$build = [
 			'#attached' => [
 				'library' => [
