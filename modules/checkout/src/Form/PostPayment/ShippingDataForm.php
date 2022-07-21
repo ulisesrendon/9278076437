@@ -108,12 +108,16 @@ class ShippingDataForm extends MultistepFormBase {
 			$image = $imageBase64 ?? Order::getDefaultUserAvatar();
 			
 			$markup .= '
-				<div class="integrant">
-					<div class="img">
-						<img data-src="' . $image . '" src=""/>
+				<div class="integrant integrant_container">
+					<div class="integrant_card">
+						<div class="img">
+							<img data-src="' . $image . '" src=""/>
+						</div>
+						<span class="name">' . $name . ' ' . $surname .'</span>
 					</div>
-					<span class="name">' . $name . ' ' . $surname .'</span>
-					<div class="norecharge_cont">'.$translationService->translate('POST_PAYMENT.SHIPPING_DATA.NORECHARGE_CONTENT').'</div>
+					<div class="norecharge_cont">
+						<div>'.$translationService->translate('POST_PAYMENT.SHIPPING_DATA.NORECHARGE_CONTENT').'</div>
+					</div>
 				</div>
 			';
 		}
@@ -172,13 +176,8 @@ class ShippingDataForm extends MultistepFormBase {
 			if ($integrantIndex != 0) {
 				$activeClass = "";
 			}
-			$markup .= '<div class="sidebar-integrant"><div class="sidebar-integrant-image-wrapper">';
-			$markup .= isset($imageBase64) ? '<img class="sidebar-integrant-image '.$activeClass.'" src="" data-src="' . $imageBase64 . '" />' : '<img class="sidebar-integrant-image '.$activeClass.'" src="' . Order::getDefaultUserAvatar() . '" />';
-//			if (isset($imageBase64)) {
-//				$markup .=  '<img src="" data-src="' . $imageBase64 . '" />';
-//			} else {
-//				$markup .=  '<img src="' . Order::getDefaultUserAvatar() . '" />';
-//			}
+			$markup .= '<div class="sidebar-integrant '.$activeClass.'"><div class="sidebar-integrant-image-wrapper">';
+			$markup .= isset($imageBase64) ? '<img class="sidebar-integrant-image" src="" data-src="' . $imageBase64 . '" />' : '<img class="sidebar-integrant-image" src="' . Order::getDefaultUserAvatar() . '" />';
 			$markup .= '</div><div class="sidebar-integrant-name">'.$name.' '.$surname.'</div></div>';
 			$integrantIndex++;
 		}
@@ -194,12 +193,14 @@ class ShippingDataForm extends MultistepFormBase {
 		if (!isset($triggeringElement)) {
 			return $response;
 		}
+
 		
 		$formValues = $form_state->getValues();
 		$parents = $triggeringElement['#parents'];
-		if (count($parents) < 4) {
-			return $response;
-		}
+		
+		// if (count($parents) < 4) {
+		// 	return $response;
+		// }
 
 		$shippingMethod = $parents[0];
 		$serviceID = $parents[1];
@@ -208,16 +209,37 @@ class ShippingDataForm extends MultistepFormBase {
 		if (!isset($forfaitCodePartial)) {
 			return $response;
 		}
-		
-		$orderID = \Drupal::routeMatch()->getParameter('orderID') ?? $this->orderID;
-		if (!isset($orderID)) {
+
+		$complete_code = str_replace('___', $forfaitCodePartial, $formValues[$shippingMethod][$serviceID]['recharge_data']['select_wtp']);
+		if( !isset( $_SESSION['wtp_codes_list'][$serviceID][$complete_code] ) ){
+
+			\Drupal::messenger()->addMessage($forfaitCodePartial." ". $this->t('Invalid forfait code', [], ['context' => TranslationContext::POST_PAYMENT]), 'error');
+
+			$message = [
+      			'#theme' => 'status_messages',
+      			'#message_list' => drupal_get_messages(),
+    		];
+
+    		$messages = \Drupal::service('renderer')->render($message);
+   			$response->addCommand(new HtmlCommand('.alert-wrapper', $messages));
+			
+			$form['shipping_data'][$shippingMethod][$serviceID]['recharge_data']['forfait_code']['#attributes']['class'][] = 'error';
+			ksm("forfait invalido");
 			return $response;
 		}
+		
+
+		$orderID = $this->order->getOrder()->Booking->Identifier;
 		
 		$session = \Drupal::service('gv_fplus.session');
 		$recharge = \Drupal::service('gv_fanatics_plus_checkout.recharge');
 		try {
-			$recharge->bookingRecharge($session->getIdentifier(), $orderID, $serviceID, $forfaitCodePartial);
+			$result = $recharge->bookingRecharge($session->getIdentifier(), $orderID, $serviceID, $forfaitCodePartial);
+			//$rechargeResult = $recharge->bookingSetRechargeRequest($session->getIdentifier(), $orderID, $serviceID, FALSE);
+
+			if( is_null($result->ErrorCodes) ) $_SESSION['shipping_data_codes'][$orderID][$serviceID] = $forfaitCodePartial;
+			else $_SESSION['shipping_data_codes'][$orderID][$serviceID] = '';
+
 			
 			$form['shipping_data'][$shippingMethod][$serviceID]['recharged'] = [
 				'#markup' => '<div class="recharge-active badge"><div class="badge--inner">' . $this->t('Topped up', [],['context' => TranslationContext::POST_PAYMENT]) . '</div></div>'
@@ -225,6 +247,7 @@ class ShippingDataForm extends MultistepFormBase {
 		
 			unset($form['shipping_data'][$shippingMethod][$serviceID]['recharge_options']);
 			unset($form['shipping_data'][$shippingMethod][$serviceID]['recharge_data']);
+
 		} catch(\Exception $e) {
 		    \Drupal::messenger()->addMessage($forfaitCodePartial." ". $this->t('Invalid forfait code', [], ['context' => TranslationContext::POST_PAYMENT]), 'error');
 
@@ -413,6 +436,10 @@ class ShippingDataForm extends MultistepFormBase {
 		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		
 		$this -> formTitle = 'POST_PAYMENT.SHIPPING_DATA.MAIN_TITLE';
+
+		if ($destinationUrl) {
+			$this->destinationUrl = $destinationUrl;
+		}
 		
 		// $currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
 		// $totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
@@ -454,7 +481,6 @@ class ShippingDataForm extends MultistepFormBase {
 		$activeChannel = \Drupal::service('gv_fplus.channel_resolver')->resolve();
 		
 		$orderRechargeInfo = $recharge->bookingRechargeable($session->getIdentifier(), $currentOrderID);
-
 
 		$shippingMethodOptionGroup = $this->_groupServicesByShippingMethod($orderInfo, $orderRechargeInfo);
 		//--ksm($orderRechargeInfo, $shippingMethodOptionGroup);
@@ -511,18 +537,12 @@ class ShippingDataForm extends MultistepFormBase {
 			'#type' => 'inline_template',
 			'#template' => '<div class="title-container"><div class="title-container"><h1>Completa los datos para finalizar</h1></div></div>'
 		];
-
-		ksm($shippingMethodOptionGroup);
 		
 		foreach ($shippingMethodOptionGroup as $index => $shippingData) {
 			$form['shipping_data'][$index] = [
 				'#prefix' => '<div id="shipping-option-data-item-' . $index . '" class="shipping-option-data-item item-id-' . $index . '">',
 				'#suffix' => '</div>',
 				'#tree' => TRUE
-			];
-			
-			$form['shipping_data'][$index]['title'] = [
-				'#markup' => '<div class="shipping-data-title">'.$translationService->translate('POST_PAYMENT.TITLE.VALID_FORFAIT').'</div>'
 			];
 			
 			$services = $shippingData['services'];
@@ -533,6 +553,20 @@ class ShippingDataForm extends MultistepFormBase {
 					$integrantIndex = $service->Identifier;
 					$rechargeInfo = $orderRechargeInfo->Services[$serviceIndex];
 					$WTPNumber = $service->rechargeInfo->WTPNumber;
+
+					/* -- Lista de codigos WTP */
+					$wtp_codes_list = [];
+					//$_SESSION['wtp_codes_list'] = [];
+					foreach( $service->rechargeInfo->WTPNumberList as $code ){
+
+						if( !isset($_SESSION['wtp_codes_list'][$integrantIndex][$code]) ) $_SESSION['wtp_codes_list'][$integrantIndex][$code] = $code;
+
+						// Filtramos los repetidos
+						$code = explode("-", $code);
+						$code[1] = "___";
+						$code = implode("-", $code);
+						if( !isset($wtp_codes_list[$code]) ) $wtp_codes_list[$code] = $code;
+					}
 					
 					$form['shipping_data'][$index][$integrantIndex] = [
 						'#type' => 'fieldset',
@@ -651,23 +685,55 @@ class ShippingDataForm extends MultistepFormBase {
 						$form['shipping_data'][$index][$integrantIndex]['recharge_support']['message_recharge_support'] = [
 							'#markup' => '<div class="rechage-info">' . '<p class="bold">'. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_SUPPORT_INSTRUCTIONS') .'</p>' . '</div>'
 						];
+						// [
+						// 	'#type' => 'inline_template',
+						// 	'#template' => '
+						// 					<div class="payment-method-descriptors--inner payment-method-' . $index . '" data-payment-method-id="' . $index . '">
+						// 						<div class="alert alert-primary btnb-custom-alert" role="alert">
+						// 							<div class="payment-method-title">
+						// 								<span class="payment-description-icon">'.$moreInfoIcon.'</span>
+						// 								<div class="payment-method-description">'.$this->translationService->translate('CHECKOUT_PAYMENT.TITLE.'.$index).'</div>
+						// 								<span class="payment-description-more-info">más info</span>
+						// 							</div>
+						// 							<div class="payment-description-body">'.$this->translationService->translate('CHECKOUT_PAYMENT.DESCRIPTION.'.$index).'</div>
+						// 						</div>
+						// 					</div>'
+						// ];
 						//}
 
+					
+						$form['shipping_data'][$index][$integrantIndex]['recharge_data']['select_wtp'] = [
+							'#type' => 'select',
+							'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.SELECT_WTP_CODE'),
+							'#options' => $wtp_codes_list,
+							'#attributes' => [
+								'id' => "select_wtp",
+								'data-id' => $integrantIndex,
+							],
+							'#prefix' => '<div class="field_select_wtp">',
+							'#suffix' => '</div>',
+						];
+
+
+						$WTPNumber = $wtp_codes_list[array_keys($wtp_codes_list)[0]] ?? $WTPNumber;
 						$wtpNumberSegments = explode("-", $WTPNumber, 4);
 						$prefix = $wtpNumberSegments[0];
 						$suffix = $wtpNumberSegments[2];
+						
 						$form['shipping_data'][$index][$integrantIndex]['recharge_data']['forfait_code'] = [
 							'#type' => 'textfield',
 							'#title' => $translationService->translate('POST_PAYMENT.SHIPPING_DATA.ENTER_WTP_CODE_FORM_TITLE'),
 							'#attributes' => [
 								'data-wtp-prefix' => $prefix,
-								'data-wtp-suffix' => $suffix
+								'data-wtp-suffix' => $suffix,
+								'class' => ['wtp_codetextinput'],
+								'data-id' => $integrantIndex,
 							],
-							'#prefix' => 
-							'<div class="rechage-info">' 
-							 . '<p class="bold">'. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_NOW_INSTRUCTIONS') /*$this->t("Enter the 3 digits that we indicate in the example of a Season Pass below.", [], ['context' => TranslationContext::POST_PAYMENT])*/ . '</p>'
-                             //'<p class="bold">'.$this->t("REMEMBER that if you are recharging it the same day that you go skiing, it may take a maximum of 1 hour for your ski pass to be activated.", [], ['context' => TranslationContext::POST_PAYMENT]).'</p>'.
-                             . '</div>'
+
+							// '<div class="rechage-info">' 
+							//  . '<p class="bold">'. $translationService->translate('POST_PAYMENT.SHIPPING_DATA.RECHARGE_NOW_INSTRUCTIONS') /*$this->t("Enter the 3 digits that we indicate in the example of a Season Pass below.", [], ['context' => TranslationContext::POST_PAYMENT])*/ . '</p>'
+                            //  //'<p class="bold">'.$this->t("REMEMBER that if you are recharging it the same day that you go skiing, it may take a maximum of 1 hour for your ski pass to be activated.", [], ['context' => TranslationContext::POST_PAYMENT]).'</p>'.
+                            //  . '</div>'
 						];
 						
 						$form['shipping_data'][$index][$integrantIndex]['recharge_data']['submit_forfait_code'] = [
@@ -772,27 +838,31 @@ class ShippingDataForm extends MultistepFormBase {
 		
 	 	$orderID = $this->storeGet('order_id');
 	 	$formValues = $form_state->getValues();
-		if (isset($formValues[BookingOfficeOptions::HOME_DELIVERY])) {}
-		
-		if (isset($formValues[BookingOfficeOptions::RECHARGE_FORFAIT])
+		//if (isset($formValues[BookingOfficeOptions::HOME_DELIVERY])) {}
+
+		if (
+			isset($formValues[BookingOfficeOptions::RECHARGE_FORFAIT])
 			&& $triggeringElement != NULL
-			&& $triggeringElement['#id'] == 'edit-submit') {
+			&& $triggeringElement['#id'] == 'edit-submit'
+		) {
 			$rechargeServices = $formValues[BookingOfficeOptions::RECHARGE_FORFAIT];
+			
 			foreach ($rechargeServices as $serviceID => $data) {
 				$selectedOption = $data['recharge_options'];
-				$forfaitCode = $data['recharge_data']['forfait_code'];
+				$forfaitCode = empty($data['recharge_data']['forfait_code']) ? $_SESSION['shipping_data_codes'][$orderID][$serviceID] : $data['recharge_data']['forfait_code'];
+
 				if ($selectedOption == 0 && (!isset($forfaitCode) || strlen($forfaitCode) <= 0)) {
 					$form_state->setErrorByName(BookingOfficeOptions::RECHARGE_FORFAIT . '[' . $serviceID .'][recharge_data][forfait_code]', $translationService->translate('POST_PAYMENT.SHIPPING_DATA.INVALID_FORFAIT_CODE'));
 				}
 			}
 		}
 		
-		if (isset($formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP])) {
-			$boxOffice = $formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]['integrant-item']['box_office_pickup_data']['box_office'];
-			if (!isset($boxOffice)) {
-				$form_state->setErrorByName(BookingOfficeOptions::BOX_OFFICE_PICKUP . '[integrant-item][box_office_pickup_data][box_office]', $translationService->translate('POST_PAYMENT.SHIPPING_DATA.PICKUP_POINT_MANDATORY'));
-			}
-		}
+		// if (isset($formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP])) {
+		// 	$boxOffice = $formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]['integrant-item']['box_office_pickup_data']['box_office'];
+		// 	if (!isset($boxOffice)) {
+		// 		$form_state->setErrorByName(BookingOfficeOptions::BOX_OFFICE_PICKUP . '[integrant-item][box_office_pickup_data][box_office]', $translationService->translate('POST_PAYMENT.SHIPPING_DATA.PICKUP_POINT_MANDATORY'));
+		// 	}
+		// }
 		
 	 }
 	
@@ -818,7 +888,6 @@ class ShippingDataForm extends MultistepFormBase {
 	 	$formValues = $form_state->getValues();
 		
 		
-		
 		$orderInfo = $order->getFromID($orderID, TRUE)->Booking;
 		$orderOwnerClientID = $orderInfo->IDClient;
 		$orderOwnerUserID = $orderInfo->IDUser;
@@ -837,68 +906,73 @@ class ShippingDataForm extends MultistepFormBase {
 			$oneServicePrinted = TRUE;
 		}
 		
-		if (isset($formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]) && !$oneServicePrinted) {
-			$boxOffice = $formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]['integrant-item']['box_office_pickup_data']['box_office'];
-			$result = $order::editBookingOffice($orderID, $boxOffice);
-		}
+//		 if (isset($formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]) && !$oneServicePrinted) {
+//		 	$boxOffice = $formValues[BookingOfficeOptions::BOX_OFFICE_PICKUP]['integrant-item']['box_office_pickup_data']['box_office'];
+//		 	$result = $order::editBookingOffice($orderID, $boxOffice);
+//		 }
 
-		if (isset($formValues[BookingOfficeOptions::RECHARGE_FORFAIT])) {
-			$rechargeServices = $formValues[BookingOfficeOptions::RECHARGE_FORFAIT];
-			foreach ($rechargeServices as $serviceID => $data) {
-				$selectedOption = $data['recharge_options'];
-				$forfaitCode = $data['recharge_data']['forfait_code'];
-				// recarga en taquilla
-				if ($selectedOption == 2) {
-					$rechargeResult = $recharge->bookingSetRechargeRequest($session->getIdentifier(), $orderID, $serviceID, FALSE);
-				}
-			}
-		}
-		
-		if (isset($formValues[BookingOfficeOptions::HOME_DELIVERY]) && !$oneServicePrinted) {
-			$country = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['country'];
-			$postalCode = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['postal_code'];
-			$province = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['province'];
-			$provinceText = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['province_text'];
-			$address = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['address'];
+//		 if (isset($formValues[BookingOfficeOptions::RECHARGE_FORFAIT])) {
+//		 	$rechargeServices = $formValues[BookingOfficeOptions::RECHARGE_FORFAIT];
+//		 	foreach ($rechargeServices as $serviceID => $data) {
+//		 		$selectedOption = $data['recharge_options'];
+//
+//		 		$forfaitCode = empty($data['recharge_data']['forfait_code']) ? $_SESSION['shipping_data_codes'][$orderID][$serviceID] : $data['recharge_data']['forfait_code'];
+//		 		// recarga en taquilla
+//		 		 if ($selectedOption == 2) {
+//		 		 	$rechargeResult = $recharge->bookingSetRechargeRequest($session->getIdentifier(), $orderID, $serviceID, FALSE);
+//		 		 }
+//		 	}
+//		 }
+
+		// if (isset($formValues[BookingOfficeOptions::HOME_DELIVERY]) && !$oneServicePrinted) {
+		// 	$country = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['country'];
+		// 	$postalCode = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['postal_code'];
+		// 	$province = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['province'];
+		// 	$provinceText = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['province_text'];
+		// 	$address = $formValues[BookingOfficeOptions::HOME_DELIVERY]['integrant-item']['home_delivery_data']['address'];
 			
-			$province = NULL;
+		// 	$province = NULL;
 			
-			$updateResult = $user->fanatics()->update(
-				$session->getIdentifier(),
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				$country, 
-				$postalCode, 
-				NULL, 
-				$province, 
-				$address, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL, 
-				NULL,
-				$provinceText
-			);
-  		}
+		// 	$updateResult = $user->fanatics()->update(
+		// 		$session->getIdentifier(),
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		$country, 
+		// 		$postalCode, 
+		// 		NULL, 
+		// 		$province, 
+		// 		$address, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL, 
+		// 		NULL,
+		// 		$provinceText
+		// 	);
+  		// }
 		
 		$this->deleteStoreKeys(['order_id']);
 		$this->postPaymentOrderManager->increaseStepNumber();
 		/** @TODOULISES: Sete redirection to $destinationUrl */
 		// $form_state->setRedirect('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
-		
 
-		$destinationUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT])->toString();
-		ksm($destinationUrl);
-		return new TrustedRedirectResponse($destinationUrl, 307);
+//		if (isset($this->destinationUrl)) {
+//			return new TrustedRedirectResponse($this->destinationUrl, 307);
+//		}
+
+		$form_state->setRedirect('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+
+		// $destinationUrl = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT])->toString();
+		// return new TrustedRedirectResponse($destinationUrl, 307);
 	}
 }
 

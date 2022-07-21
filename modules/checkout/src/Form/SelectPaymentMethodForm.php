@@ -83,7 +83,6 @@ class SelectPaymentMethodForm extends FormBase {
 		$paymentMethodOptions = [];
 		$paymentMethodDescriptions = [];
 		$defaultPaymentMethod = NULL;
-        ksm($paymentMethods->List);
 		foreach ($paymentMethods->List as $index => $paymentMethod) {
 			if ($index == 0) {
 				$defaultPaymentMethod = $paymentMethod->Identifier;

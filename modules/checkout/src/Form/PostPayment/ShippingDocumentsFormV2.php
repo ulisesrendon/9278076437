@@ -351,8 +351,6 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		}
 
 		if (isset($this->destinationUrl)) {
-			//$form_state->setResponse( new TrustedRedirectResponse($this->destinationUrl, 307) );
-
 			return new TrustedRedirectResponse($this->destinationUrl, 307);
 		}
 		

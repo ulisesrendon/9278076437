@@ -24,6 +24,7 @@ class BookingServiceRechargeable {
 	public $Printed;
 	public $RechargeRequest;
 	public $WTPNumber;
+	public $WTPNumberList;
 }
 
 class Recharge {
