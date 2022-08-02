@@ -279,9 +279,9 @@ gv_fanatics_plus_checkout.post_payment_shipping_data_complete:
   defaults:
     _form: '\Drupal\gv_fanatics_plus_checkout\Form\PostPayment\ShippingDataCompleteForm'
     _title: 'Post payment complete'
-  requirements:
-    _post_payment_access_check: 'TRUE'
-    _post_payment_complete_access_check: 'TRUE'
+#  requirements:
+#    _post_payment_access_check: 'TRUE'
+#    _post_payment_complete_access_check: 'TRUE'
   options:
     no_cache: 'TRUE'
     gv_metrics_collector_namespace: 'post_payment'

@@ -276,6 +276,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#attributes' => [
 					'class' => ['hidden']
 				],
+				'#required' => TRUE,
 				'#default_value' => $defaultImg,
 				'#ajax' => [
 					'callback' => '::updateImageAjaxCallback', // don't forget :: when calling a class method.
@@ -294,6 +295,18 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				//$form['webcam_container']['image']['#required'] = TRUE;
 				//$form['image_base64']['#required'] = TRUE;
 			}
+
+			$form['step_description'] = [
+				'#type' => 'inline_template',
+				'#template' => '<div class="documents-info-warning alert alert-warning">
+<span class="documents-info-icon">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
+</span>'.$translationService->translate('PERSONAL_DATA_FORM.REQUIRED_IMAGE').'</div>',
+//		'#template' => '<div class="documents-info-warning alert alert-warning">
+//<span class="documents-info-icon">
+//<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
+//</span>Para los Forfait de Temporada en modalidad de Residente es necesario acreditar la residencia en Andorra con el Certificado de Residencia que se emite en el Comú correspondiente</div>'
+			];
 
 			if ($isIntegrantActive) {
 				$defaultProfileEmail = $profile->Email;
@@ -435,9 +448,13 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				$defaultProfileDni = $this->storeGet('dni');
 			}
 
-			$defaultDniExpirationDate = $profile->IDCardExpiration;
+			$defaultDniExpirationDate = $profile->PassportExpirationDate;
 			if (!$hasProfile && $this->storeGet('dni_expired_date') != NULL) {
 				$defaultDniExpirationDate = $this->storeGet('dni_expired_date');
+			}
+			if (isset($defaultDniExpirationDate)) {
+				$defaultDniExpirationDate = \DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $defaultDniExpirationDate); //'15-Feb-2009');
+				$defaultDniExpirationDate = $defaultDniExpirationDate->format('Y-m-d');
 			}
 
 			$form['dni'] = [
@@ -446,19 +463,21 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#default_value' => $defaultProfileDni,
 				'#required' => TRUE,
 				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
-				'#suffix' => '</div>'
+				'#suffix' => '</div>',
+				'#maxlength' => 10
 			];
 			$form['dni_expired_date'] = [
 				'#type' => 'date',
-				'#title' => "Fecha de caducidad del pasaporte", /** @TODO1 */
-				//'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_TITLE'),
-				'#description' => "Inserte la fecha en formato DD/MM/YYYY",
-				//'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_DESCRIPTION'),
+//				'#title' => "Fecha de caducidad del pasaporte", /** @TODO1 */
+				'#title' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_TITLE'),
+//				'#description' => "Inserte la fecha en formato DD/MM/YYYY",
+				'#description' => $translationService->translate('PERSONAL_DATA_FORM.PASSPORT_EXPIRATION_FORM_DESCRIPTION'),
 				'#default_value' => $defaultDniExpirationDate,
 				'#required' => TRUE,
 				'#prefix' => '<div class="col-md-6 col-sm-12 col-xs-12">',
 				'#suffix' => '</div>',
 				'#min' => date("Y-m-d", time()),
+				'#max' => '9999-12-31',
 			];
 
 			if ($isIntegrantActive) {
@@ -590,11 +609,10 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#suffix' => '</div>'
 			];
 
-
 			$form['base_address_container']['nacionality_country'] = [
 				'#type' => 'select',
-				'#title' => "Nacionalidad", /** @TODO2: Asignar la cadena de traducción */
-				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.NACIONALITY_COUNTRY'),
+//				'#title' => "Nacionalidad", /** @TODO2: Asignar la cadena de traducción */
+				'#title' => $translationService->translate('PERSONAL_DATA_FORM.NACIONALITY_COUNTRY'),
 				'#default_value' => $profile->IDCountryNationality,
 				'#options' => $countryOptions,
 				'#options_attributes' => $countryDataOptions,
@@ -608,8 +626,8 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			];
 			$form['base_address_container']['residence_country'] = [
 				'#type' => 'select',
-				'#title' => "Pais de residencia", /** @TODO3: Asignar la cadena de traducción */
-				//'#title' => $translationService->translate('RESIDENCE_DATA_FORM.RESIDENCE_COUNTRY'),
+//				'#title' => "Pais de residencia", /** @TODO3: Asignar la cadena de traducción */
+				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.RESIDENCE_COUNTRY'),
 				'#default_value' => $profile->IDCountryResidence,
 				'#options' => $countryOptions,
 				'#options_attributes' => $countryDataOptions,
@@ -659,7 +677,11 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 					],
 				],
 				'#prefix' => '<div class="col-md-12 col-sm-12 col-xs-12 census-field-container spaced-wrapper">',
-				'#suffix' => '</div>'
+				'#suffix' => '</div>',
+				'#maxlength' => 7,
+//				'#attributes' => [
+//					'maxlength' => 7
+//				]
 			];
 
 			if ((!isset($profile->Census) || $profile->Census == '')) {
@@ -732,7 +754,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#type' => 'tel',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.MOBILE_PHONE_FORM_TITLE'),
 				'#default_value' => $profile->Phone,
-				'#required' => TRUE,
+//				'#required' => TRUE,
 				'#prefix' => '<div class="row"><div class="col-md-6 col-sm-12 col-xs-12 spaced-wrapper">',
 				'#suffix' => '</div>',
 				'#states' => [
@@ -748,15 +770,15 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 				'#type' => 'tel',
 				'#title' => $translationService->translate('RESIDENCE_DATA_FORM.MOBILE_PHONE_FORM_TITLE'),
 				'#default_value' => $profile->Phone,
-				'#required' => TRUE,
+//				'#required' => TRUE,
 				'#attributes' => [
 					'class' => ['hidden']
 				]
 			];
 
 			if ($isIntegrantActive) {
-				unset($form['phone_number']['#required']);
-				unset($form['full_phone_number']['#required']);
+//				unset($form['phone_number']['#required']);
+//				unset($form['full_phone_number']['#required']);
 			}
 
 			/*$form['has_colective'] = [
@@ -815,7 +837,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 			$channelResolver = \Drupal::service('gv_fplus.channel_resolver');
 			$currentChannel = $channelResolver->resolve();
 			$newsletterUrl = $this->t('Yes, <a href="https://www.grandvalira.com/en/consent-clause" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
-			if ($currentChannel->isPlus()) {
+			if ($currentChannel->isPlus() || $currentChannel->isPal()) {
 				$newsletterUrl = $this->t('Yes, <a href="https://www.grandvalira.com/en/consent-clause" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
 			} else if ($currentChannel->isTemporadaOA()) {
 				$newsletterUrl = $this->t('Yes, <a href="https://www.ordinoarcalis.com/en/consent-clause-newsletter" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
@@ -1050,7 +1072,7 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 		$PassportExpirationDate = $form_state->getValue('dni_expired_date');
 
 		$passportExpired = new \DateTime($PassportExpirationDate);
-		$FinalPassportExpirationDate = $passportExpired->format('Y-m-d\TH:i:s\Z'); 
+		$FinalPassportExpirationDate = $passportExpired->format('Y-m-d\TH:i:s\Z');
 
 		// Modificación/creación integrantes/perfil
 		try {
@@ -1141,7 +1163,10 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 						NULL, //$renewPass,
 						$censusNumber, //$census,
 						$collectiveTypeID,
-						$collectiveCode
+						$collectiveCode,
+						$IDCountryNationality,
+						$IDCountryResidence,
+						$PassportExpirationDate
 					);
 				} else { // Creating
 					try {
@@ -1169,7 +1194,10 @@ class PersonalDataForm extends \Drupal\gv_fplus_auth\Form\Multistep\MultistepFor
 							NULL, //$renewPass,
 							$censusNumber,
 							$collectiveTypeID,
-							$collectiveCode
+							$collectiveCode,
+							$IDCountryNationality,
+							$IDCountryResidence,
+							$PassportExpirationDate
 						);
 
 						$IDIntegrant = $response->ClientID;

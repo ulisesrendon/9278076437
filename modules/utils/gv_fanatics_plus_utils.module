@@ -50,6 +50,8 @@ function gv_fanatics_plus_utils_page_attachments(&$page) {
 		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/temporada-oa.eu-cookie-compliance';
 	} else if ($activeChannel->isFanatics()){
 		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/fanatics.eu-cookie-compliance';
+	} else if ($activeChannel->isPal()){
+		$page['#attached']['library'][] = 'gv_fanatics_plus_utils/pal.eu-cookie-compliance';
 	}
 }
 

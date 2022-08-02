@@ -161,24 +161,16 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 		$IDPayment = $event->getIDPayment();
 		
 		$bookingReferral = $this->cart->getBookingReferral();
-		ksm($IDSession, $IDBooking, $IDPayment, $bookingReferral);
 		try {
 			$confirmResponse = $this->TPV->confirmBooking($IDSession, $IDPayment, $bookingReferral);
-			ksm($confirmResponse);
 			$finalBooking = $this->order->getFromID($IDBooking, FALSE, TRUE);
-			ksm($finalBooking);
 			
 			$targetPaymentID = array_pop(array_reverse($finalBooking->Payments))->Identifier;
-			ksm($targetPaymentID);
 			
 			$urlOK = $this->TPV->getOKUrl($IDBooking);
 			$urlKO = $this->TPV->getKOUrl($targetPaymentID);
-
-			ksm($urlOK, $urlKO);
 			
 			$paymentResult = $this->TPV->pay($IDSession, $IDBooking, $targetPaymentID, $urlOK, $urlKO);
-
-			ksm($paymentResult);
 			
 			$URLTPV = $paymentResult->URLTPV;
 			
@@ -213,25 +205,28 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 		
 		$this->visibleSteps = [
 	 		CheckoutOrderSteps::PROFILE_DATA => [
-        		'label' => 'CHECKOUT_PROGRESS.REVIEW_DATA'
+        		'label' => 'CHECKOUT_PROGRESS.REVIEW_DATA',
+				'hidden' => FALSE
       		],
       		CheckoutOrderSteps::PRODUCT_SELECTION =>  [
-        		'label' => 'CHECKOUT_PROGRESS.SELECT_PRODUCTS'
+        		'label' => 'CHECKOUT_PROGRESS.SELECT_PRODUCTS',
+				'hidden' => FALSE
       		],
 			CheckoutOrderSteps::DOCUMENTS => [
-				'label' => 'CHECKOUT_PROGRESS.DOCUMENTS'
+				'label' => 'CHECKOUT_PROGRESS.DOCUMENTS',
+				'hidden' => TRUE
 			],
 			CheckoutOrderSteps::RECHARGES => [
-				'label' => 'CHECKOUT_PROGRESS.RECHARGES'
+				'label' => 'CHECKOUT_PROGRESS.RECHARGES',
+				'hidden' => TRUE
 			],
       		CheckoutOrderSteps::PAYMENT =>  [
-        		'label' => 'CHECKOUT_PROGRESS.PAYMENT'
+        		'label' => 'CHECKOUT_PROGRESS.PAYMENT',
+				'hidden' => FALSE
       		],
-      		/*CheckoutOrderSteps::POST_PAYMENT =>  [
-        		'label' => 'Post payment'
-      		],*/
       		CheckoutOrderSteps::POST_PAYMENT => [
-      			'label' => 'CHECKOUT_PROGRESS.POST_PAYMENT'
+      			'label' => 'CHECKOUT_PROGRESS.POST_PAYMENT',
+				'hidden' => FALSE
       		]
 	 	];
 		

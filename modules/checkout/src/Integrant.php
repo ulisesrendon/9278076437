@@ -16,12 +16,12 @@ class Integrant {
 		$this->session = \Drupal::service('gv_fplus.session');
 	}
 	
-	public function create($sessionID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification) {
-		return $this->apiClient->integrants()->create($sessionID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification);
+	public function create($sessionID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification, $IDCountryNationality = NULL, $IDCountryResidence = NULL, $PassportExpirationDate = NULL) {
+		return $this->apiClient->integrants()->create($sessionID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification, $IDCountryNationality, $IDCountryResidence, $PassportExpirationDate);
 	}
 	
-	public function update($sessionID, $integrantID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification) {
-		return $this->apiClient->integrants()->update($sessionID, $integrantID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification);
+	public function update($sessionID, $integrantID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification, $IDCountryNationality = NULL, $IDCountryResidence = NULL, $PassportExpirationDate = NULL) {
+		return $this->apiClient->integrants()->update($sessionID, $integrantID, $integrantType, $email, $name, $surname, $surname2, $IDCard, $gender, $birthdate, $IDCountry, $postalCode, $city, $IDProvince, $provinceName, $address, $addressNumber, $IDAddressType, $addressMoreInfo, $phoneNumber, $telephoneNumber, $renewPass, $census, $IDClub, $clubIdentification, $IDCountryNationality, $IDCountryResidence, $PassportExpirationDate);
 	}
 	
 	public function delete($clientID) {

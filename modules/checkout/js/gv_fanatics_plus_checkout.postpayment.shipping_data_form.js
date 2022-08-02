@@ -1,4 +1,8 @@
 (function(jQuery, Drupal) {
+
+	jQuery('.payment-method-title').on("click", function() {
+		jQuery(this).parent().find('.payment-description-body').toggle();
+	});
 	
 	'use strict';
 	

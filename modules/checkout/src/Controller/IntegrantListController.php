@@ -87,6 +87,7 @@ class IntegrantListController extends ControllerBase {
 			'#integrants' => [
 				'list' => $integrants,
 				'profile' => $profile,
+				'profile_image' => $profileImage
 			],
 			'#add_new_integrant_url' => $addNewIntegrantUrl,
 		];

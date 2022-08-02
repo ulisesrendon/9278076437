@@ -30,10 +30,12 @@ function gv_fplus_auth_preprocess_page(&$variables) {
 	$isFanatics = $activeChannel->isFanatics();
 	$isPlus = $activeChannel->isPlus();
 	$isTemporadaOA = $activeChannel->isTemporadaOA();
+	$isPal = $activeChannel->isPal();
 	
 	$variables['gv_fplus_is_fanatics'] = $isFanatics;
 	$variables['gv_fplus_is_plus'] = $isPlus;
 	$variables['gv_fplus_is_temporada_oa'] = $isTemporadaOA;
+	$variables['gv_fplus_is_pal'] = $isPal;
 }
 
 /**

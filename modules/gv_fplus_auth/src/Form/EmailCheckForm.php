@@ -124,9 +124,9 @@ class EmailCheckForm extends FormBase {
 	public function validateForm(array &$form, FormStateInterface $form_state) {
 		$email = trim($form_state->getValue('email'));
 		$domain = explode("@", $email)[1];
-//		if (!checkdnsrr($domain,"MX")) {
-//			$form_state->setErrorByName("email", $this->translationService->translate('LOGIN_FORM.INVALID_MAIL'));
-//		}
+		if (!checkdnsrr($domain,"MX")) {
+			$form_state->setErrorByName("email", $this->translationService->translate('LOGIN_FORM.INVALID_MAIL'));
+		}
 	}
 
 	/**

@@ -16,6 +16,8 @@ use Drupal\user\PrivateTempStoreFactory;
 use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+use Drupal\gv_fanatics_plus_checkout\CheckoutOrderSteps;
+
 use Drupal\gv_fanatics_plus_order\Order;
 use Drupal\gv_fplus\TranslationContext;
 
@@ -121,14 +123,14 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 
 		$form['step_description'] = [
 			'#type' => 'inline_template',
-//			'#template' => '<div class="documents-info-warning alert alert-warning">
-//<span class="documents-info-icon">
-//<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
-//</span>'.$translationService->translate('DOCUMENTS.STEP_WARNING_ALERT').'</div>',
-		'#template' => '<div class="documents-info-warning alert alert-warning">
+			'#template' => '<div class="documents-info-warning alert alert-warning">
 <span class="documents-info-icon">
 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
-</span>Para los Forfait de Temporada en modalidad de Residente es necesario acreditar la residencia en Andorra con el Certificado de Residencia que se emite en el Comú correspondiente</div>'
+</span>'.$translationService->translate('DOCUMENTS.STEP_WARNING_ALERT').'</div>',
+//		'#template' => '<div class="documents-info-warning alert alert-warning">
+//<span class="documents-info-icon">
+//<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.99992 13.6654C3.31792 13.6654 0.333252 10.6807 0.333252 6.9987C0.333252 3.3167 3.31792 0.332031 6.99992 0.332031C10.6819 0.332031 13.6666 3.3167 13.6666 6.9987C13.6666 10.6807 10.6819 13.6654 6.99992 13.6654ZM6.33325 6.33203V10.332H7.66659V6.33203H6.33325ZM6.33325 3.66536V4.9987H7.66659V3.66536H6.33325Z" fill="#D8A13D"/></svg>
+//</span>Para los Forfait de Temporada en modalidad de Residente es necesario acreditar la residencia en Andorra con el Certificado de Residencia que se emite en el Comú correspondiente</div>'
 		];
 		
 		$form['shipping_documents'] = [
@@ -229,8 +231,8 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 				if (isset($document->DescripcionPublica) && strlen($document->DescripcionPublica) > 0) {
 					$baseDescription = $document->DescripcionPublica . '</br>';
 				} else {
-					// $baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
-					$baseDescription .= '<p class="document-description">Arrastra y suelta en este espacio, o clica para añadir un fichero</p>';
+					$baseDescription .= '<p class="document-description">' . $translationService->translate('DOCUMENTS.ADD_NEW_DOCUMENT') . '</p>';
+//					$baseDescription .= '<p class="document-description">Arrastra y suelta en este espacio, o clica para añadir un fichero</p>';
 				}
 
 //				if (isset($description) && strlen($description) > 0) {
@@ -240,7 +242,7 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
       				'#type' => 'managed_file',
         			'#title' => $document->Titulo,
         			'#description' => $baseDescription 
-        				. $translationService->translate('POST_PAYMENT.DOCUMENTS.ALLOWED_FILE_TYPES') . ' pdf jpg jpeg png' . \Drupal::service('gv_fplus.session')->getIdentifier() . '</br>'
+        				. $translationService->translate('POST_PAYMENT.DOCUMENTS.ALLOWED_FILE_TYPES') . ' pdf jpg jpeg png ' . \Drupal::service('gv_fplus.session')->getIdentifier() . '</br>'
         				. $translationService->translate('POST_PAYMENT.DOCUMENTS.MAX_FILE_SIZE') . ' 4MB',
         			'#upload_location' => 'temporary://gv_fanatics_plus_document_management/',
         			'#upload_validators' => [
@@ -264,15 +266,39 @@ class ShippingDocumentsFormV2 extends MultistepFormBase {
 		
 		$form['#attached']['library'][] = 'gv_fanatics_plus_checkout/dropzonejs';
 		$form['#attached']['library'][] = 'gv_fanatics_plus_checkout/shipping_documents_form_v2';
-		
-		$form['actions']['#type'] = 'actions';
-		
-		$form['actions']['submit'] = [
-			'#type' => 'submit', 
-			'#value' => $translationService->translate('POST_PAYMENT.SUBMIT_BTN_LABEL'), 
-			'#button_type' => 'primary', 
+
+		$form['actions'] = [
+//			'#type' => 'actions',
+			'#prefix' => '<div class="checkout-form-main-actions">',
+			'#suffix' => '</div>'
+		];
+
+		$go_back_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PRODUCT_SELECTION]);
+
+		$form['actions']['btn_actions'] = [
+			'#prefix' => '<div class="checkout-form-main-principal-actions">',
+			'#suffix' => '</div>'
+		];
+		$form['actions']['btn_actions']['go_back'] = [
+			'#type' => 'markup',
+			'#markup' => '<a href="' . $go_back_url->toString() . '">'
+				. $this->t('CHECKOUT_PAYMENT.GO_BACK_BTN_LABEL')
+				. '</a>'
+		];
+
+		$form['actions']['btn_actions']['submit'] = [
+			'#type' => 'submit',
+			'#value' => $translationService->translate('POST_PAYMENT.SUBMIT_BTN_LABEL'),
+			'#button_type' => 'primary',
 			'#weight' => 10,
 		];
+		
+//		$form['actions']['submit'] = [
+//			'#type' => 'submit',
+//			'#value' => $translationService->translate('POST_PAYMENT.SUBMIT_BTN_LABEL'),
+//			'#button_type' => 'primary',
+//			'#weight' => 10,
+//		];
 		
 		$form['#cache']['contexts'][] = 'session';
 		

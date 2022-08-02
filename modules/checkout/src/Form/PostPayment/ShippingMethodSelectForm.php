@@ -162,13 +162,14 @@ class ShippingMethodSelectForm extends MultistepFormBase {
 	 * {@inheritdoc}
 	 */
 	public function buildForm(array $form, FormStateInterface $form_state, $currentOrderID = NULL, $currentStepNumber = 1, $totalSteps = 1, $destinationUrl = NULL) {
+		$translationService = \Drupal::service('gv_fanatics_plus_translation.interface_translation');
 		$this -> formTitle = 'POST_PAYMENT.SHIPPING_METHOD.MAIN_TITLE';
 		
 		$currentStepNumber = $this->postPaymentOrderManager->getCurrentStepNumber();
 		$totalSteps = $this->postPaymentOrderManager->getTotalStepsNumber();
 
 		$form = parent::buildForm($form, $form_state, $currentOrderID, $currentStepNumber, $totalSteps, $destinationUrl);
-		
+
 		$request = \Drupal::request();
 		$showPaymentSuccessMessage = $request->query->get('show_payment_success');
 		if ($showPaymentSuccessMessage != NULL && $showPaymentSuccessMessage == 1) {
@@ -179,6 +180,12 @@ class ShippingMethodSelectForm extends MultistepFormBase {
 		}
 		
 		$currentOrderID = \Drupal::routeMatch()->getParameter('orderID');
+
+		$destinationUrl = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $currentOrderID])->toString();
+
+		if (isset($destinationUrl)) {
+			$this->destinationUrl = $destinationUrl;
+		}
 		
 		$session = \Drupal::service('gv_fplus.session');
 		$recharge = \Drupal::service('gv_fanatics_plus_checkout.recharge');
@@ -658,7 +665,7 @@ class ShippingMethodSelectForm extends MultistepFormBase {
 		$recharge = \Drupal::service('gv_fanatics_plus_checkout.recharge');
 		$order = \Drupal::service('gv_fanatics_plus_order.order');
 		$bookingOffice = \Drupal::service('gv_fanatics_plus_checkout.booking_office');
-		
+
 		$orderID = $this->storeGet('order_id');
 		$ownerServiceID = $this->storeGet('owner_service_id');
 		$this->deleteStoreKeys(['order_id']);

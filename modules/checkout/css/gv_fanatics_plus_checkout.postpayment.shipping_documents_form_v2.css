@@ -77,27 +77,30 @@ fieldset.documents-wrapper span.file {
     align-items: center;
     color: #575968;
     flex: none;
-    order: 1;
+    /*order: 1;*/
     align-self: center;
     flex-grow: 0;
     margin: 8px 0px;
     border: none;
     background-color: transparent;
-    padding-left: 0!important;
-    display: inline-block;
+    padding-left: 35px !important;
+    /*display: inline-block;*/
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 fieldset.documents-wrapper span.file a {
-	color: #575968!important;
-    pointer-events: none;
+    color: #45B9DD !important;
     text-decoration: none;
-    padding-left: 0!important;
-    vertical-align: ;
-    /* line-height: 50px; */
-    padding-left: 40px!important;
+    border: 2px solid #45B9DD;
+    border-radius: 1000px;
+    text-align: center;
+    padding: 5px 10px !important;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-fieldset.documents-wrapper span.file a:before {
+fieldset.documents-wrapper span.file .new-item-title:before {
 	content: "";
     display: inline-block;
     background-image: url(/themes/contrib/bootstrap_sass/Assets/Iconografia/SVG/archive-line.svg);
@@ -110,6 +113,18 @@ fieldset.documents-wrapper span.file a:before {
     /* top: 26px; */
     position: absolute;
     left: 0;
+}
+
+fieldset.documents-wrapper .new-item-title button {
+    padding: 0 !important;
+    width: 30px !important;
+    height: 40px !important;
+    min-width: unset !important;
+    min-height: unset !important;
+}
+
+.new-item-anchor {
+    margin-left: auto;
 }
 
 form fieldset.documents-wrapper button {
@@ -181,10 +196,15 @@ body.path-checkout.checkout-without-sidebar form#gv-fplus-checkout-shipping-docu
 
 .shipping-option-data-integrants + [id*="edit-shipping-documents"] > .fieldset-wrapper {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
 }
 
 .documents-wrapper {
     max-width: calc(50% - 0px) !important;
+}
+
+.step-need-documents [id^=edit-shipping-documents-].custom-file {
+    display: flex;
 }
 /* End RG: Fase 1 */

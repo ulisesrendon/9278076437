@@ -304,4 +304,26 @@ body.path-checkout.checkout-without-sidebar form#gv-fplus-auth-personal-data-for
 .panel.warning.image-expired {
 	margin-right: 30px;
 }
+#edit-phone-number::placeholder,
+#edit-phone-number::-webkit-input-placeholder,
+#edit-phone-number::-ms-input-placeholder {
+	color: grey !important;
+}
+.documents-info-warning {
+	margin: 10px 30px 30px !important;
+	font-size: 14px;
+	padding: 10px !important;
+	display: flex;
+	align-items: flex-start;
+}
+
+.documents-info-warning span.documents-info-icon svg path {
+	fill: #D8A13D !important;
+}
+
+.documents-info-icon {
+	margin-right: 7px;
+	display: flex;
+	margin-top: 3px;
+}
 /* Fin RG */

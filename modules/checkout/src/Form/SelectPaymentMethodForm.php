@@ -150,6 +150,8 @@ class SelectPaymentMethodForm extends FormBase {
 			$reservationConditionsUrl = $this->t('I accept the <a class="terms-conditions" href="https://www.grandvalira.com/en/sales-conditions-plus-ski-pass" target="_blank">booking conditions</a>', [], ['context' => TranslationContext::CHECKOUT]);
 		} else if ($currentChannel->isTemporadaOA()) {
 			$reservationConditionsUrl = $this->t('I accept the <a class="terms-conditions" href="https://www.ordinoarcalis.com/en/season-sale-conditions-clause" target="_blank">booking conditions</a>', [], ['context' => TranslationContext::CHECKOUT]);
+		} else if ($currentChannel->isPal()) {
+			$reservationConditionsUrl = $this->t('I accept the <a class="terms-conditions" href="https://www.ordinoarcalis.com/en/season-sale-conditions-clause" target="_blank">booking conditions</a>', [], ['context' => TranslationContext::CHECKOUT]);
 		}
 		
 		$form['actions']['terms_and_conditions'] = [

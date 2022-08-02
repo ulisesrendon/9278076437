@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
 
+use Drupal\gv_fanatics_plus_checkout\CheckoutOrderSteps;
+
 use Drupal\Core\Url;
 
 use Drupal\gv_fplus\TranslationContext;
@@ -86,10 +88,15 @@ class PostPaymentController extends ControllerBase {
 		if ($order->SignatureRequired && $pendingData->PendingSignature) {
 			$withLogalty = TRUE;
 			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_logalty', ['orderID' => $orderID], ['query' => ['show_payment_success' => $showPaymentSuccessMessage]]);
-		} else if ($order->hasPendingDocuments() && !$order->hasPendingShippingMethod()) {
-			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_documents', ['orderID' => $orderID]);
-		} else {
+		}
+//		else if ($order->hasPendingDocuments() && !$order->hasPendingShippingMethod()) {
+//			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_documents', ['orderID' => $orderID]);
+//		}
+		else if ($order->hasPendingShippingMethod()) {
 			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_method', ['orderID' => $orderID], ['query' => ['show_payment_success' => $showPaymentSuccessMessage]]);
+		}
+		else {
+			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
 		}
 		
 		$this->postPaymentOrderManager->initSteps();

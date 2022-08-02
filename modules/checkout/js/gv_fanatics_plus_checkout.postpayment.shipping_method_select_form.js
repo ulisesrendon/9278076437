@@ -37,6 +37,8 @@ jQuery(document).ready(function($) {
 		jQuery('.message-change-select').hide('fast');
 		jQuery('select.method-changed').removeClass('method-changed');
 	});
+
+	jQuery('.title-container').find('.radial-progress-bar').remove();
 	
 	jQuery('.js-form-type-select select').change(function() {
 		var currentValue = this.value;

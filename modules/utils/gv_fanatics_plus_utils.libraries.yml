@@ -19,6 +19,13 @@ fanatics.eu-cookie-compliance:
     js/fanatics.eu-cookie-compliance.js: {}
   dependencies:
     - core/jquery
+
+pal.eu-cookie-compliance:
+  version: 1.x
+  js:
+    js/pal.eu-cookie-compliance.js: {}
+  dependencies:
+    - core/jquery
     
 change_language_form:
   version: 1.x

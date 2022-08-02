@@ -46,6 +46,7 @@ function gv_fanatics_plus_tag_manager_preprocess_html(&$variables) {
 	$isFanatics = $activeChannel->isFanatics();
 	$isPlus = $activeChannel->isPlus();
 	$isTemporadaOA = $activeChannel->isTemporadaOA();
+    $isPal = $activeChannel->isPal();
 	
 	$node = \Drupal::routeMatch()->getParameter('node');
 	if ($node instanceof \Drupal\node\NodeInterface) {
@@ -81,6 +82,16 @@ function gv_fanatics_plus_tag_manager_preprocess_html(&$variables) {
           				],
         			];
 			
+					$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+				} else if ($isPal) {
+					$description = [
+          				'#tag' => 'meta',             // Set meta for element
+          				'#attributes' => [            // Set attributes for meta
+            				'name' => 'description',
+            				'content' => t('If you have any questions, we will be glad to answer them. Enter now to contact Pal Arinsal.'),
+          				],
+        			];
+
 					$variables['page']['#attached']['html_head'][] = [$description, 'description'];
 				}
 			}
@@ -120,6 +131,16 @@ function gv_fanatics_plus_tag_manager_preprocess_html(&$variables) {
         	];
 			
 			$variables['page']['#attached']['html_head'][] = [$description, 'description'];
+		} else if ($isPal) {
+			$description = [
+          		'#tag' => 'meta',             // Set meta for element
+          		'#attributes' => [            // Set attributes for meta
+            		'name' => 'description',
+            		'content' => t('Welcome to Pal Arinsal, the site to manage your season ski pass in Pal Arinsal. Don\'t wait any longer and sign up.'),
+          		],
+        	];
+
+			$variables['page']['#attached']['html_head'][] = [$description, 'description'];
 		}
 	}
 	
@@ -147,13 +168,18 @@ function gv_fanatics_plus_tag_manager_preprocess_page_title(&$variables) {
 	$routeName = \Drupal::routeMatch()->getRouteName();
 	$isFanatics = $activeChannel->isFanatics();
 	$isPlus = $activeChannel->isPlus();
-	$isTemporadaOA = $activeChannel->isTemporadaOA();
+    $isTemporadaOA = $activeChannel->isTemporadaOA();
+    $isPal = $activeChannel->isPal();
 	if ($routeName == 'gv_fplus_auth.email_check_form') {
 		if ($isFanatics) {
 			$variables['title'] = t('Grandvalira Fanatics - Season Ski Pass');
 		} else if ($isPlus) {
 			$variables['title'] = t('Forfait Plus+ Grandvalira');
-		}	
+		} else if ($isTemporadaOA) {
+			$variables['title'] = t('Temporada Ordino Arcalís');
+		} else if ($isPal) {
+			$variables['title'] = t('Pal Arinsal');
+		}
 	}
 }
 

@@ -91,7 +91,7 @@ class BasicRegistrationForm extends FormBase {
 		$currentChannel = $this->channelResolver->resolve();
 		$newsletterUrl = $this->t('Yes, <a href="https://www.grandvalira.com/en/consent-clause" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
 		$myGrandskiUrl = $this->t('I have read and accept the <a href="https://www.grandvalira.com/en/clause-form-my-grandski-fanatics-plus" target="_blank">MyGrandSki consent form</a>', [], ['context' => TranslationContext::LOGIN]);
-		if ($currentChannel->isPlus()) {
+		if ($currentChannel->isPlus() || $currentChannel->isPal()) {
 			$newsletterUrl = $this->t('Yes, <a href="https://www.grandvalira.com/en/consent-clause" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);
 		} else if ($currentChannel->isTemporadaOA()) {
 			$newsletterUrl = $this->t('Yes, <a href="https://www.ordinoarcalis.com/en/consent-clause-newsletter" target="_blank">I accept the newsletter consent clause</a>', [], ['context' => TranslationContext::LOGIN]);

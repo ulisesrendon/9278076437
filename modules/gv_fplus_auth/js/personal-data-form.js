@@ -39,6 +39,13 @@ jQuery(document).ready(function($) {
 		}
 	});
 
+	// Default maxlenght on postal code
+	if ($('#nacionality_country_selector').val() == 5 || $('#nacionality_country_selector').val() == 74 || $('#nacionality_country_selector').val() == 197) {
+		$('#edit-postal-code').attr('maxlength', 5);
+	} else {
+		$('#edit-postal-code').attr('maxlength', 10);
+	}
+
 	// Listen changes on gender input to set background;
 	$('#edit-gender').find('input').on("change", function() {
 		$('#edit-gender').find('.bg-auxiliar').remove();
@@ -165,6 +172,14 @@ jQuery(document).ready(function($) {
 		$('#normal_country').val($(this).val()).change();
 	});
 	$('#residence_country_selector').on("change", function() {
+		// Eliminar valor del codigo postal
+		$('#edit-postal-code').val('');
+		// Si es AND, ESP o FR limitar a 5 codigo postal, sino 10
+		if ($(this).val() == 5 || $(this).val() == 74 || $(this).val() == 197) {
+			$('#edit-postal-code').attr('maxlength', 5);
+		} else {
+			$('#edit-postal-code').attr('maxlength', 10);
+		}
 		// Si la nacionalidad es 5 (andorra), no marcamos ya que siempre va a ser Andorra
 		if ($('#nacionality_country_selector').val() == 5) {
 			return;

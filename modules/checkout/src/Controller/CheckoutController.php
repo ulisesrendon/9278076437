@@ -71,6 +71,8 @@ class CheckoutController extends ControllerBase {
 		// var_dump($step_id);
 		// die();
 
+//		\Drupal::messenger()->addMessage($this->session->getIdentifier());
+
 		$minAgeForBuying = $this->formBasicValidations->minimumAgeForBuying($this->session->getIdentifier())->MinimumAgeForNewsletter;
 		$IDUser = $this->session->getIDUser();
 		
