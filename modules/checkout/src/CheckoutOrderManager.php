@@ -224,10 +224,10 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
         		'label' => 'CHECKOUT_PROGRESS.PAYMENT',
 				'hidden' => FALSE
       		],
-      		CheckoutOrderSteps::POST_PAYMENT => [
-      			'label' => 'CHECKOUT_PROGRESS.POST_PAYMENT',
-				'hidden' => FALSE
-      		]
+     		// CheckoutOrderSteps::POST_PAYMENT => [
+     		// 	'label' => 'CHECKOUT_PROGRESS.POST_PAYMENT',
+			// 	'hidden' => FALSE
+     		// ]
 	 	];
 		
 		$this->defaultStep = CheckoutOrderSteps::PROFILE_DATA;
@@ -247,9 +247,9 @@ class CheckoutOrderManager implements CheckoutOrderManagerInterface, EventSubscr
 	/**
 	 * {@inheritdoc}
 	 */
-	 public function getVisibleSteps() {
+	public function getVisibleSteps() {
 	 	return $this->visibleSteps;
-	 }
+	}
 
 	public function getCurrentStepId() {
 		$currentCart = $this->cart->getCurrent();

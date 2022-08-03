@@ -89,15 +89,16 @@ class PostPaymentController extends ControllerBase {
 			$withLogalty = TRUE;
 			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_logalty', ['orderID' => $orderID], ['query' => ['show_payment_success' => $showPaymentSuccessMessage]]);
 		}
-//		else if ($order->hasPendingDocuments() && !$order->hasPendingShippingMethod()) {
-//			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_documents', ['orderID' => $orderID]);
-//		}
-		else if ($order->hasPendingShippingMethod()) {
-			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_method', ['orderID' => $orderID], ['query' => ['show_payment_success' => $showPaymentSuccessMessage]]);
-		}
-		else {
-			$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
-		}
+		
+		$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_data_complete', ['orderID' => $orderID]);
+		// else if ($order->hasPendingDocuments() && !$order->hasPendingShippingMethod()) {
+		// 	$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_documents', ['orderID' => $orderID]);
+		// }
+		// else if ($order->hasPendingShippingMethod()) {
+		// 	$targetURL = Url::fromRoute('gv_fanatics_plus_checkout.post_payment_shipping_method', ['orderID' => $orderID], ['query' => ['show_payment_success' => $showPaymentSuccessMessage]]);
+		// }
+		// else {
+		// }
 		
 		$this->postPaymentOrderManager->initSteps();
 		

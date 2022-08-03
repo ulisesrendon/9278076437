@@ -71,7 +71,7 @@ class CheckoutController extends ControllerBase {
 		// var_dump($step_id);
 		// die();
 
-//		\Drupal::messenger()->addMessage($this->session->getIdentifier());
+		// \Drupal::messenger()->addMessage($this->session->getIdentifier());
 
 		$minAgeForBuying = $this->formBasicValidations->minimumAgeForBuying($this->session->getIdentifier())->MinimumAgeForNewsletter;
 		$IDUser = $this->session->getIDUser();
@@ -127,16 +127,16 @@ class CheckoutController extends ControllerBase {
 				}
 			}
 			
-//			case CheckoutOrderSteps::PRODUCT_SELECTION: {
-//				$metricsCollector->setStep('select_products');
-//				if ($metricsCollector->getInitialLoad()) {
-//					$metricsCollector->incStepCounter();
-//				}
-//
-//				$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
-//				$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
-//				return $form;
-//			}
+			// case CheckoutOrderSteps::PRODUCT_SELECTION: {
+			// 	$metricsCollector->setStep('select_products');
+			// 	if ($metricsCollector->getInitialLoad()) {
+			// 		$metricsCollector->incStepCounter();
+			// 	}
+
+			// 	$destination_url = Url::fromRoute('gv_fanatics_plus_checkout.form', ['step' => CheckoutOrderSteps::PAYMENT]);
+			// 	$form = $this->formBuilder->getForm(\Drupal\gv_fanatics_plus_checkout\Form\SelectProductForm::class, $destination_url->toString());
+			// 	return $form;
+			// }
 
 			 case CheckoutOrderSteps::PRODUCT_SELECTION: {
 			 	$metricsCollector->setStep('select_products');
